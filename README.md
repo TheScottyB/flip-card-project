@@ -110,30 +110,28 @@ To use the flip card components in your project:
 
 This project uses GitHub Pages for deployment with continuous integration. All changes to the main branch are automatically deployed.
 
-### Environment Setup for GitHub Pages
+### Branch Structure
 
-#### Method 1: Using GitHub Web Interface
-To enable deployment from the main branch, configure the environment protection rules:
+This repository uses a single branch workflow:
 
-1. In your GitHub repository, go to **Settings → Environments**
-2. Click on **github-pages** environment
-3. Under **Deployment branches and tags**, click **Add deployment branch rule**
-4. Add **main** as an allowed branch pattern
-5. Click **Save protection rules**
+- `main` - Primary development branch and deployment source
+  
+All development work, fixes, and new features should be pushed directly to the `main` branch, which will automatically trigger the GitHub Pages deployment workflow.
 
-#### Method 2: Using GitHub CLI
-You can also configure environment rules using the GitHub CLI:
+### Environment Configuration
+
+The GitHub Pages environment is configured to deploy from the `main` branch. This configuration was set up using the GitHub CLI:
 
 ```bash
-# First ensure you're authenticated
-gh auth login
+# Set the default branch to main
+gh repo edit --default-branch main
 
-# Update environment deployment branch policy
-gh api --method PUT repos/OWNER/REPO/environments/github-pages \
+# Configure GitHub Pages to deploy from main branch
+gh api --method PUT repos/OWNER/REPO/pages \
   --input - <<< '{
-  "deployment_branch_policy": {
-    "protected_branches": false,
-    "custom_branch_policies": true
+  "source": {
+    "branch": "main",
+    "path": "/"
   }
 }'
 
@@ -142,9 +140,6 @@ gh api --method POST repos/OWNER/REPO/environments/github-pages/deployment-branc
   --input - <<< '{
   "name": "main"
 }'
-
-# Verify configuration
-gh api repos/OWNER/REPO/environments/github-pages/deployment-branch-policies
 ```
 
 Replace `OWNER` and `REPO` with your GitHub username and repository name.
