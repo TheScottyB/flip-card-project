@@ -1,3 +1,30 @@
+# Flip Card Project - Accessibility Guidelines
+
+## Overview
+
+The Flip Card Project prioritizes accessibility to ensure the interactive card components are usable by everyone, including people with disabilities. This document outlines the accessibility standards, implementation approaches, and testing strategies used throughout the project.
+
+## Accessibility Standards
+
+The project adheres to the following standards:
+
+- **WCAG 2.1 AA Compliance**: Web Content Accessibility Guidelines Level AA
+- **WAI-ARIA 1.1**: Using appropriate ARIA roles, states, and properties
+- **Keyboard Accessibility**: Full functionality without requiring a mouse
+- **Screen Reader Support**: Clear announcements and navigation
+- **Reduced Motion**: Respecting user preferences for reduced animation
+
+## Core Accessibility Features
+
+### Semantic HTML
+
+All implementations use proper semantic HTML elements:
+
+```html
+<article class="flip-card">
+  <header>
+    <h2>Agent Name
+
 # Accessibility Guidelines for Flip Card Components
 
 ## Overview

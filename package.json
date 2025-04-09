@@ -31,12 +31,14 @@
   },
   "homepage": "https://github.com/TheScottyB/flip-card-project#readme",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@axe-core/cli": "^4.10.1",
     "@axe-core/puppeteer": "^4.10.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.2",
     "autoprefixer": "^10.4.17",
     "jest": "^29.7.0",
     "jest-html-reporter": "^3.10.0",
