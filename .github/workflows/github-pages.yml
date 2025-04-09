@@ -20,13 +20,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-          # Don't use the built-in caching to avoid artifacts issue
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -62,22 +62,25 @@ jobs:
           
           # Copy documentation and reports
           mkdir -p _site/test-report
-          cp -r test-report/* _site/test-report/
+          cp -r test-report/* _site/test-report/ || true
           
           # Copy documentation files
           cp README.md _config.yml _site/
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
-      # Instead of uploading test reports separately, we'll include them in the site
-      - name: Ensure test reports are included in site
-        run: |
-          echo "Note: Test reports are available in the _site/test-report directory"
+      # Upload test report as a separate artifact
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report
+          if-no-files-found: warn
 
       # Upload pages artifact
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
@@ -90,4 +93,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
