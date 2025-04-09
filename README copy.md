@@ -1,36 +1,60 @@
-# Contact Card Viewer
+FlipCards Project
 
-This is a simple setup to view the React TSX component standalone.
+Project Structure
 
-## How to View the Component
+/src/ - Source code
 
-1. **Open the index.html file in a web browser**
-   - Simply double-click the `index.html` file to open it in your default browser
-   - Or right-click and select "Open with" to choose a specific browser
+/components/ - React components
+/flip/ - Flip card React components
+/static/ - Static card React components
+/templates/ - HTML templates
+/flip/ - Flip card HTML implementations
+/stages/ - Progressive development stages
+/static/ - Static card HTML implementations
+/demos/ - Example implementations
 
-2. **Alternative Method: Using a Local Server**
-   If you have Node.js installed, you can run a local server:
-   
-   ```bash
-   # Using npx (included with Node.js)
-   npx serve .
-   
-   # Or install serve globally
-   npm install -g serve
-   serve .
-   ```
+demo-card.html - Basic demo implementation
+multi-card.html - Multiple card demo
+react-card.html - React integration demo
+/images/ - Project images
 
-3. **Using VS Code Live Server**
-   - If you use Visual Studio Code, you can install the "Live Server" extension
-   - Right-click on index.html and select "Open with Live Server"
+/actual-profile-images/ - Production profile images
+/content-images/ - Content-related images
+/logos/ - Logo assets
+/stock-images/ - Stock photo assets
+/scripts/ - Utility scripts
 
-## Files Included
+copy-headshots.sh - Profile image management
+rename-stock-images.sh - Image organization
+test-runner.sh - Test automation
+validate-images.sh - Image validation
+/docs/ - Documentation
 
-- `index.html` - The HTML file that loads React, Tailwind CSS, and renders the component
-- `contact-card-accurate.tsx` - The original TSX component (for reference, not used directly)
+accessibility-audit.json - Accessibility test results
+accessibility-report.json - Detailed accessibility report
+image-guidelines.md - Image usage guidelines
+Development
 
-## Notes
+Tests are located in /tests/
+Test reports are generated in /test-report/
+Node modules are managed in /node_modules/
+Card Types
 
-- This viewer uses CDN versions of React, ReactDOM, Babel, and Tailwind CSS
-- The component is embedded directly in the HTML for simplicity
-- In a real application, you would typically use a build process with tools like webpack, Vite, or Create React App
+Contact Cards
+HTML Templates (various stages of development)
+React Component implementation
+Static and Flip variations
+Development Stages
+
+Each card type includes multiple development stages showing the evolution of the implementation:
+
+Basic implementation
+Improved version with enhanced styling
+Final version with optimized images and full functionality
+Images
+
+The project uses optimized profile images for demonstration:
+
+Images are stored in images/actual-profile-images/
+Original high-resolution images are backed up in images/actual-profile-images/originals/
+All images are optimized for web performance while maintaining quality
