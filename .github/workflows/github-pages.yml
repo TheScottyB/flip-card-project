@@ -32,18 +32,20 @@ jobs:
       
       - name: Build project
         run: npm run build:prod
+        
+      - name: Copy necessary files to deployment directory
+        run: |
+          mkdir -p _site
+          cp -r index.html multi-card.html src dist ./_site/
+          cp README.md _config.yml ./_site/
       
       - name: Setup Pages
         uses: actions/configure-pages@v3
       
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./_site
 
   deploy:
     environment:
