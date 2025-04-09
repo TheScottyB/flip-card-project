@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive, accessible contact card component with flip functionality.">
+  <title>Accessible Contact Card</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/flip-card.css">
+  
+  <!-- Tailwind CSS - Only used for design aspects, not core functionality -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="../js/flip-card.js" as="script">
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Screen reader announcements live region -->
+  <div id="screen-reader-announcer" 
+       class="sr-only" 
+       aria-live="polite" 
+       aria-atomic="true">
+  </div>
+  
+  <main id="main-content" class="max-w-4xl mx-auto py-8">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+      Contact Card Component
+    </h1>
+    
+    <!-- Contact Card Component -->
+    <div class="flip-card card-standard mx-auto" tabindex="0">
+      <div class="flip-card-inner shadow-xl">
+        <!-- Front Side -->
+        <div class="flip-card-front bg-white p-6 rounded-lg">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">
+            Dawn Zurick
+          </h2>
+          
+          <!-- Professional Details -->
+          <div class="flex items-center mb-4">
+            <div class="w-20 h-20 rounded-full bg-blue-300 border-2 border-blue-500 flex items-center justify-center overflow-hidden">
+              <img src="/images/actual-profile-images/dawn-headshot.jpg" 
+                   alt="Dawn Zurick" 
+                   class="w-full h-full object-cover"
+                   onerror="this.style.display='none'; this.parentElement.classList.add('avatar-placeholder'); this.parentElement.textContent='Photo'">
+            </div>
+            <div class="ml-4">
+              <p class="text-lg font-semibold text-gray-700">Managing Broker (IL) / Broker (WI)</p>
+              <p class="text-gray-600">Team Lead / Regional Administrator</p>
+            </div>
+          </div>
+          
+          <!-- Credentials -->
+          <div class="bg-gray-50 p-3 rounded-lg mb-4">
+            <p class="text-sm">
+              <span class="font-semibold">Certifications:</span> 
+              <span class="text-purple-700 font-semibold">e-PRO, GRI, SFR, SRS, CNE, BPO & CRB</span>
+            </p>
+            <p class="text-sm">
+              <span class="font-semibold">Licensed in:</span> IL/WI
+            </p>
+          </div>
+          
+          <!-- Contact Details -->
+          <div class="mb-4">
+            <h3 class="font-semibold text-blue-800 mb-2">Contact Information</h3>
+            <div class="space-y-1">
+              <div class="flex items-center">
+                <span class="text-xs font-bold text-gray-500 w-6">Cell</span>
+                <a href="tel:8472871148" class="text-gray-800 hover:text-blue-600">847-287-1148</a>
+              </div>
+              <div class="flex items-center">
+                <span class="text-xs font-bold text-gray-500 w-6">Office</span>
+                <a href="tel:7735502729" class="text-gray-800 hover:text-blue-600">773-550-2729</a>
+              </div>
+              <div class="flex items-center">
+                <span class="text-xs font-bold text-gray-500 w-6">Email</span>
+                <a href="mailto:dawn.zurick@vylla.com" class="text-blue-600 hover:underline">dawn.zurick@vylla.com</a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Front Side Flip Trigger -->
+          <button class="flip-trigger mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                  aria-label="Flip card to view office information">
+            View Office Information
+          </button>
+        </div>
+        
+        <!-- Back Side -->
+        <div class="flip-card-back bg-white p-6 rounded-lg">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">
+            Office Information
+          </h2>
+          
+          <!-- Office Location -->
+          <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+            <h3 class="font-semibold text-yellow-800 mb-2">Location</h3>
+            <address class="not-italic">
+              <p class="text-gray-700">1827 Walden Office Square, Suite 325</p>
+              <p class="text-gray-700">Schaumburg, IL 60173</p>
+            </address>
+          </div>
+          
+          <!-- Additional Office Information -->
+          <div class="space-y-3">
+            <div>
+              <h3 class="font-semibold text-blue-800 mb-1">Office Hours</h3>
+              <p class="text-gray-700">Monday-Friday: 9am-5pm</p>
+              <p class="text-gray-700">Saturday: By appointment</p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-blue-800 mb-1">Support Staff</h3>
+              <p class="text-gray-700">Administrative: Jane Smith</p>
+              <p class="text-gray-700">Marketing: John Doe</p>
+            </div>
+            
+            <!-- Company Logo -->
+            <div class="mt-4 flex justify-center">
+              <div class="bg-yellow-400 w-24 h-10 flex items-center justify-center text-gray-800 font-bold rounded">
+                Vylla
+              </div>
+            </div>
+          </div>
+          
+          <!-- Back Side Flip Trigger -->
+          <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  aria-label="Flip card back to contact information">
+            Return to Contact Information
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <p class="text-center mt-4 text-sm text-gray-600">
+      Hover over the card to flip it, or use the Tab key to focus and Enter/Space to flip.
+    </p>
+  </main>
+  
+  <!-- JavaScript for flip card functionality -->
+  <script src="../js/flip-card.js"></script>
+</body>
+</html>

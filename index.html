@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Flip Card Project - Interactive and accessible card components with flip animations">
+  <title>Flip Card Project</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Core stylesheet -->
+  <link rel="stylesheet" href="/src/styles/flip-card.css">
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/src/js/flip-card.js" as="script">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Live region for screen reader announcements -->
+  <div id="screen-reader-announcer" 
+       class="sr-only" 
+       aria-live="polite" 
+       aria-atomic="true">
+  </div>
+  
+  <!-- Navigation Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-gray-900">Flip Card Project</h1>
+        </div>
+        <nav class="flex items-center space-x-4">
+          <a href="#examples" class="text-gray-600 hover:text-gray-900">Examples</a>
+          <a href="#documentation" class="text-gray-600 hover:text-gray-900">Documentation</a>
+          <a href="#accessibility" class="text-gray-600 hover:text-gray-900">Accessibility</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Hero Section -->
+    <section class="text-center mb-16">
+      <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Interactive & Accessible Flip Cards</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        A lightweight, accessible implementation of interactive flip card components 
+        with full keyboard navigation, screen reader support, and responsive design.
+      </p>
+      <div class="mt-8 flex justify-center space-x-4">
+        <a href="#examples" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          View Examples
+        </a>
+        <a href="src/components/contact-card.html" class="inline-flex items-center px-6 py-3 border border-gray-300 bg-white text-base font-medium rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Contact Card Demo
+        </a>
+      </div>
+    </section>
+    
+    <!-- Examples Section -->
+    <section id="examples" class="mb-20">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Examples</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Basic Card Example -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Basic Card</h3>
+          <p class="text-gray-600 mb-4">Simple flip card with front and back content.</p>
+          <a href="multi-card.html" class="text-blue-600 hover:text-blue-800 font-medium">View Demo →</a>
+        </div>
+        
+        <!-- Contact Card Example -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Contact Card</h3>
+          <p class="text-gray-600 mb-4">Real estate contact card with detailed information.</p>
+          <a href="src/components/contact-card.html" class="text-blue-600 hover:text-blue-800 font-medium">View Demo →</a>
+        </div>
+        
+        <!-- React Example -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-gray-900 mb-4">React Component</h3>
+          <p class="text-gray-600 mb-4">Reusable React component implementation.</p>
+          <a href="react-card.html" class="text-blue-600 hover:text-blue-800 font-medium">View Demo →</a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Documentation Section -->
+    <section id="documentation" class="mb-20">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Documentation</h2>
+      
+      <div class="prose prose-lg max-w-none">
+        <h3>Getting Started</h3>
+        <p>
+          To use the flip card component in your project, include the CSS and JavaScript files:
+        </p>
+        
+        <pre class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto"><code>
+&lt;link rel="stylesheet" href="src/styles/flip-card.css"&gt;
+&lt;script src="src/js/flip-card.js"&gt;&lt;/script&gt;
+        </code></pre>
+        
+        <h3 class="mt-8">HTML Structure</h3>
+        <p>
+          Use the following HTML structure for creating a flip card:
+        </p>
+        
+        <pre class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto"><code>
+&lt;div class="flip-card card-standard"&gt;
+  &lt;div class="flip-card-inner"&gt;
+    &lt;div class="flip-card-front"&gt;
+      &lt;!-- Front content --&gt;
+      &lt;button class="flip-trigger"&gt;Flip Card&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="flip-card-back"&gt;
+      &lt;!-- Back content --&gt;
+      &lt;button class="flip-trigger"&gt;Return&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+        </code></pre>
+        
+        <h3 class="mt-8">CSS Classes</h3>
+        <ul>
+          <li><code>flip-card</code> - The main container for the card</li>
+          <li><code>card-standard</code>, <code>card-mini</code>, <code>card-tall</code> - Size variants</li>
+          <li><code>flip-card-inner</code> - The inner container that rotates</li>
+          <li><code>flip-card-front</code> - The front side of the card</li>
+          <li><code>flip-card-back</code> - The back side of the card</li>
+          <li><code>flip-trigger</code> - Buttons that trigger the flip action</li>
+        </ul>
+      </div>
+    </section>
+    
+    <!-- Accessibility Section -->
+    <section id="accessibility" class="mb-20">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Accessibility Features</h2>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="prose prose-lg max-w-none">
+          <p>
+            All flip card components are built with accessibility in mind and conform to WCAG 2.1 standards:
+          </p>
+          
+          <ul>
+            <li><strong>Keyboard Navigation</strong> - Cards can be flipped using Enter, Space, and Escape keys</li>
+            <li><strong>Focus Management</strong> - Focus is properly trapped within the flipped card</li>
+            <li><strong>ARIA Attributes</strong> - Proper ARIA roles, states, and properties are used</li>
+            <li><strong>Screen Reader Support</strong> - Status changes are announced via ARIA live regions</li>
+            <li><strong>Reduced Motion</strong> - Animation is disabled for users with reduced motion preferences</li>
+            <li><strong>Color Contrast</strong> - All text meets WCAG AA color contrast requirements</li>
+            <li><strong>Progressive Enhancement</strong> - Fallbacks for browsers that don't support 3D transforms</li>
+          </ul>
+          
+          <h3 class="mt-8">Accessibility Testing</h3>
+          <p>
+            The card components have been tested with:
+          </p>
+          <ul>
+            <li>VoiceOver on macOS and iOS</li>
+            <li>NVDA on Windows</li>
+            <li>Keyboard-only navigation</li>
+            <li>Automated testing using Axe</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200">
+    <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+      <p class="text-center text-base text-gray-500">
+        &copy; 2025 Flip Card Project - An accessible component library
+      </p>
+      <div class="mt-4 flex justify-center space-x-6">
+        <a href="#" class="text-gray-400 hover:text-gray-500">
+          <span class="sr-only">GitHub</span>
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- JavaScript -->
+  <script src="/src/js/flip-card.js"></script>
+</body>
+</html>
