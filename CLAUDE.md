@@ -1,14 +1,15 @@
 # CLAUDE.md - Flip Card Project Guide
 
 ## Build & Test Commands
-- Run all tests: `npm test`
-- Run accessibility tests: `npm run test:a11y`
-- Run a single test: `npx jest src/tests/path/to/test.js`
-- Generate test report: `npm run test:report`
-- CI test with coverage: `npm run test:ci`
+- Run development server: `npm run dev`
 - Build for development: `npm run build`
 - Build for production: `npm run build:prod`
-- Start development server: `npm run dev`
+- Run all tests: `npm test`
+- Run a single test: `npx jest src/tests/filename.test.js`
+- Run accessibility tests: `npm run test:a11y`
+- Generate test report: `npm run test:report`
+- Minify CSS/JS: `npm run minify`
+- Lint/format: Currently no explicit lint commands found
 
 ## Code Style Guidelines
 - **React Components**: Use functional components with TypeScript (.tsx)
@@ -18,10 +19,19 @@
   - Components: PascalCase (ContactCard)
   - Functions/variables: camelCase (getCardData)
   - Files: kebab-case (contact-card.tsx)
-- **CSS**: Follow utility-first approach with Tailwind classes
-- **Accessibility**: Ensure WCAG 2.1 AA compliance with proper ARIA attributes
+- **JSDoc**: Include JSDoc comments for all functions, components, and their props:
+  ```javascript
+  /**
+   * @param {HTMLElement} card - The flip card element
+   * @param {boolean} shouldFlip - Whether the card should be flipped
+   */
+  ```
+- **Accessibility**: Ensure WCAG 2.1 AA compliance with proper ARIA attributes:
+  - Use `aria-pressed`, `aria-expanded` and `aria-controls` for flip triggers
+  - Include `aria-live` regions for state changes
+  - Support keyboard interactions (Tab, Enter, Space, Escape)
+  - Respect prefers-reduced-motion setting
 - **Error Handling**: Use try/catch blocks with meaningful error messages
 - **Testing**: Include unit tests for components and accessibility tests
-- **Comments**: Include JSDoc style comments for component props and functions
 
 Follow these guidelines when modifying or creating new code for consistency.
