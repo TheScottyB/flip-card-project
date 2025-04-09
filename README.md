@@ -1,41 +1,105 @@
 # Flip Card Project
 
-A demonstration of evolving flip card implementations for real estate contacts.
+[![Deploy to GitHub Pages](https://github.com/TheScottyB/flip-card-project/actions/workflows/github-pages.yml/badge.svg)](https://github.com/TheScottyB/flip-card-project/actions/workflows/github-pages.yml)
 
-## Project Structure
+An accessible, responsive flip card implementation with WCAG compliance. This project provides interactive card components with smooth animations and full keyboard, screen reader, and touch support.
 
-```
-flip-card-project/
-├── demo-types/
-│   ├── flip/
-│   │   ├── stages/   # Evolution from v1 to v3
-│   │   └── flipcard-contact-final.html
-│   └── static/
-│       └── contact-card.html
-├── docs/
-│   └── design-specs.md
-└── index.html        # Project hub
-```
+## Demo
 
-## Version History
+View the live demos on GitHub Pages:
+- [Main Demo](https://thescottyb.github.io/flip-card-project/)
+- [Multi-Card Gallery](https://thescottyb.github.io/flip-card-project/multi-card.html)
+- [Contact Card Demo](https://thescottyb.github.io/flip-card-project/src/components/contact-card.html)
 
-1. **Static Contact Card**  
-   Basic non-flipping version  
-   Tech: HTML + CSS  
+## Features
 
-2. **Flip Card v1**  
-   Initial hover-triggered flip  
-   Tech: CSS 3D transforms  
+- **WCAG 2.1 AA Compliance**: Full screen reader support, keyboard navigation, and focus management
+- **Responsive Design**: Works on all screen sizes
+- **Multiple Card Variants**: Standard, mini, and tall card formats
+- **CSS 3D Transforms**: Smooth flip animations with CSS
+- **Touch Device Support**: Works with touch gestures on mobile devices
+- **Reduced Motion Support**: Respects user's motion preference settings
+- **Browser Compatibility**: Works across all modern browsers with appropriate fallbacks
 
-3. **Flip Card v2**  
-   React implementation  
-   Tech: React + Tailwind CSS  
+## Usage
 
-4. **Flip Card v3**  
-   Multi-card responsive system  
-   Tech: Flexbox + Grid  
+To use the flip card components in your project:
 
-## Deployment
+1. Include the required CSS and JavaScript files:
+   ```html
+   <link rel="stylesheet" href="dist/css/flip-card.min.css">
+   <script src="dist/js/flip-card.min.js"></script>
+   ```
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://thescottyb.github.io/flip-card-project/)
+2. Use the following HTML structure:
+   ```html
+   <div class="flip-card card-standard">
+     <div class="flip-card-inner">
+       <div class="flip-card-front">
+         <!-- Front content -->
+         <button class="flip-trigger">View More</button>
+       </div>
+       <div class="flip-card-back">
+         <!-- Back content -->
+         <button class="flip-trigger">Return</button>
+       </div>
+     </div>
+   </div>
+   ```
 
+## Getting Started
+
+### Prerequisites
+- Node.js and npm
+
+### Installation
+1. Clone the repository
+   ```bash
+   git clone https://github.com/TheScottyB/flip-card-project.git
+   cd flip-card-project
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Build the project
+   ```bash
+   npm run build:prod
+   ```
+
+## Development
+
+- `npm run build` - Copy source files to distribution folder
+- `npm run minify` - Minify CSS and JavaScript files
+- `npm run build:prod` - Build and minify for production
+
+## Testing
+
+This project includes extensive accessibility testing:
+
+- `npm run test` - Run all tests
+- `npm run test:a11y` - Run accessibility tests
+- `npm run test:report` - Generate HTML report of tests
+- `npm run test:ci` - Run tests with coverage in CI environment
+
+## Accessibility Features
+
+- Keyboard navigation (Tab, Enter, Space, Escape)
+- ARIA attributes for screen readers
+- Focus management between card sides
+- Live region announcements for state changes
+- Reduced motion support
+- Color contrast compliance
+- Progressive enhancement
+
+## License
+
+This project is licensed under the ISC License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Built with a focus on accessibility best practices
+- Tested with NVDA, VoiceOver, and various browsers
+- Special thanks to the a11y community for guidance and standards

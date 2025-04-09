@@ -1,0 +1,5 @@
+# GitHub Pages Configuration
+theme: jekyll-theme-minimal
+title: Flip Card Project
+description: Accessible interactive flip card components
+show_downloads: true
