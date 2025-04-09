@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Simple mortgage calculator using flip card design">
+  <title>Mortgage Calculator Flip Card</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="src/styles/mobile-flip-card.css">
+  
+  <!-- Tailwind CSS for design aspects -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    /* Custom styling for the mortgage calculator */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      color: #333;
+      background-color: #f5f7fa;
+    }
+    
+    .page-container {
+      padding: 1rem;
+    }
+    
+    .slider-container {
+      margin-bottom: 1.25rem;
+    }
+    
+    .slider-container label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #4b5563;
+    }
+    
+    .slider-value {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      margin-top: 0.5rem;
+      accent-color: #3b82f6;
+    }
+    
+    .result-card {
+      background-color: #eff6ff;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e40af;
+    }
+    
+    .disclaimer {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+    
+    button[type="submit"] {
+      width: 100%;
+      background-color: #3b82f6;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    
+    button[type="submit"]:hover {
+      background-color: #2563eb;
+    }
+    
+    /* Table styling */
+    .amortization-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    
+    .amortization-table th {
+      background-color: #e0e7ff;
+      text-align: left;
+      padding: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .amortization-table td {
+      padding: 0.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .amortization-table tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    
+    @media (min-width: 640px) {
+      .page-container {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Screen reader announcements live region -->
+  <div id="screen-reader-announcer" 
+       class="sr-only" 
+       aria-live="polite" 
+       aria-atomic="true">
+  </div>
+  
+  <main id="main-content" class="page-container max-w-4xl mx-auto py-4 md:py-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-4 md:mb-6">
+      Mortgage Calculator Flip Card
+    </h1>
+    
+    <div class="text-center mb-8">
+      <p class="text-gray-600">Simple flip card mortgage calculator using only HTML and CSS.</p>
+    </div>
+    
+    <!-- Mortgage Calculator Flip Card -->
+    <div class="flip-card-mobile mx-auto" tabindex="0">
+      <div class="flip-card-inner shadow-xl">
+        <!-- Front Side - Calculator Inputs -->
+        <div class="flip-card-front bg-white rounded-lg" id="calculator-front">
+          <div class="p-5">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-4">
+              Mortgage Calculator
+            </h2>
+            
+            <form action="mortgage-calculator.html" method="GET" id="mortgage-form">
+              <!-- Loan Amount Slider -->
+              <div class="slider-container">
+                <label for="loan-amount">Loan Amount: <span class="slider-value">$<span id="loan-amount-value">300,000</span></span></label>
+                <input type="range" id="loan-amount" name="amount" min="50000" max="1000000" step="10000" value="300000" 
+                       oninput="document.getElementById('loan-amount-value').textContent = Number(this.value).toLocaleString()">
+              </div>
+              
+              <!-- Interest Rate Slider -->
+              <div class="slider-container">
+                <label for="interest-rate">Interest Rate: <span class="slider-value"><span id="interest-rate-value">4.5</span>%</span></label>
+                <input type="range" id="interest-rate" name="rate" min="1" max="10" step="0.1" value="4.5" 
+                       oninput="document.getElementById('interest-rate-value').textContent = this.value">
+              </div>
+              
+              <!-- Loan Term Slider -->
+              <div class="slider-container">
+                <label for="loan-term">Loan Term: <span class="slider-value"><span id="loan-term-value">30</span> years</span></label>
+                <input type="range" id="loan-term" name="term" min="5" max="30" step="5" value="30" 
+                       oninput="document.getElementById('loan-term-value').textContent = this.value">
+              </div>
+              
+              <!-- Down Payment Slider -->
+              <div class="slider-container">
+                <label for="down-payment">Down Payment: <span class="slider-value"><span id="down-payment-value">20</span>%</span></label>
+                <input type="range" id="down-payment" name="down" min="5" max="50" step="5" value="20" 
+                       oninput="document.getElementById('down-payment-value').textContent = this.value">
+              </div>
+              
+              <div class="text-center mt-4">
+                <button type="submit" class="flip-trigger bg-blue-500 hover:bg-blue-700">
+                  Calculate Payment
+                </button>
+              </div>
+            </form>
+            
+            <p class="disclaimer mt-4">
+              This is a simplified calculator for demonstration purposes. For accurate mortgage calculations, please consult with a financial advisor.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Back Side - Results -->
+        <div class="flip-card-back bg-white rounded-lg">
+          <div class="p-5">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-4">
+              Mortgage Summary
+            </h2>
+            
+            <!-- Result Cards based on URL parameters -->
+            <div class="result-card">
+              <p>Monthly Payment</p>
+              <p class="result-value">$<span id="monthly-payment">0</span></p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-gray-50 p-3 rounded-md">
+                <p class="text-sm font-semibold">Principal Amount</p>
+                <p class="text-lg font-bold text-gray-800">$<span id="principal-amount">0</span></p>
+              </div>
+              <div class="bg-gray-50 p-3 rounded-md">
+                <p class="text-sm font-semibold">Down Payment</p>
+                <p class="text-lg font-bold text-gray-800">$<span id="down-payment-amount">0</span></p>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 p-3 rounded-md mb-4">
+              <p class="text-sm font-semibold">Total Cost Over <span id="total-years">30</span> Years</p>
+              <p class="text-lg font-bold text-gray-800">$<span id="total-cost">0</span></p>
+            </div>
+            
+            <div class="disclaimer mb-4">
+              <p>Interest rates may vary. The actual rate will depend on factors like credit score, loan-to-value ratio, and lender policies.</p>
+            </div>
+            
+            <div class="text-center">
+              <button onclick="window.location.href='mortgage-calculator.html'" class="flip-trigger bg-gray-200 text-gray-800 hover:bg-gray-300">
+                Back to Calculator
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-8 text-center">
+      <a href="index.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm">
+        ← Back to Home
+      </a>
+    </div>
+  </main>
+  
+  <!-- This is minimal JavaScript just to display the results from URL parameters -->
+  <!-- It's not doing the actual mortgage calculations - those would be done server-side -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Parse URL parameters to show results
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      if (urlParams.has('amount') && urlParams.has('rate') && urlParams.has('term') && urlParams.has('down')) {
+        // Flip the card to show results
+        document.querySelector('.flip-card-mobile').classList.add('flipped');
+        
+        // Get values from URL
+        const loanAmount = parseInt(urlParams.get('amount'));
+        const interestRate = parseFloat(urlParams.get('rate'));
+        const loanTerm = parseInt(urlParams.get('term'));
+        const downPaymentPercent = parseInt(urlParams.get('down'));
+        
+        // Calculate down payment amount
+        const downPaymentAmount = loanAmount * (downPaymentPercent / 100);
+        
+        // Calculate principal amount (loan amount - down payment)
+        const principalAmount = loanAmount - downPaymentAmount;
+        
+        // Calculate monthly payment using the formula: P = (PV*r*(1+r)^n)/((1+r)^n-1)
+        // Where:
+        // P = monthly payment
+        // PV = principal amount
+        // r = monthly interest rate (annual rate / 12 / 100)
+        // n = total number of payments (years * 12)
+        
+        const monthlyRate = interestRate / 12 / 100;
+        const totalPayments = loanTerm * 12;
+        const monthlyPayment = (principalAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
+                              (Math.pow(1 + monthlyRate, totalPayments) - 1);
+        
+        // Calculate total cost
+        const totalCost = monthlyPayment * totalPayments;
+        
+        // Update the DOM with calculated values
+        document.getElementById('monthly-payment').textContent = monthlyPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        document.getElementById('principal-amount').textContent = principalAmount.toLocaleString();
+        document.getElementById('down-payment-amount').textContent = downPaymentAmount.toLocaleString();
+        document.getElementById('total-years').textContent = loanTerm;
+        document.getElementById('total-cost').textContent = totalCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        
+        // Update sliders to match URL parameters
+        document.getElementById('loan-amount').value = loanAmount;
+        document.getElementById('loan-amount-value').textContent = loanAmount.toLocaleString();
+        
+        document.getElementById('interest-rate').value = interestRate;
+        document.getElementById('interest-rate-value').textContent = interestRate;
+        
+        document.getElementById('loan-term').value = loanTerm;
+        document.getElementById('loan-term-value').textContent = loanTerm;
+        
+        document.getElementById('down-payment').value = downPaymentPercent;
+        document.getElementById('down-payment-value').textContent = downPaymentPercent;
+      }
+    });
+  </script>
+</body>
+</html>
