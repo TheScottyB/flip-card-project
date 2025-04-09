@@ -1,0 +1,25 @@
+<\!DOCTYPE html>
+<html>
+<head>
+  <title>Image Loading Test</title>
+  <style>
+    .image-container { margin: 20px; border: 1px solid #ccc; padding: 10px; }
+    img { max-width: 200px; }
+  </style>
+</head>
+<body>
+  <h1>Image Path Test</h1>
+  
+  <div class="image-container">
+    <h2>Root relative path</h2>
+    <img src="./src/images/avatars/dawn-headshot.jpg" alt="Dawn (root path)">
+    <p>Path: ./src/images/avatars/dawn-headshot.jpg</p>
+  </div>
+
+  <div class="image-container">
+    <h2>Components relative path</h2>
+    <img src="./src/images/avatars/dawn-headshot.jpg" alt="Dawn (components path)">
+    <p>Path: ./src/images/avatars/dawn-headshot.jpg</p>
+  </div>
+</body>
+</html>
