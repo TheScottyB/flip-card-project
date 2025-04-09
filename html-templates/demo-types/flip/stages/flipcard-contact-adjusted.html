@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Estate & Mortgage Flip Card</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .flip-card {
+      perspective: 1000px;
+      height: 700px; /* Increased height to accommodate more content */
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    .premier-logo {
+      font-family: 'Brush Script MT', cursive;
+    }
+    .diagonal-stripes {
+      background-image: linear-gradient(45deg, #333 25%, transparent 25%, transparent 50%, #333 50%, #333 75%, transparent 75%, transparent);
+      background-size: 15px 15px;
+    }
+    .premier-house-icon polygon {
+      fill: #D2A487;
+    }
+    .contact-section {
+      transition: all 0.3s ease;
+    }
+    .contact-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Media queries for responsive text */
+    @media (max-width: 768px) {
+      .heading-text {
+        font-size: 1.5rem;
+      }
+      .name-text {
+        font-size: 1.25rem;
+      }
+      .title-text {
+        font-size: 0.875rem;
+      }
+      .contact-text {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flip-card w-full">
+      <div class="flip-card-inner">
+        <!-- Front Side - Contact Info -->
+        <div class="flip-card-front bg-white p-4 md:p-8">
+          <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6 md:mb-12 heading-text">
+            Start your journey to homeownership today!
+          </h1>
+
+          <!-- Contact Cards Container -->
+          <div class="space-y-6">
+            <!-- Emelie's Contact Info -->
+            <div class="contact-section p-4 rounded-lg border border-gray-200 flex flex-col md:flex-row">
+              <div class="w-full md:w-1/4 mb-4 md:mb-0">
+                <div class="w-32 h-32 bg-amber-50 rounded-md overflow-hidden mx-auto md:mx-0">
+                  <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    Photo
+                  </div>
+                </div>
+              </div>
+              <div class="w-full md:w-3/4 flex justify-between flex-col md:flex-row">
+                <div>
+                  <h2 class="text-2xl md:text-3xl font-bold text-gray-800 name-text">Emelie Maybrook</h2>
+                  <p class="text-base md:text-xl font-semibold text-gray-700 tracking-wide mb-1 title-text">Branch Manager / Sr Loan Officer <span class="text-gray-500">|</span> <span class="text-gray-600">NMLS 389504</span></p>
+                  <p class="mb-1 text-base md:text-lg contact-text">(312) 772-6850</p>
+                  <p class="text-blue-600 mb-1 hover:underline text-sm md:text-base contact-text">emelie.maybrook@prmloans.com</p>
+                  <p class="text-blue-600 mb-1 hover:underline text-sm md:text-base contact-text">www.prmloans.com/emaybrook</p>
+                  <p class="mb-1 text-gray-700 text-sm md:text-base contact-text">1900 E. Golf Rd, Ste 950 - Office 4</p>
+                  <p class="text-gray-700 text-sm md:text-base contact-text">Schaumburg, IL 60173</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                  <div class="w-24 md:w-32 mx-auto md:mx-0">
+                    <svg viewBox="0 0 120 80" class="w-full h-auto">
+                      <polygon points="60,10 75,25 90,10 105,25 90,40 75,25 60,40 45,25" fill="#D2A487" class="premier-house-icon"/>
+                      <text x="60" y="55" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold" fill="#444">PREMIER</text>
+                      <text x="60" y="68" font-family="Arial" font-size="8" text-anchor="middle" fill="#444">MORTGAGE RESOURCES</text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border-gray-200" />
+
+            <!-- Dawn's Contact Info -->
+            <div class="contact-section p-4 rounded-lg border border-gray-200 flex flex-col md:flex-row">
+              <div class="w-full md:w-1/4 mb-4 md:mb-0">
+                <div class="w-32 h-32 bg-amber-50 rounded-md overflow-hidden mx-auto md:mx-0">
+                  <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    Photo
+                  </div>
+                </div>
+              </div>
+              <div class="w-full md:w-3/4 flex justify-between flex-col md:flex-row">
+                <div>
+                  <h2 class="text-2xl md:text-3xl font-bold text-gray-800 name-text">Dawn Zurick</h2>
+                  <p class="text-base md:text-xl font-semibold text-gray-700 tracking-wide mb-1 title-text">Broker/Manager <span class="text-gray-500">|</span> <span class="text-gray-600">471.009163</span></p>
+                  <p class="mb-1 text-base md:text-lg contact-text">(847) 287-1148</p>
+                  <p class="text-blue-600 mb-1 hover:underline text-sm md:text-base contact-text">dawn.zurick@vylla.com</p>
+                  <p class="mb-1 text-gray-700 text-sm md:text-base contact-text">1332 N Halsted St</p>
+                  <p class="text-gray-700 text-sm md:text-base contact-text">Chicago, IL 60642</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                  <div class="w-24 md:w-32 mx-auto md:mx-0">
+                    <div class="flex items-center justify-center md:justify-start">
+                      <div class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center"></div>
+                      <span class="ml-2 font-bold text-xl text-gray-700">vylla</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer with Equal Housing Logo -->
+            <div class="mt-6 text-xs text-gray-600">
+              <div class="flex items-start">
+                <div class="w-6 h-6 mr-2 flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <p class="text-xs">© 2025 Premier Mortgage Resources, LLC ("PMR") | NMLS #1169 | Equal Housing Opportunity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back Side - Mortgage Info -->
+        <div class="flip-card-back bg-white">
+          <div class="flex h-full flex-col md:flex-row">
+            <!-- Left Column - Info -->
+            <div class="w-full md:w-7/12 p-4 md:p-6 pr-2">
+              <!-- Logo -->
+              <div class="mb-6">
+                <div class="flex items-end justify-center md:justify-start">
+                  <div class="premier-logo text-4xl md:text-5xl font-bold" style="color: #D2A487;">Premier</div>
+                  <div class="ml-2 text-xl md:text-2xl font-bold uppercase">HOME START</div>
+                </div>
+                <p class="mt-4 font-medium text-center md:text-left text-sm md:text-base">
+                  We make your path to homeownership easier! Down payment assistance directly from Premier Mortgage Resources.
+                </p>
+              </div>
+
+              <!-- Mortgage Details -->
+              <div class="space-y-3 md:space-y-5">
+                <div class="flex">
+                  <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 bg-black flex-shrink-0"></div>
+                  <div>
+                    <p class="text-sm md:text-lg"><span class="font-semibold">FHA 30-Year Fixed-Rate Mortgage</span> paired with</p>
+                  </div>
+                </div>
+
+                <div class="flex">
+                  <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 bg-black flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-sm md:text-lg">Down Payment Assistance (DPA):</p>
+                    <p class="ml-4 text-xs md:text-base">- 5% assistance</p>
+                    <p class="ml-4 text-xs md:text-base">- 10-year amortized term with a fixed rate 2% higher than the first mortgage</p>
+                  </div>
+                </div>
+
+                <div class="flex">
+                  <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 bg-black flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-sm md:text-lg">No required borrower contribution</p>
+                  </div>
+                </div>
+
+                <div class="flex">
+                  <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 bg-black flex-shrink-0"></div>
+                  <div>
+                    <p class="text-sm md:text-lg">DPA amount is based on <span class="font-semibold">purchase price or appraised value</span>, whichever is lower</p>
+                  </div>
+                </div>
+
+                <div class="flex">
+                  <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 bg-black flex-shrink-0"></div>
+                  <div>
+                    <p class="text-sm md:text-lg">Can be combined with <span class="font-semibold">Mortgage Credit Certificates, grants or other assistance programs</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column - Qualification -->
+            <div class="w-full md:w-5/12 bg-gray-50 p-4 md:p-6 relative">
+              <!-- Diagonal stripe decoration -->
+              <div class="absolute top-0 right-0 w-12 md:w-20 h-full diagonal-stripes"></div>
+            
+              <div class="relative z-10">
+                <h3 class="text-xl md:text-2xl font-bold mb-4 md:mb-6">Who Qualifies?</h3>
+                <ul class="space-y-2 md:space-y-3">
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">Available nationwide (except New York)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">Purchase only (no refinances)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">No income limits</span>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">Minimum 600 FICO score</span>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">Loan-to-Value (LTV) 90% - 96.5%</span>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <div>
+                      <span class="text-xs md:text-sm">Eligible properties:</span>
+                      <ul class="ml-4 md:ml-6 mt-1">
+                        <li class="text-xs md:text-sm">- Primary residences (1-2 units)</li>
+                        <li class="mt-1 text-xs md:text-sm">- Single-family homes, PUDs, townhomes, condos, attached/detached homes, modular & manufactured homes</li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li class="flex items-start">
+                    <div class="w-3 h-3 md:w-4 md:h-4 mt-1 mr-2 md:mr-3 rounded-full border border-black flex-shrink-0"></div>
+                    <span class="text-xs md:text-sm">Non-occupant borrowers allowed (family members or relatives only)</span>
+                  </li>
+                </ul>
+
+                <!-- Family image placeholder -->
+                <div class="mt-4 md:mt-6 bg-white rounded-lg p-2 shadow-sm">
+                  <div class="w-full h-16 md:h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs md:text-sm">
+                    Family image
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center mt-4 text-xs text-gray-600">Hover/tap the card to flip it</p>
+  </div>
+</body>
+</html>

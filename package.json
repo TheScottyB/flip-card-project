@@ -1,0 +1,40 @@
+{
+  "name": "flip-card-project",
+  "version": "1.0.0",
+  "description": "Accessible flip card implementation with WCAG compliance",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:a11y": "jest tests/accessibility.test.js",
+    "test:report": "jest tests/accessibility.test.js --reporters=default --reporters=jest-html-reporter",
+    "test:ci": "jest --ci --collectCoverage --reporters=default --reporters=jest-html-reporter"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheScottyB/flip-card-project.git"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "flip-card",
+    "interactive"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TheScottyB/flip-card-project/issues"
+  },
+  "homepage": "https://github.com/TheScottyB/flip-card-project#readme",
+  "devDependencies": {
+    "@axe-core/cli": "^4.10.1",
+    "@axe-core/puppeteer": "^4.10.1",
+    "jest": "^29.7.0",
+    "jest-html-reporter": "^3.10.0",
+    "puppeteer": "^24.6.0"
+  }
+}

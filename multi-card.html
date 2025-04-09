@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<!--
+  Multi-Card Gallery - Version 3.0
+  Purpose: Showcase multiple flip card types in a responsive grid
+  Features:
+    - Responsive grid (1-3 columns based on screen size)
+    - Multiple card variants
+    - Consistent flip animations
+    - Navigation menu
+    - Debug indicators
+  Tech Stack:
+    - HTML5
+    - CSS3 (Grid/Flexbox)
+    - Vanilla JavaScript
+    - Tailwind CSS
+  Last Updated: 2025-04-09
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Card Flip Demo</title>
+  
+<!-- Local Tailwind CSS -->
+<link rel="stylesheet" href="/css/tailwind-full.css" type="text/css" id="tailwind-primary">
+
+<!-- Feature Detection Fallback -->
+<script>
+// Check if CSS grid is supported
+const supportsGrid = CSS.supports('display', 'grid');
+if (!supportsGrid) {
+  document.write('<link rel="stylesheet" href="/css/fallback-grid.css">');
+}
+</script>
+
+<!-- Simplified CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https:;">
+
+<!-- Critical styles for fallback -->
+  <!-- Critical styles for fallback -->
+  <style>
+    /* Core flip card functionality */
+    .flip-card {
+      perspective: 1000px;
+      height: 450px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+    
+    .flip-card:hover .flip-card-inner,
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .flip-card-inner {
+        transition: none;
+      }
+      
+      .flip-card:hover .flip-card-inner,
+      .flip-card.flipped .flip-card-inner {
+        transition: none;
+      }
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      overflow: auto;
+    }
+    
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    
+    /* Card type variations */
+    .card-classic {
+      height: 500px;
+    }
+    
+    .card-mini {
+      height: 380px;
+    }
+    
+    .card-tall {
+      height: 600px;
+    }
+    
+    /* Grid container for responsive layout */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    @media (min-width: 640px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    /* Placeholder styles for when images fail to load */
+    .avatar-placeholder { 
+      background: linear-gradient(135deg, #a3c4f3 0%, #60a5fa 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .banner-placeholder {
+      background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1f2937;
+      font-weight: bold;
+    }
+    
+    /* Accessibility styles */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    /* Navigation styles */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Debug indicators */
+    .debug-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 0 0 0 8px;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      max-width: 100%;
+    }
+    
+    .screen-size-indicator {
+      display: none;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+    
+    .screen-sm { background-color: #fee2e2; color: #7f1d1d; }
+    .screen-md { background-color: #e0f2fe; color: #0c4a6e; }
+    .screen-lg { background-color: #dcfce7; color: #166534; }
+    .screen-xl { background-color: #f5f3ff; color: #4c1d95; }
+    
+    @media (max-width: 639px) {
+      .screen-sm { display: inline-block; }
+    }
+    
+    @media (min-width: 640px) and (max-width: 1023px) {
+      .screen-md { display: inline-block; }
+    }
+    
+    @media (min-width: 1024px) and (max-width: 1279px) {
+      .screen-lg { display: inline-block; }
+    }
+    
+    @media (min-width: 1280px) {
+      .screen-xl { display: inline-block; }
+    }
+    
+    /* IE11 Fallbacks */
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+      .grid-container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      
+      .grid-container > div {
+        flex: 0 0 100%;
+        margin-bottom: 2rem;
+      }
+      
+      @media (min-width: 640px) {
+        .grid-container > div {
+          flex: 0 0 calc(50% - 1rem);
+        }
+      }
+      
+      @media (min-width: 1024px) {
+        .grid-container > div {
+          flex: 0 0 calc(33.333% - 1.5rem);
+        }
+      }
+      
+      .flip-card-inner {
+        transition: none;
+      }
+    }
+  </style>
+  
+  <script>
+    // Utility functions
+    window.onload = function() {
+      // Check if Tailwind CSS loaded
+      const checkTailwind = function() {
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        document.body.appendChild(container);
+        
+        const test = document.createElement('div');
+        test.className = 'hidden md:block';
+        container.appendChild(test);
+        
+        const styles = window.getComputedStyle(test);
+        const isLoaded = styles.display === 'none';
+        
+        document.body.removeChild(container);
+        return isLoaded;
+      };
+      
+      // Set CSS status
+      const cssStatus = document.getElementById('css-status');
+      const isTailwindLoaded = checkTailwind();
+      
+      cssStatus.textContent = 'Tailwind CSS ' + 
+        (isTailwindLoaded ? 'loaded ✓' : 'FAILED ✗');
+      
+      if (!isTailwindLoaded) {
+        cssStatus.style.backgroundColor = '#ffcccc';
+        cssStatus.style.color = '#990000';
+      } else {
+        cssStatus.style.backgroundColor = '#ccffcc';
+        cssStatus.style.color = '#006600';
+      }
+      
+      // Update screen size indicator
+      function updateScreenSizeText() {
+        document.getElementById('screen-width').textContent = window.innerWidth + 'px';
+        document.getElementById('screen-height').textContent = window.innerHeight + 'px';
+        
+        // Update columns text
+        let columns = '1 column';
+        if (window.innerWidth >= 1024) {
+          columns = '3 columns';
+        } else if (window.innerWidth >= 640) {
+          columns = '2 columns';
+        }
+        document.getElementById('grid-columns').textContent = columns;
+      }
+      
+      // Initial update
+      updateScreenSizeText();
+      
+      // Update on resize
+      window.addEventListener('resize', updateScreenSizeText);
+      // Function to handle card flipping
+      function flipCard(trigger) {
+        const card = trigger.closest('.flip-card');
+        const isFlipped = card.classList.toggle('flipped');
+        const cardTitle = card.querySelector('h3').textContent.trim();
+        
+        // Get front and back elements
+        const frontEl = card.querySelector('.flip-card-front');
+        const backEl = card.querySelector('.flip-card-back');
+        
+        // Update ARIA states for all buttons in the card
+        card.querySelectorAll('.flip-trigger').forEach(btn => {
+          btn.setAttribute('aria-pressed', btn === trigger);
+          btn.setAttribute('aria-expanded', isFlipped && btn === trigger);
+        });
+        
+        // Manage focus
+        if (isFlipped) {
+          // Focus the back side button when flipped
+          setTimeout(() => {
+            const backButton = card.querySelector('.flip-card-back .flip-trigger');
+            if (backButton) backButton.focus();
+          }, 100);
+        } else {
+          // Focus the front side button when flipped back
+          setTimeout(() => {
+            const frontButton = card.querySelector('.flip-card-front .flip-trigger');
+            if (frontButton) frontButton.focus();
+          }, 100);
+        }
+        
+        // Announce to screen readers with improved messages
+        const status = document.getElementById('card-status');
+        status.textContent = isFlipped ? 
+          `${cardTitle} card flipped to back side showing office information` : 
+          `${cardTitle} card flipped to front side showing contact information`;
+      }
+      // Handle card flip via tap/click on mobile
+      document.querySelectorAll('.flip-card').forEach(card => {
+        // For touch devices without hover
+        card.addEventListener('click', function(e) {
+          // Skip if clicked on a button
+          if (e.target.closest('button')) return;
+          
+          // Only manually flip on touch devices or when hover isn't available
+          if (window.matchMedia('(hover: none)').matches) {
+            const isFlipped = this.classList.toggle('flipped');
+            const cardTitle = this.querySelector('h3').textContent.trim();
+            
+            // Update ARIA states with expanded state
+            this.querySelectorAll('.flip-trigger').forEach(btn => {
+              btn.setAttribute('aria-pressed', isFlipped);
+              btn.setAttribute('aria-expanded', isFlipped);
+            });
+            
+            // Handle focus management
+            if (isFlipped) {
+              // Focus the back side button when flipped
+              setTimeout(() => {
+                const backButton = this.querySelector('.flip-card-back .flip-trigger');
+                if (backButton) backButton.focus();
+              }, 100);
+            }
+            
+            // Announce to screen readers with better context
+            const status = document.getElementById('card-status');
+            status.textContent = isFlipped ? 
+              `${cardTitle} card flipped to back side showing office information` : 
+              `${cardTitle} card flipped to front side showing contact information`;
+        });
+        
+        // Enhanced keyboard support
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('keydown', (e) => {
+          // Handle Enter, Space, and Escape keys
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            
+            // Find and trigger the appropriate flip button
+            const isFlipped = card.classList.contains('flipped');
+            if (isFlipped) {
+              card.querySelector('.flip-card-back .flip-trigger').click();
+            } else {
+              card.querySelector('.flip-card-front .flip-trigger').click();
+            }
+          }
+          
+          // Allow escape key to flip back to front
+          if (e.key === 'Escape' && card.classList.contains('flipped')) {
+            e.preventDefault();
+            card.querySelector('.flip-card-back .flip-trigger').click();
+          }
+        });
+        
+        // Ensure proper focus trapping within flipped card
+        card.querySelectorAll('.flip-card-back').forEach(backSide => {
+          backSide.addEventListener('keydown', function(e) {
+            // If tab is pressed and we're on the last focusable element, loop back to first
+            if (e.key === 'Tab' && !e.shiftKey) {
+              const focusable = backSide.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+              const lastFocusable = focusable[focusable.length - 1];
+              
+              if (document.activeElement === lastFocusable) {
+                e.preventDefault();
+                focusable[0].focus();
+              }
+            }
+            
+            // If shift+tab is pressed and we're on the first focusable element, loop to last
+            if (e.key === 'Tab' && e.shiftKey) {
+              const focusable = backSide.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+              const firstFocusable = focusable[0];
+              
+              if (document.activeElement === firstFocusable) {
+                e.preventDefault();
+                focusable[focusable.length - 1].focus();
+              }
+            }
+          });
+        });
+      });
+      
+      // Smooth scroll for navigation
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+          });
+        });
+      });
+    };
+  </script>
+</head>
+<body class="bg-gray-100">
+  <!-- Skip link should be first -->
+  <a href="#main-content" class="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Debug Indicators -->
+  <div class="debug-container" role="complementary" aria-label="Debug Information">
+    <div id="css-status">CSS Status: Checking...</div>
+    <div class="mt-1">
+      <span class="screen-size-indicator screen-sm">SM</span>
+      <span class="screen-size-indicator screen-md">MD</span>
+      <span class="screen-size-indicator screen-lg">LG</span>
+      <span class="screen-size-indicator screen-xl">XL</span>
+      <span id="screen-width">--</span> x <span id="screen-height">--</span> 
+      (<span id="grid-columns">--</span>)
+    </div>
+  </div>
+  
+  <!-- ARIA live region for status updates -->
+  <div class="sr-only" 
+       role="status" 
+       aria-live="polite" 
+       aria-atomic="true"
+       id="card-status">
+  </div>
+  
+  <!-- Navigation -->
+  <nav class="sticky-nav py-4 mb-8" role="navigation" aria-label="Main">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <h1 class="text-xl font-bold text-gray-800">Flip Card Gallery</h1>
+          <a href="index.html" class="ml-4 text-sm text-blue-600 hover:text-blue-800">↩ Back to Hub</a>
+        </div>
+        <div class="flex flex-wrap justify-center space-x-4">
+          <a href="#standard-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Standard Cards</a>
+          <a href="#mini-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Mini Cards</a>
+          <a href="#special-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Special Cards</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Add main landmark for primary content -->
+  <main id="main-content">
+    <!-- Page Header -->
+    <header class="max-w-4xl mx-auto text-center px-4 mb-12" role="banner">
+    <h1 class="text-4xl font-bold text-gray-800 mb-4">Multiple Flip Card Demo</h1>
+    <p class="text-xl text-gray-600">
+      Showcase of different flip card styles and layouts.
+      Hover over cards to flip them, or tap on mobile devices.
+    </p>
+  </header>
+  
+  <!-- Standard Cards Section -->
+  <section id="standard-cards" class="mb-16" role="region" aria-labelledby="standard-cards-heading">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 id="standard-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Standard Contact Cards</h2>
+      <div class="grid-container">
+        <!-- Card 1: Contact Card with Image -->
+        <div class="flip-card card-classic">
+          <div class="flip-card-inner shadow-xl">
+            <div class="flip-card-front bg-white p-6">
+              <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">
+                Dawn Zurick
+              </h3>
+              
+              <div class="flex items-center mb-4">
+                <div class="w-20 h-20 rounded-full bg-blue-300 border-2 border-blue-500 flex items-center justify-center overflow-hidden">
+                  <div class="avatar-placeholder">Photo</div>
+                </div>
+                <div class="ml-4">
+                  <p class="text-lg font-semibold text-gray-700">Managing Broker (IL) / Broker (WI)</p>
+                  <p class="text-gray-600">Team Lead / Regional Administrator</p>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                <p class="text-sm">
+                  <span class="font-semibold">Certifications:</span> 
+                  <span class="text-purple-700 font-semibold">e-PRO, GRI, SFR, SRS, CNE, BPO & CRB</span>
+                </p>
+                <p class="text-sm">
+                  <span class="font-semibold">Licensed in:</span> IL/WI
+                </p>
+              </div>
+              
+              <div class="mb-4">
+                <h4 class="font-semibold text-blue-800 mb-2">Contact</h4>
+                <div class="space-y-1">
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">C</span>
+                    <span class="text-gray-800">847-287-1148</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">O</span>
+                    <span class="text-gray-800">773-550-2729</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">@</span>
+                    <a href="mailto:dawn.zurick@vylla.com" class="text-blue-600 hover:underline">dawn.zurick@vylla.com</a>
+                  </div>
+                </div>
+              </div>
+              
+              <button onclick="flipCard(this)" 
+                      class="flip-trigger text-xs text-gray-500 text-center mt-auto w-full p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded" 
+                      aria-label="Flip card to view office information"
+                      aria-pressed="false"
+                      aria-expanded="false"
+                      aria-controls="card-back-dawn"
+                      aria-haspopup="true">
+                <span class="sr-only">View office information</span>
+                <span aria-hidden="true">Click or hover to see more</span>
+              </button>
+            <div class="flip-card-back bg-white p-6">
+              <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Office Information</h3>
+              <!-- Add proper back content -->
+              <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                <h4 class="font-semibold text-yellow-800 mb-2">Location</h4>
+                <p class="text-gray-700">1827 Walden Office Square, Suite 325</p>
+                <p class="text-gray-700">Schaumburg, IL 60173</p>
+              </div>
+              
+              <div class="space-y-3">
+                <div>
+                  <h4 class="font-semibold text-blue-800 mb-1">Office Hours</h4>
+                  <p class="text-gray-700">Monday-Friday: 9am-5pm</p>
+                  <p class="text-gray-700">Saturday: By appointment</p>
+                </div>
+                
+                <div>
+                  <h4 class="font-semibold text-blue-800 mb-1">Support Staff</h4>
+                  <p class="text-gray-700">Administrative: Jane Smith</p>
+                  <p class="text-gray-700">Marketing: John Doe</p>
+                </div>
+              </div>
+              
+              <button onclick="flipCard(this)" 
+                     class="flip-trigger mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                     aria-label="Flip card back to contact information"
+                     aria-pressed="true"
+                     aria-expanded="true"
+                     aria-controls="card-front-dawn"
+                     aria-haspopup="true">
+                Return to front
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section>
+    
+    <!-- Mini Cards Section -->
+    <section id="mini-cards" class="mb-16" role="region" aria-labelledby="mini-cards-heading">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="mini-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Mini Contact Cards</h2>
+        <!-- Mini card content would go here -->
+      </div>
+    </section>
+    
+    <!-- Special Cards Section -->
+    <section id="special-cards" class="mb-16" role="region" aria-labelledby="special-cards-heading">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="special-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Special Cards</h2>
+        <!-- Special card content would go here -->
+      </div>
+    </section>
+  </main>
