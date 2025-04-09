@@ -1,0 +1,208 @@
+/* 
+ * Mobile-First Flip Card Component - Core Stylesheet
+ * Version: 1.0.0
+ * Features: Responsive, accessible, optimized for mobile devices
+ */
+
+/* Core flip card functionality with mobile-first approach */
+.flip-card-mobile {
+  perspective: 1000px;
+  position: relative;
+  height: 360px; /* Smaller default height for mobile */
+  width: 100%;
+  max-width: 320px; /* Smaller max-width for mobile */
+  margin: 0 auto;
+  border-radius: 0.75rem; /* Slightly smaller radius */
+}
+
+/* Increase card size on larger screens */
+@media (min-width: 640px) {
+  .flip-card-mobile {
+    height: 420px;
+    max-width: 380px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .flip-card-mobile {
+    height: 450px;
+    max-width: 400px;
+  }
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+/* Explicitly using tap-to-flip instead of hover for mobile-first approach */
+.flip-card-mobile.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Only apply hover on devices that support it */
+@media (hover: hover) {
+  .flip-card-mobile:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none;
+  }
+  
+  .flip-card-mobile.flipped .flip-card-inner {
+    transition: none;
+  }
+}
+
+.flip-card-front, 
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: auto;
+}
+
+/* Optimize scrolling for touch devices */
+.flip-card-front::-webkit-scrollbar,
+.flip-card-back::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flip-card-front::-webkit-scrollbar-thumb,
+.flip-card-back::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Responsive typography for mobile */
+.flip-card-mobile h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .flip-card-mobile h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Mobile-optimized padding */
+.flip-card-mobile .flip-card-front,
+.flip-card-mobile .flip-card-back {
+  padding: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .flip-card-mobile .flip-card-front,
+  .flip-card-mobile .flip-card-back {
+    padding: 1rem;
+  }
+}
+
+/* Responsive grid for card layouts - mobile first */
+.card-grid-mobile {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .card-grid-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid-mobile {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+}
+
+/* Larger touch targets for mobile */
+.flip-card-mobile .flip-trigger {
+  width: 100%;
+  min-height: 44px; /* Minimum recommended touch target size */
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .flip-card-mobile .flip-trigger {
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+}
+
+/* Focus states for better accessibility */
+.flip-card-mobile:focus-within {
+  outline: none;
+}
+
+.flip-card-mobile:focus-within .flip-card-inner {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.flip-card-mobile .flip-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+/* Fallbacks for older browsers */
+@supports not (transform-style: preserve-3d) {
+  .flip-card-inner {
+    position: relative;
+  }
+  
+  .flip-card-back {
+    display: none;
+  }
+  
+  .flip-card-mobile.flipped .flip-card-front {
+    display: none;
+  }
+  
+  .flip-card-mobile.flipped .flip-card-back {
+    display: block;
+    transform: none;
+  }
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
