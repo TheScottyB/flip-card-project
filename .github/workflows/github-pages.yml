@@ -43,27 +43,32 @@ jobs:
       - name: Prepare deployment directory
         run: |
           mkdir -p _site
-          # Copy main HTML files
-          cp -r index.html multi-card.html _site/
+          # Copy HTML files from root
+          cp index.html multi-card.html demo-card.html react-card.html _site/
           
-          # Copy component directories
-          cp -r src/components _site/components
-          cp -r src/react-components _site/react-components
+          # Copy directories with source files
+          mkdir -p _site/src
+          cp -r src/components src/images src/js src/styles _site/src/
           
-          # Copy assets
-          cp -r dist/css dist/js _site/
-          cp -r src/images _site/
+          # Copy React components
+          cp -r react-components _site/react-components
+          
+          # Copy compiled assets
+          mkdir -p _site/dist/css _site/dist/js
+          cp -r dist/css/*.css dist/js/*.js _site/dist/
           
           # Copy documentation and reports
-          cp -r test-report _site/
-          cp -r src/docs _site/docs
+          mkdir -p _site/test-report
+          cp -r test-report/* _site/test-report/
+          
+          # Copy documentation files
           cp README.md _config.yml _site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v2
         with:
           path: _site
 
@@ -76,4 +81,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v2

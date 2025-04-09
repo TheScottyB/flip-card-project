@@ -1,0 +1,168 @@
+/* 
+ * Flip Card Component - Core Stylesheet
+ * Version: 1.0.0
+ * Features: Responsive, accessible, and compatible with major browsers
+ */
+
+/* Core flip card functionality */
+.flip-card {
+  perspective: 1000px;
+  position: relative;
+  height: 450px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+/* Both active states for mouse and keyboard/programmatic control */
+.flip-card.flipped .flip-card-inner,
+.flip-card:focus-within .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Only apply hover effect when hover is supported and not on touch devices */
+@media (hover: hover) {
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none;
+  }
+  
+  .flip-card:hover .flip-card-inner,
+  .flip-card.flipped .flip-card-inner,
+  .flip-card:focus-within .flip-card-inner {
+    transition: none;
+  }
+}
+
+.flip-card-front, 
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  overflow: auto;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Card size variations */
+.card-standard {
+  height: 450px;
+}
+
+.card-mini {
+  height: 320px;
+}
+
+.card-tall {
+  height: 600px;
+}
+
+/* Responsive grid for card layouts */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Focus states for better accessibility */
+.flip-card:focus-within {
+  outline: none;
+}
+
+.flip-card:focus-within .flip-card-inner {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.flip-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  border-radius: 0.25rem;
+}
+
+/* Fallbacks for older browsers */
+@supports not (transform-style: preserve-3d) {
+  .flip-card-inner {
+    position: relative;
+  }
+  
+  .flip-card-back {
+    display: none;
+  }
+  
+  .flip-card.flipped .flip-card-front {
+    display: none;
+  }
+  
+  .flip-card.flipped .flip-card-back {
+    display: block;
+    transform: none;
+  }
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Ensure skip links are properly visible when focused */
+.sr-only.focus-visible,
+.sr-only:focus-visible {
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  clip: auto;
+  white-space: normal;
+  border-width: 1px;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 999;
+  background-color: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

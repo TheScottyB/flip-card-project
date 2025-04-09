@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Multiple flip card layouts and styles demonstration">
+  <title>Multi-Card Gallery</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./dist/css/flip-card.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="./dist/js/flip-card.min.js" as="script">
+  
+  <!-- Additional custom styles -->
+  <style>
+    /* Card type variations */
+    .card-mini {
+      height: 380px;
+    }
+    
+    .card-tall {
+      height: 600px;
+    }
+    
+    /* Navigation styles */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Debug indicators */
+    .debug-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 0 0 0 8px;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      max-width: 100%;
+    }
+    
+    .screen-size-indicator {
+      display: none;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+    
+    .screen-sm { background-color: #fee2e2; color: #7f1d1d; }
+    .screen-md { background-color: #e0f2fe; color: #0c4a6e; }
+    .screen-lg { background-color: #dcfce7; color: #166534; }
+    .screen-xl { background-color: #f5f3ff; color: #4c1d95; }
+    
+    @media (max-width: 639px) {
+      .screen-sm { display: inline-block; }
+    }
+    
+    @media (min-width: 640px) and (max-width: 1023px) {
+      .screen-md { display: inline-block; }
+    }
+    
+    @media (min-width: 1024px) and (max-width: 1279px) {
+      .screen-lg { display: inline-block; }
+    }
+    
+    @media (min-width: 1280px) {
+      .screen-xl { display: inline-block; }
+    }
+    
+    /* Placeholder styles for when images fail to load */
+    .avatar-placeholder { 
+      background: linear-gradient(135deg, #a3c4f3 0%, #60a5fa 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .banner-placeholder {
+      background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1f2937;
+      font-weight: bold;
+    }
+  </style>
+  
+  <script>
+    // Debug utilities for demonstration purposes
+    window.addEventListener('load', function() {
+      // Update screen size indicator
+      function updateScreenSizeText() {
+        document.getElementById('screen-width').textContent = window.innerWidth + 'px';
+        document.getElementById('screen-height').textContent = window.innerHeight + 'px';
+        
+        // Update columns text
+        let columns = '1 column';
+        if (window.innerWidth >= 1024) {
+          columns = '3 columns';
+        } else if (window.innerWidth >= 640) {
+          columns = '2 columns';
+        }
+        document.getElementById('grid-columns').textContent = columns;
+      }
+      
+      // Initial update
+      updateScreenSizeText();
+      
+      // Update on resize
+      window.addEventListener('resize', updateScreenSizeText);
+    });
+  </script>
+</head>
+<body class="bg-gray-100">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Debug Indicators -->
+  <div class="debug-container" role="complementary" aria-label="Debug Information">
+    <div id="css-status">Screen Size Indicator</div>
+    <div class="mt-1">
+      <span class="screen-size-indicator screen-sm">SM</span>
+      <span class="screen-size-indicator screen-md">MD</span>
+      <span class="screen-size-indicator screen-lg">LG</span>
+      <span class="screen-size-indicator screen-xl">XL</span>
+      <span id="screen-width">--</span> x <span id="screen-height">--</span> 
+      (<span id="grid-columns">--</span>)
+    </div>
+  </div>
+  
+  <!-- Navigation -->
+  <nav class="sticky-nav py-4 mb-8" role="navigation" aria-label="Main">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <h1 class="text-xl font-bold text-gray-800">Flip Card Gallery</h1>
+          <a href="./index.html" class="ml-4 text-sm text-blue-600 hover:text-blue-800">↩ Back to Home</a>
+        </div>
+        <div class="flex flex-wrap justify-center space-x-4">
+          <a href="#standard-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Standard Cards</a>
+          <a href="#mini-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Mini Cards</a>
+          <a href="#special-cards" class="text-blue-600 hover:text-blue-800 mb-2 md:mb-0">Special Cards</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Page Header -->
+    <header class="max-w-4xl mx-auto text-center px-4 mb-12" role="banner">
+      <h1 class="text-4xl font-bold text-gray-800 mb-4">Multiple Flip Card Demo</h1>
+      <p class="text-xl text-gray-600">
+        Showcase of different flip card styles and layouts.
+        Hover over cards to flip them, tab to focus, or use enter/space to flip with keyboard.
+      </p>
+    </header>
+    
+    <!-- Standard Cards Section -->
+    <section id="standard-cards" class="mb-16" role="region" aria-labelledby="standard-cards-heading">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="standard-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Standard Contact Cards</h2>
+        <div class="card-grid">
+          <!-- Card 1: Dawn -->
+          <div class="flip-card card-standard">
+            <div class="flip-card-inner shadow-xl">
+              <div class="flip-card-front bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Dawn Zurick</h2>
+                
+                <!-- Professional Details -->
+                <div class="flex items-center mb-4">
+                  <div class="w-20 h-20 rounded-full bg-blue-300 border-2 border-blue-500 flex items-center justify-center overflow-hidden">
+                    <img src="./src/images/avatars/dawn-headshot.jpg" 
+                        alt="Dawn Zurick" 
+                        class="w-full h-full object-cover"
+                        onerror="this.style.display='none'; this.parentElement.classList.add('avatar-placeholder'); this.parentElement.textContent='Photo'">
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-lg font-semibold text-gray-700">Managing Broker (IL) / Broker (WI)</p>
+                    <p class="text-gray-600">Team Lead / Regional Administrator</p>
+                  </div>
+                </div>
+                
+                <!-- Credentials -->
+                <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                  <p class="text-sm">
+                    <span class="font-semibold">Certifications:</span> 
+                    <span class="text-purple-700 font-semibold">e-PRO, GRI, SFR, SRS, CNE, BPO & CRB</span>
+                  </p>
+                  <p class="text-sm">
+                    <span class="font-semibold">Licensed in:</span> IL/WI
+                  </p>
+                </div>
+                
+                <!-- Contact Details -->
+                <div class="mb-4">
+                  <h3 class="font-semibold text-blue-800 mb-2">Contact Information</h3>
+                  <div class="space-y-1">
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Cell</span>
+                      <a href="tel:8472871148" class="text-gray-800 hover:text-blue-600">847-287-1148</a>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Office</span>
+                      <a href="tel:7735502729" class="text-gray-800 hover:text-blue-600">773-550-2729</a>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Email</span>
+                      <a href="mailto:dawn.zurick@vylla.com" class="text-blue-600 hover:underline">dawn.zurick@vylla.com</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Front Side Flip Trigger -->
+                <button class="flip-trigger mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                        aria-label="Flip card to view Dawn's office information">
+                  View Office Information
+                </button>
+              </div>
+              
+              <!-- Back Side -->
+              <div class="flip-card-back bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Office Information</h2>
+                
+                <!-- Office Location -->
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                  <h3 class="font-semibold text-yellow-800 mb-2">Location</h3>
+                  <address class="not-italic">
+                    <p class="text-gray-700">1827 Walden Office Square, Suite 325</p>
+                    <p class="text-gray-700">Schaumburg, IL 60173</p>
+                  </address>
+                </div>
+                
+                <!-- Additional Office Information -->
+                <div class="space-y-3">
+                  <div>
+                    <h3 class="font-semibold text-blue-800 mb-1">Office Hours</h3>
+                    <p class="text-gray-700">Monday-Friday: 9am-5pm</p>
+                    <p class="text-gray-700">Saturday: By appointment</p>
+                  </div>
+                  
+                  <div>
+                    <h3 class="font-semibold text-blue-800 mb-1">Support Staff</h3>
+                    <p class="text-gray-700">Administrative: Jane Smith</p>
+                    <p class="text-gray-700">Marketing: John Doe</p>
+                  </div>
+                  
+                  <!-- Company Logo -->
+                  <div class="mt-4 flex justify-center">
+                    <div class="bg-yellow-400 w-24 h-10 flex items-center justify-center text-gray-800 font-bold rounded">
+                      Vylla
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Back Side Flip Trigger -->
+                <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Flip card back to Dawn's contact information">
+                  Return to Contact Information
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 2: Emelie -->
+          <div class="flip-card card-standard">
+            <div class="flip-card-inner shadow-xl">
+              <div class="flip-card-front bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Emelie Maybrook</h2>
+                
+                <!-- Professional Details -->
+                <div class="flex items-center mb-4">
+                  <div class="w-20 h-20 rounded-full bg-pink-300 border-2 border-red-500 flex items-center justify-center overflow-hidden">
+                    <span class="avatar-placeholder">Photo</span>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-lg font-semibold text-gray-700">Branch Manager / Sr Loan Officer</p>
+                    <p class="text-gray-600">NMLS 389504</p>
+                  </div>
+                </div>
+                
+                <!-- Contact Details -->
+                <div class="mb-4">
+                  <h3 class="font-semibold text-blue-800 mb-2">Contact Information</h3>
+                  <div class="space-y-1">
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Cell</span>
+                      <a href="tel:3127726850" class="text-gray-800 hover:text-blue-600">312-772-6850</a>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Email</span>
+                      <a href="mailto:emelie.maybrook@prmloans.com" class="text-blue-600 hover:underline">emelie.maybrook@prmloans.com</a>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="text-xs font-bold text-gray-500 w-6">Web</span>
+                      <a href="https://www.prmloans.com/emaybrook" class="text-blue-600 hover:underline">prmloans.com/emaybrook</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                  <p class="text-sm">
+                    <span class="font-semibold">Office:</span> 
+                    <span>1900 E. Golf Rd, Ste 950 - Office 4</span>
+                  </p>
+                  <p class="text-sm">
+                    <span class="font-semibold">Location:</span> Schaumburg, IL 60173
+                  </p>
+                </div>
+                
+                <!-- Front Side Flip Trigger -->
+                <button class="flip-trigger mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                        aria-label="Flip card to view Emelie's loan information">
+                  View Loan Information
+                </button>
+              </div>
+              
+              <!-- Back Side -->
+              <div class="flip-card-back bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Loan Information</h2>
+                
+                <!-- Program Details -->
+                <div class="bg-blue-50 p-3 rounded-lg mb-4">
+                  <h3 class="font-semibold text-blue-800 mb-2">Home Start Program</h3>
+                  <ul class="space-y-2">
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>FHA 30-Year Fixed-Rate Mortgage</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>5% Down Payment Assistance</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>No required borrower contribution</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Available nationwide (except NY)</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <!-- Qualification Info -->
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                  <h3 class="font-semibold text-green-800 mb-2">Qualification Requirements</h3>
+                  <ul class="space-y-1">
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">✓</span>
+                      <span>Minimum 600 FICO score</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">✓</span>
+                      <span>Purchase only (no refinances)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">✓</span>
+                      <span>Primary residences (1-2 units)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">✓</span>
+                      <span>No income limits</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <!-- Company Logo -->
+                <div class="mt-4 flex justify-center">
+                  <div class="text-2xl font-bold" style="color: #D2A487;">
+                    Premier Mortgage
+                  </div>
+                </div>
+                
+                <!-- Back Side Flip Trigger -->
+                <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Flip card back to Emelie's contact information">
+                  Return to Contact Information
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add more standard cards as needed -->
+        </div>
+      </div>
+    </section>
+    
+    <!-- Mini Cards Section -->
+    <section id="mini-cards" class="mb-16" role="region" aria-labelledby="mini-cards-heading">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="mini-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Mini Contact Cards</h2>
+        <div class="card-grid">
+          <!-- Mini Card 1 -->
+          <div class="flip-card card-mini">
+            <div class="flip-card-inner shadow-xl">
+              <div class="flip-card-front bg-white p-4">
+                <h2 class="text-xl font-bold text-center text-gray-800 mb-3">Dawn Zurick</h2>
+                
+                <div class="flex items-center mb-3">
+                  <div class="w-16 h-16 rounded-full bg-blue-300 border-2 border-blue-500 flex items-center justify-center overflow-hidden">
+                    <span class="avatar-placeholder">Photo</span>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-semibold text-gray-700">Managing Broker</p>
+                    <p class="text-xs text-gray-600">IL/WI</p>
+                  </div>
+                </div>
+                
+                <div class="space-y-1 text-sm mb-3">
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">Cell</span>
+                    <a href="tel:8472871148" class="text-gray-800 hover:text-blue-600">847-287-1148</a>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">Email</span>
+                    <a href="mailto:dawn.zurick@vylla.com" class="text-blue-600 hover:underline">dawn.zurick@vylla.com</a>
+                  </div>
+                </div>
+                
+                <button class="flip-trigger w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                        aria-label="Flip mini card to view Dawn's office information">
+                  View Details
+                </button>
+              </div>
+              
+              <div class="flip-card-back bg-white p-4">
+                <h2 class="text-xl font-bold text-center text-gray-800 mb-3">Office Info</h2>
+                
+                <div class="bg-yellow-50 p-2 rounded-lg mb-3 text-sm">
+                  <p class="text-gray-700">1827 Walden Office Square, Suite 325</p>
+                  <p class="text-gray-700">Schaumburg, IL 60173</p>
+                </div>
+                
+                <div class="space-y-2 text-sm">
+                  <p><span class="font-semibold">Hours:</span> M-F 9am-5pm</p>
+                  <p><span class="font-semibold">Certifications:</span> e-PRO, GRI, SFR</p>
+                </div>
+                
+                <button class="flip-trigger mt-3 px-3 py-1.5 text-sm bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Flip mini card back to Dawn's contact information">
+                  Back
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mini Card 2 -->
+          <div class="flip-card card-mini">
+            <div class="flip-card-inner shadow-xl">
+              <div class="flip-card-front bg-white p-4">
+                <h2 class="text-xl font-bold text-center text-gray-800 mb-3">Emelie Maybrook</h2>
+                
+                <div class="flex items-center mb-3">
+                  <div class="w-16 h-16 rounded-full bg-pink-300 border-2 border-red-500 flex items-center justify-center overflow-hidden">
+                    <span class="avatar-placeholder">Photo</span>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-semibold text-gray-700">Loan Officer</p>
+                    <p class="text-xs text-gray-600">NMLS 389504</p>
+                  </div>
+                </div>
+                
+                <div class="space-y-1 text-sm mb-3">
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">Cell</span>
+                    <a href="tel:3127726850" class="text-gray-800 hover:text-blue-600">312-772-6850</a>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-xs font-bold text-gray-500 w-6">Email</span>
+                    <a href="mailto:emelie.maybrook@prmloans.com" class="text-blue-600 hover:underline">emelie.maybrook@prmloans.com</a>
+                  </div>
+                </div>
+                
+                <button class="flip-trigger w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                        aria-label="Flip mini card to view Emelie's loan information">
+                  View Details
+                </button>
+              </div>
+              
+              <div class="flip-card-back bg-white p-4">
+                <h2 class="text-xl font-bold text-center text-gray-800 mb-3">Loan Options</h2>
+                
+                <div class="bg-blue-50 p-2 rounded-lg mb-3 text-sm">
+                  <p class="font-semibold text-blue-800">Home Start Program</p>
+                  <ul class="text-xs space-y-1 mt-1">
+                    <li>• FHA 30-Year Fixed-Rate</li>
+                    <li>• 5% Down Payment Assistance</li>
+                    <li>• Min 600 FICO score</li>
+                  </ul>
+                </div>
+                
+                <p class="text-xs text-center mb-2">Schedule a consultation today!</p>
+                
+                <button class="flip-trigger mt-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Flip mini card back to Emelie's contact information">
+                  Back
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add more mini cards as needed -->
+        </div>
+      </div>
+    </section>
+    
+    <!-- Special Cards Section -->
+    <section id="special-cards" class="mb-16" role="region" aria-labelledby="special-cards-heading">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="special-cards-heading" class="text-3xl font-bold text-gray-800 mb-8 text-center">Special Format Cards</h2>
+        <div class="card-grid">
+          <!-- Special Card - Tall Format -->
+          <div class="flip-card card-tall">
+            <div class="flip-card-inner shadow-xl">
+              <div class="flip-card-front bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">FHA Loan Program</h2>
+                
+                <div class="bg-blue-100 p-4 rounded-lg mb-6">
+                  <h3 class="text-xl font-semibold text-blue-800 mb-2">Key Features</h3>
+                  <ul class="space-y-2">
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Low down payment requirements (as low as 3.5%)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Flexible credit requirements</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Lower income and credit score requirements</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Mortgage Insurance Premium (MIP) required</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>Gift funds permitted for down payment</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                  <h3 class="text-xl font-semibold text-gray-700 mb-2">Eligibility</h3>
+                  <ul class="space-y-2">
+                    <li class="flex items-start">
+                      <span class="text-gray-500 mr-2">•</span>
+                      <span>620+ credit score recommended</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-gray-500 mr-2">•</span>
+                      <span>43% maximum debt-to-income ratio</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-gray-500 mr-2">•</span>
+                      <span>Primary residence only</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-gray-500 mr-2">•</span>
+                      <span>Property must meet FHA standards</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <button class="flip-trigger mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                        aria-label="Flip card to view FHA loan details">
+                  View Loan Details
+                </button>
+              </div>
+              
+              <div class="flip-card-back bg-white p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">FHA Loan Details</h2>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg mb-4">
+                  <h3 class="text-xl font-semibold text-yellow-800 mb-2">Mortgage Insurance</h3>
+                  <p class="mb-2">FHA loans require both:</p>
+                  <ul class="space-y-1 mb-3">
+                    <li class="flex items-start">
+                      <span class="text-yellow-600 mr-2">•</span>
+                      <span>Upfront Mortgage Insurance Premium (UFMIP): 1.75% of loan amount</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-yellow-600 mr-2">•</span>
+                      <span>Annual MIP: 0.55% to 1.05% of loan amount</span>
+                    </li>
+                  </ul>
+                  <p class="text-sm">MIP typically remains for the life of the loan if down payment is less than 10%.</p>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg mb-4">
+                  <h3 class="text-xl font-semibold text-green-800 mb-2">Loan Limits</h3>
+                  <p class="mb-2">FHA loan limits vary by county:</p>
+                  <ul class="space-y-1">
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">•</span>
+                      <span>Low-cost areas: $472,030 (single-family)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">•</span>
+                      <span>High-cost areas: $1,089,300 (single-family)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-green-600 mr-2">•</span>
+                      <span>Limits are higher for 2-4 unit properties</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                  <h3 class="text-xl font-semibold text-purple-800 mb-2">Property Requirements</h3>
+                  <ul class="space-y-1">
+                    <li class="flex items-start">
+                      <span class="text-purple-600 mr-2">•</span>
+                      <span>Must be in good condition (no safety or structural issues)</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-purple-600 mr-2">•</span>
+                      <span>Requires FHA appraisal</span>
+                    </li>
+                    <li class="flex items-start">
+                      <span class="text-purple-600 mr-2">•</span>
+                      <span>Must be owner-occupied within 60 days</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Flip card back to FHA loan overview">
+                  Return to Overview
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add more special cards as needed -->
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-600 mb-4 md:mb-0">
+          © 2025 Flip Card Project - All cards feature enhanced accessibility
+        </p>
+        <div>
+          <a href="./index.html" class="text-blue-600 hover:text-blue-800">Return to Home</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Screen reader announcements live region -->
+  <div id="screen-reader-announcer" 
+       class="sr-only" 
+       aria-live="polite" 
+       aria-atomic="true">
+  </div>
+  
+  <!-- JavaScript -->
+  <script src="./dist/js/flip-card.min.js"></script>
+</body>
+</html>
