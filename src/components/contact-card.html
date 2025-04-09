@@ -7,13 +7,13 @@
   <title>Accessible Contact Card</title>
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="../styles/flip-card.css">
+  <link rel="stylesheet" href="/dist/css/flip-card.min.css">
   
   <!-- Tailwind CSS - Only used for design aspects, not core functionality -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Preload critical resources -->
-  <link rel="preload" href="../js/flip-card.js" as="script">
+  <link rel="preload" href="/dist/js/flip-card.min.js" as="script">
 </head>
 <body class="bg-gray-100 min-h-screen p-4 md:p-8">
   <!-- Skip link for accessibility -->
@@ -140,11 +140,17 @@
     </div>
     
     <p class="text-center mt-4 text-sm text-gray-600">
-      Hover over the card to flip it, or use the Tab key to focus and Enter/Space to flip.
+      Hover over the card to flip it, use the Tab key to focus and Enter/Space to flip, or tap on mobile.
     </p>
+    
+    <div class="mt-10 text-center">
+      <a href="/index.html" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+        ← Back to Home
+      </a>
+    </div>
   </main>
   
   <!-- JavaScript for flip card functionality -->
-  <script src="../js/flip-card.js"></script>
+  <script src="/dist/js/flip-card.min.js"></script>
 </body>
 </html>
