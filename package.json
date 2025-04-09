@@ -7,17 +7,14 @@
     "doc": "docs"
   },
   "scripts": {
+    "dev": "npm run build && npm run start",
+    "start": "http-server . -p 8080",
+    "build": "postcss src/styles/main.css -o dist/css/flip-card.min.css",
+    "build:prod": "postcss src/styles/main.css -o dist/css/flip-card.min.css --env production",
     "test": "jest",
-    "test:a11y": "jest src/tests/accessibility.test.js",
-    "test:report": "jest src/tests/accessibility.test.js --reporters=default --reporters=jest-html-reporter",
-    "test:ci": "jest --ci --collectCoverage --reporters=default --reporters=jest-html-reporter",
-    "build": "cp src/styles/flip-card.css dist/css/ && cp src/js/flip-card.js dist/js/",
-    "minify:css": "postcss dist/css/flip-card.css -o dist/css/flip-card.min.css --use autoprefixer cssnano",
-    "minify:js": "terser src/js/flip-card.js -o dist/js/flip-card.min.js",
-    "minify": "npm run minify:css && npm run minify:js",
-    "build:prod": "npm run build && npm run minify",
-    "start": "npx http-server -p 8080 -o",
-    "dev": "npm run build && npm run start"
+    "test:a11y": "jest --testPathPattern=a11y",
+    "test:calculator": "jest mortgage-calculator",
+    "test:report": "node scripts/generate-report.js"
   },
   "repository": {
     "type": "git",
@@ -54,6 +51,7 @@
     "cssnano": "^6.0.2",
     "http-server": "^14.1.1",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jest-html-reporter": "^3.10.0",
     "postcss": "^8.4.35",
     "postcss-cli": "^10.1.0",

@@ -3,8 +3,8 @@
  * Used primarily for accessibility testing with Puppeteer and Axe
  */
 module.exports = {
-  // Test environment
-  testEnvironment: 'node',
+  // Test environment for DOM testing
+  testEnvironment: 'jsdom',
   
   // Test files pattern
   testMatch: [

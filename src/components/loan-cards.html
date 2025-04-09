@@ -14,6 +14,7 @@
   
   <!-- Preload critical resources -->
   <link rel="preload" href="../../dist/js/flip-card.min.js" as="script">
+  <link rel="preload" href="../../dist/js/mortgage-calculator.js" as="script">
   
   <style>
     /* Navigation styles */
@@ -122,12 +123,132 @@
     <!-- Tab Navigation -->
     <div class="card-tabs" role="tablist" aria-label="Loan types">
       <button id="tab-home-start" class="card-tab active" role="tab" 
-              aria-selected="true" aria-controls="card-home-start"
-              data-card="home-start">
-        Premier Home Start
-      </button>
-      <button id="tab-va-loans" class="card-tab" role="tab"
-              aria-selected="false" aria-controls="card-va-loans"
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-green-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl conventional-theme" id="payment-result-conv" aria-live="polite" aria-atomic="true">$1,538.67</div>
+                  <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+              <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+                  <div class="input-group">
+                    <label for="loan-amount-conv" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-conv" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                           value="350000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-conv" data-card-type="conventional">
+                    <div id="amount-hint-conv" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-conv" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-conv" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                             value="20" min="3" max="50" step="0.5" data-card-type="conventional">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-conv" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-conv" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                             value="6.0" min="0.1" max="15" step="0.125" data-card-type="conventional">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-conv" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-conv" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" data-card-type="conventional">
+                      <option value="30">30 years
+or</h3>
+                <div class="calculator-inputs space-y-3">
+                  <div class="input-group">
+                    <label for="loan-amount-va" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-va" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                           value="300000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-va" data-card-type="va-loans">
+                    <div id="amount-hint-va" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-va" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-va" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                             value="0" min="0" max="50" step="0.5" data-card-type="va-loans">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-va" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-va" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                             value="5.75" min="0.1" max="15" step="0.125" data-card-type="va-loans">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-va" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-va" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" data-card-type="va-loans">
+                      <option value="30">30 years</option>
+                      <option value="20">20 years</option>
+                      <option value="15">15 years</option>
+                      <option value="10">10 years</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-indigo-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl va-loans-theme" id="payment-result-va" aria-live="polite">$1,751.24</div>
+                </div>
+              </div>
+              
+              <!-- Banner (VA Loans) -->
+              <div class="va-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">Supporting those who served our country!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+or</h3>
+                <div class="calculator-inputs space-y-3">
+                  <div class="input-group">
+                    <label for="loan-amount-home" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-home" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           value="250000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-home" data-card-type="home-start">
+                    <div id="amount-hint-home" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-home" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-home" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                             value="3.5" min="0" max="50" step="0.5" data-card-type="home-start">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-home" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-home" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                             value="6.25" min="0.1" max="15" step="0.125" data-card-type="home-start">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-home" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-home" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-card-type="home-start">
+                      <option value="30">30 years</option>
+                      <option value="20">20 years</option>
+                      <option value="15">15 years</option>
+                      <option value="10">10 years</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-blue-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl home-start-theme" id="payment-result-home" aria-live="polite">$1,538.67</div>
+                </div>
+              </div>
+              
+              <!-- Banner (Home Start) -->
+              <div class="home-start-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">We make your path to homeownership easier!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
               data-card="va-loans">
         VA Loans
       </button>
@@ -524,6 +645,9 @@
   
   <!-- JavaScript for core flip card functionality -->
   <script src="../../dist/js/flip-card.min.js"></script>
+  
+  <!-- Mortgage calculator functionality -->
+  <script src="../../dist/js/mortgage-calculator.js"></script>
   
   <!-- Tab switching functionality -->
   <script>
