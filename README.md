@@ -47,7 +47,7 @@ To use the flip card components in your project:
    </div>
    ```
 
-## Getting Started
+## Local Development and Testing
 
 ### Prerequisites
 - Node.js and npm
@@ -64,25 +64,29 @@ To use the flip card components in your project:
    npm install
    ```
 
-3. Build the project
+3. Start the local development server
    ```bash
-   npm run build:prod
+   npm run dev
    ```
+   This will build the project and start a local server at http://localhost:8080
+
+### Testing
+- `npm run start` - Start the local server without rebuilding
+- `npm run build` - Build the project without starting the server
+- `npm run build:prod` - Build and minify for production
+- `npm run test:a11y` - Run accessibility tests
+- `npm run test:report` - Generate HTML report of tests
+
+For detailed testing instructions, see [Local Testing Guide](./src/docs/local-testing.md).
 
 ## Development
 
-- `npm run build` - Copy source files to distribution folder
-- `npm run minify` - Minify CSS and JavaScript files
-- `npm run build:prod` - Build and minify for production
-
-## Testing
-
-This project includes extensive accessibility testing:
-
-- `npm run test` - Run all tests
-- `npm run test:a11y` - Run accessibility tests
-- `npm run test:report` - Generate HTML report of tests
-- `npm run test:ci` - Run tests with coverage in CI environment
+The project uses a modular structure:
+- `/src/styles/` - CSS source files
+- `/src/js/` - JavaScript source files
+- `/src/components/` - HTML components 
+- `/src/tests/` - Test files
+- `/dist/` - Distribution files
 
 ## Accessibility Features
 
