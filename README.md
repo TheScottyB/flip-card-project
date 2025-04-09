@@ -106,6 +106,30 @@ To use the flip card components in your project:
 - Color contrast compliance (WCAG 2.1 AA)
 - Progressive enhancement
 
+## Deployment
+
+This project uses GitHub Pages for deployment with continuous integration. All changes to the main branch are automatically deployed.
+
+### Environment Setup for GitHub Pages
+
+To enable deployment from the main branch, configure the environment protection rules:
+
+1. In your GitHub repository, go to **Settings → Environments**
+2. Click on **github-pages** environment
+3. Under **Deployment branches and tags**, click **Add deployment branch rule**
+4. Add **main** as an allowed branch pattern
+5. Click **Save protection rules**
+
+### Continuous Integration
+
+The GitHub Actions workflow will:
+1. Build the project
+2. Run accessibility tests
+3. Generate test reports
+4. Deploy to GitHub Pages automatically
+
+You can view deployment status in the **Actions** tab of the repository.
+
 ## Contributing
 
 Contributions are welcome! Please ensure all code adheres to our accessibility standards and passes the existing tests.
