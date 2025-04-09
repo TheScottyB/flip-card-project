@@ -137,7 +137,7 @@
     </div>
     
     <!-- Mortgage Calculator Flip Card -->
-    <div class="flip-card-mobile mx-auto" tabindex="0">
+    <div class="flip-card-mobile mx-auto" tabindex="0" aria-label="Mortgage calculator card">
       <div class="flip-card-inner shadow-xl">
         <!-- Front Side - Calculator Inputs -->
         <div class="flip-card-front bg-white rounded-lg" id="calculator-front">
@@ -242,12 +242,23 @@
   <!-- It's not doing the actual mortgage calculations - those would be done server-side -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Disable automatic hover/touch flipping for this card
+      const card = document.querySelector('.flip-card-mobile');
+      card.style.pointerEvents = 'none'; // Disable pointer events on the container
+      
+      // But enable pointer events on the form and buttons
+      const form = document.getElementById('mortgage-form');
+      form.style.pointerEvents = 'auto';
+      
+      const backButton = document.querySelector('.flip-card-back .flip-trigger');
+      backButton.style.pointerEvents = 'auto';
+      
       // Parse URL parameters to show results
       const urlParams = new URLSearchParams(window.location.search);
       
       if (urlParams.has('amount') && urlParams.has('rate') && urlParams.has('term') && urlParams.has('down')) {
-        // Flip the card to show results
-        document.querySelector('.flip-card-mobile').classList.add('flipped');
+        // Flip the card to show results only if form was actually submitted
+        card.classList.add('flipped');
         
         // Get values from URL
         const loanAmount = parseInt(urlParams.get('amount'));
@@ -296,6 +307,14 @@
         document.getElementById('down-payment').value = downPaymentPercent;
         document.getElementById('down-payment-value').textContent = downPaymentPercent;
       }
+      
+      // Handle the keyboard navigation for accessibility
+      card.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('input, button')) {
+          e.preventDefault();
+          // Don't toggle the card on enter/space - only use the submit button
+        }
+      });
     });
   </script>
 </body>
