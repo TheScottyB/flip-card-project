@@ -240,18 +240,21 @@
   
   <!-- This is minimal JavaScript just to display the results from URL parameters -->
   <!-- It's not doing the actual mortgage calculations - those would be done server-side -->
+  <style>
+    /* Override hover behavior specifically for this calculator */
+    .mortgage-calculator.flip-card-mobile:hover .flip-card-inner {
+      transform: none !important; /* Prevent hover-based flipping */
+    }
+  </style>
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Disable automatic hover/touch flipping for this card
+      // Add a specific class to disable hover flipping via CSS
       const card = document.querySelector('.flip-card-mobile');
-      card.style.pointerEvents = 'none'; // Disable pointer events on the container
+      card.classList.add('mortgage-calculator');
       
-      // But enable pointer events on the form and buttons
-      const form = document.getElementById('mortgage-form');
-      form.style.pointerEvents = 'auto';
-      
-      const backButton = document.querySelector('.flip-card-back .flip-trigger');
-      backButton.style.pointerEvents = 'auto';
+      // We don't need to disable pointer events anymore
+      // Instead, we'll handle flipping only through form submission
       
       // Parse URL parameters to show results
       const urlParams = new URLSearchParams(window.location.search);
