@@ -1,3 +1,44 @@
+# Development and redundant directories
+/demos/
+/demo-types/
+/html-templates/
+/docs/
+
+# Build artifacts
+/dist/*
+!/dist/.gitkeep
+!/dist/css/
+!/dist/js/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dependencies
+/node_modules/
+
+# Test reports
+/coverage/
+/test-report/*
+!/test-report/.gitkeep
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -47,3 +88,8 @@ logs
 # System files
 Thumbs.db
 desktop.ini
+# Files with problematic characters in filename
+*$'\n'*
+*$'\t'*
+*$'\r'*
+*[<>:"|?*]*
