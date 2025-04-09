@@ -112,6 +112,7 @@ This project uses GitHub Pages for deployment with continuous integration. All c
 
 ### Environment Setup for GitHub Pages
 
+#### Method 1: Using GitHub Web Interface
 To enable deployment from the main branch, configure the environment protection rules:
 
 1. In your GitHub repository, go to **Settings → Environments**
@@ -119,6 +120,34 @@ To enable deployment from the main branch, configure the environment protection 
 3. Under **Deployment branches and tags**, click **Add deployment branch rule**
 4. Add **main** as an allowed branch pattern
 5. Click **Save protection rules**
+
+#### Method 2: Using GitHub CLI
+You can also configure environment rules using the GitHub CLI:
+
+```bash
+# First ensure you're authenticated
+gh auth login
+
+# Update environment deployment branch policy
+gh api --method PUT repos/OWNER/REPO/environments/github-pages \
+  --input - <<< '{
+  "deployment_branch_policy": {
+    "protected_branches": false,
+    "custom_branch_policies": true
+  }
+}'
+
+# Add main branch to allowed deployment branches
+gh api --method POST repos/OWNER/REPO/environments/github-pages/deployment-branch-policies \
+  --input - <<< '{
+  "name": "main"
+}'
+
+# Verify configuration
+gh api repos/OWNER/REPO/environments/github-pages/deployment-branch-policies
+```
+
+Replace `OWNER` and `REPO` with your GitHub username and repository name.
 
 ### Continuous Integration
 
