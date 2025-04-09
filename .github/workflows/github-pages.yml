@@ -2,7 +2,7 @@ name: GitHub Pages Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, gh-pages-deploy ]
   workflow_dispatch: # Enable manual trigger
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -43,6 +43,14 @@ jobs:
         run: |
           # Add NO_DEPRECATION flag to suppress deprecation warnings
           NODE_NO_DEPRECATION=1 npm run test:report
+          
+          # Verify the report was generated
+          if [ -f "test-report/index.html" ]; then
+            echo "Test report generated successfully!"
+          else
+            echo "Warning: No test report was generated. Creating directory to ensure later steps work."
+            mkdir -p test-report
+          fi
         continue-on-error: true  # Ensure we can still deploy even if report generation fails
 
       - name: Build project
@@ -70,7 +78,13 @@ jobs:
           
           # Copy documentation and reports
           mkdir -p _site/test-report
-          cp -r test-report/* _site/test-report/ || true
+          
+          # Copy test reports, create placeholder if none exist
+          if [ -f "test-report/index.html" ]; then
+            cp -r test-report/* _site/test-report/ || true
+          else
+            echo "<html><body><h1>Test Report</h1><p>Tests were run but no report was generated during this build.</p></body></html>" > _site/test-report/index.html
+          fi
           
           # Copy documentation files
           cp README.md _config.yml _site/
@@ -78,12 +92,28 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      # Ensure test report is generated properly before uploading
+      - name: Prepare test report for artifact
+        run: |
+          # Create a directory for the report if it doesn't exist
+          mkdir -p test-report-artifact
+
+          # Copy the test report if it exists
+          if [ -f "test-report/index.html" ]; then
+            cp test-report/index.html test-report-artifact/
+            echo "Found and copied test report"
+          else
+            # Create a simple report if the real one doesn't exist
+            echo "<html><body><h1>Test Report</h1><p>Tests were run but no report was generated.</p></body></html>" > test-report-artifact/index.html
+            echo "Created placeholder test report"
+          fi
+
       # Upload test report as a separate artifact
       - name: Upload test report
         uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: test-report
+          path: test-report-artifact
           if-no-files-found: warn
 
       # Upload pages artifact

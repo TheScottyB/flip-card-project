@@ -115,6 +115,26 @@ Contributions are welcome! Please ensure all code adheres to our accessibility s
 3. Make your changes and run tests
 4. Submit a pull request
 
+## Deployment
+
+This project uses GitHub Pages for deployment. Due to environment protection rules, deployment follows these guidelines:
+
+### Automated Deployment
+- Push to the `gh-pages-deploy` branch to trigger automatic deployment
+- The GitHub Action will build, test, and deploy to GitHub Pages
+
+### Manual Deployment
+1. Make changes to the `main` branch
+2. When ready to deploy, merge or cherry-pick changes to the `gh-pages-deploy` branch
+3. Push the `gh-pages-deploy` branch to trigger the deployment workflow
+
+### Environment Protection
+If you encounter "Branch not allowed to deploy" errors:
+1. Go to the GitHub repository settings
+2. Navigate to "Environments" → "github-pages"
+3. Under "Deployment branches and tags", add the required branch
+4. Save the changes
+
 ## License
 
 This project is licensed under the ISC License - see the LICENSE file for details.
