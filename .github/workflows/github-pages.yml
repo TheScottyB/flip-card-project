@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p _site
           # Copy HTML files from root
-          cp index.html multi-card.html demo-card.html react-card.html _site/
+          cp index.html multi-card.html demo-card.html react-card.html universal-demo.html _site/
           
           # Copy directories with source files
           mkdir -p _site/src
@@ -73,7 +73,7 @@ jobs:
           cp -r test-report/* _site/test-report/ || true
           
           # Copy documentation files
-          cp README.md _config.yml _site/
+          cp README.md _config.yml UNIVERSAL-CARD-README.md _site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
