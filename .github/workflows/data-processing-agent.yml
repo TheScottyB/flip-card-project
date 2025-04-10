@@ -1,0 +1,246 @@
+name: Data Processing Agent
+
+# This workflow processes card interaction data collected from users
+# It's triggered by the GitHub App when new interaction data is received
+
+on:
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode with sample data'
+        required: false
+        default: 'false'
+        type: 'boolean'
+  
+  # Triggered via repository_dispatch by the GitHub App
+  repository_dispatch:
+    types: [card_interaction_event]
+
+# Define environment variables
+env:
+  DATA_RETENTION_DAYS: 30
+  ANALYSIS_THRESHOLD: 100 # Minimum interactions for pattern analysis
+
+jobs:
+  process_interaction_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g @octokit/core
+      
+      - name: Get interaction data
+        id: get_data
+        run: |
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            # Use data from the webhook payload
+            echo "Processing real interaction data from webhook"
+            echo '${{ toJson(github.event.client_payload) }}' > interaction_data.json
+          else
+            # Use sample data for testing
+            echo "Using sample data for testing"
+            cat > interaction_data.json << EOL
+            {
+              "sessionId": "test-session-$(date +%s)",
+              "deviceCapabilities": {
+                "touch": true,
+                "pointer": false,
+                "hover": false,
+                "reducedMotion": false,
+                "darkMode": true,
+                "screenWidth": 375,
+                "connection": {
+                  "type": "4g",
+                  "rtt": 100
+                }
+              },
+              "interactions": [
+                {
+                  "type": "flip",
+                  "timestamp": $(date +%s000),
+                  "isFlipped": true,
+                  "triggerMethod": "touch"
+                },
+                {
+                  "type": "flip",
+                  "timestamp": $(( $(date +%s) + 30 ))000,
+                  "isFlipped": false,
+                  "triggerMethod": "touch"
+                }
+              ],
+              "sessionStart": $(( $(date +%s) - 300 ))000,
+              "sessionDuration": 300000
+            }
+            EOL
+          fi
+          
+          # Check if we have valid data
+          if jq empty interaction_data.json 2>/dev/null; then
+            echo "data_valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "data_valid=false" >> $GITHUB_OUTPUT
+            echo "Invalid JSON data received"
+          fi
+      
+      - name: Process interaction data
+        if: steps.get_data.outputs.data_valid == 'true'
+        id: process_data
+        run: |
+          # Create processing script
+          cat > process_data.js << EOL
+          const fs = require('fs');
+          const { Octokit } = require('@octokit/core');
+          
+          // Helper function to get device category
+          function categorizeDevice(data) {
+            const { screenWidth, touch, pointer } = data.deviceCapabilities;
+            
+            if (screenWidth < 768) return 'mobile';
+            if (screenWidth < 1024) return 'tablet';
+            return 'desktop';
+          }
+          
+          // Process the data
+          async function processData() {
+            // Read interaction data
+            const rawData = fs.readFileSync('interaction_data.json', 'utf8');
+            const data = JSON.parse(rawData);
+            
+            // Basic analysis
+            const deviceCategory = categorizeDevice(data);
+            const interactionCount = data.interactions.length;
+            const avgTimeBeforeFlip = calculateAvgTimeBeforeFlip(data);
+            const mostUsedInputMethod = findMostUsedInputMethod(data);
+            
+            // Prepare summary
+            const summary = {
+              sessionId: data.sessionId || \`session-\${Date.now()}\`,
+              deviceCategory,
+              interactionCount,
+              avgTimeBeforeFlip,
+              mostUsedInputMethod,
+              timestamp: new Date().toISOString(),
+              raw: data
+            };
+            
+            // Save processed data
+            fs.writeFileSync('processed_data.json', JSON.stringify(summary, null, 2));
+            console.log('Data processing completed');
+            console.log(\`Device Category: \${deviceCategory}\`);
+            console.log(\`Interaction Count: \${interactionCount}\`);
+            console.log(\`Avg Time Before Flip: \${avgTimeBeforeFlip}ms\`);
+            console.log(\`Most Used Input Method: \${mostUsedInputMethod}\`);
+            
+            // Return key metrics
+            return {
+              deviceCategory,
+              interactionCount,
+              avgTimeBeforeFlip,
+              mostUsedInputMethod
+            };
+          }
+          
+          function calculateAvgTimeBeforeFlip(data) {
+            if (!data.interactions || data.interactions.length === 0) return 0;
+            
+            // Filter flip events
+            const flipEvents = data.interactions.filter(i => i.type === 'flip');
+            if (flipEvents.length === 0) return 0;
+            
+            // Use session start as reference point for first flip
+            const firstFlipTime = flipEvents[0].timestamp - data.sessionStart;
+            
+            // Calculate time differences between consecutive flips
+            let totalTime = firstFlipTime;
+            let count = 1;
+            
+            for (let i = 1; i < flipEvents.length; i++) {
+              totalTime += flipEvents[i].timestamp - flipEvents[i-1].timestamp;
+              count++;
+            }
+            
+            return Math.round(totalTime / count);
+          }
+          
+          function findMostUsedInputMethod(data) {
+            if (!data.interactions || data.interactions.length === 0) {
+              return data.deviceCapabilities.touch ? 'touch' : 'mouse';
+            }
+            
+            // Count occurrences of each input method
+            const methods = {};
+            data.interactions.forEach(interaction => {
+              const method = interaction.triggerMethod || 'unknown';
+              methods[method] = (methods[method] || 0) + 1;
+            });
+            
+            // Find the method with the highest count
+            let mostUsed = 'unknown';
+            let highestCount = 0;
+            
+            Object.entries(methods).forEach(([method, count]) => {
+              if (count > highestCount) {
+                mostUsed = method;
+                highestCount = count;
+              }
+            });
+            
+            return mostUsed;
+          }
+          
+          // Run the processor
+          processData().catch(console.error);
+          EOL
+          
+          # Execute processing
+          node process_data.js
+          
+          # Extract key metrics from the processed data
+          DEVICE_CATEGORY=$(jq -r '.deviceCategory' processed_data.json)
+          INTERACTION_COUNT=$(jq -r '.interactionCount' processed_data.json)
+          AVG_TIME=$(jq -r '.avgTimeBeforeFlip' processed_data.json)
+          INPUT_METHOD=$(jq -r '.mostUsedInputMethod' processed_data.json)
+          
+          # Output metrics for next steps
+          echo "device_category=$DEVICE_CATEGORY" >> $GITHUB_OUTPUT
+          echo "interaction_count=$INTERACTION_COUNT" >> $GITHUB_OUTPUT
+          echo "avg_time=$AVG_TIME" >> $GITHUB_OUTPUT
+          echo "input_method=$INPUT_METHOD" >> $GITHUB_OUTPUT
+      
+      - name: Store processed data
+        if: steps.get_data.outputs.data_valid == 'true'
+        run: |
+          # Create a GitHub issue to store the processed data
+          # In a real implementation, we would use the Octokit SDK and GitHub token
+          
+          # For demo purposes, we're just showing how it would work
+          echo "Creating GitHub issue to store processed data..."
+          echo "Title: Card Interaction Data - ${{ steps.process_data.outputs.device_category }}"
+          echo "Labels: data, ${{ steps.process_data.outputs.device_category }}, ${{ steps.process_data.outputs.input_method }}"
+          echo "Body: Processed interaction data from session"
+          echo "  - Device Category: ${{ steps.process_data.outputs.device_category }}"
+          echo "  - Interaction Count: ${{ steps.process_data.outputs.interaction_count }}"
+          echo "  - Avg Time Before Flip: ${{ steps.process_data.outputs.avg_time }}ms"
+          echo "  - Input Method: ${{ steps.process_data.outputs.input_method }}"
+          
+          # In a real implementation: 
+          # gh issue create --title "Card Interaction Data" --body "$(cat processed_data.json)" --label "data,${{ steps.process_data.outputs.device_category }}"
+      
+      - name: Trigger optimization agent
+        if: steps.get_data.outputs.data_valid == 'true' && github.event_name == 'repository_dispatch'
+        run: |
+          echo "Triggering card optimization agent with processed data..."
+          # In a real implementation, we would trigger the optimization agent workflow
+          # using the GitHub API or the gh workflow command

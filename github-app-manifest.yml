@@ -1,0 +1,27 @@
+# GitHub App Manifest for Flip Card Agent System
+# This file defines the GitHub App configuration for the event-driven architecture
+
+name: Flip Card Agent
+description: Event-driven, multi-agent system for Universal Flip Card components
+url: https://github.com/TheScottyB/flip-card-project
+public: false
+webhook:
+  active: true
+  
+# Required permissions for the app
+default_permissions:
+  # Repository permissions
+  contents: write        # Modify card configurations and optimizations
+  issues: write          # Store interaction data and analysis results
+  discussions: write     # Store aggregated insights and reports
+  actions: write         # Trigger agent workflows for processing
+  
+# Events that the app will subscribe to
+default_events:
+  - repository_dispatch  # For receiving custom events from clients
+
+# Repositories where the app can be installed
+# For public apps, this should be omitted
+default_installations:
+  repositories:
+    - flip-card-project
