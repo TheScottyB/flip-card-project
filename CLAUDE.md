@@ -1,37 +1,34 @@
 # CLAUDE.md - Flip Card Project Guide
 
 ## Build & Test Commands
-- Run development server: `npm run dev`
-- Build for development: `npm run build`
-- Build for production: `npm run build:prod`
+- Start development server: `npm run dev` (builds + starts http-server on port 8080)
+- Build for development: `npm run build` (postcss processing only)
+- Build for production: `npm run build:prod` (with optimization)
+- Build everything: `npm run build:all` (includes JS minification)
 - Run all tests: `npm test`
-- Run a single test: `npx jest src/tests/filename.test.js`
-- Run accessibility tests: `npm run test:a11y`
+- Run specific test: `npx jest src/tests/filename.test.js`
+- Run specific test with timeout: `npx jest src/tests/filename.test.js --testTimeout=60000`
+- Run a11y tests: `npm run test:a11y`
 - Generate test report: `npm run test:report`
-- Minify CSS/JS: `npm run minify`
-- Lint/format: Currently no explicit lint commands found
+- Start webhook proxy: `cd webhook-proxy && npm start`
 
 ## Code Style Guidelines
-- **React Components**: Use functional components with TypeScript (.tsx)
-- **Imports**: Import React explicitly (`import React from 'react'`)
-- **Exports**: Use named exports for utility functions, default exports for components
+- **Architecture**: Follow event-driven architecture patterns for tracking
+- **Components**: Use functional React components with TypeScript (.tsx)
+- **HTML Structure**: Follow BEM-like structure for card components (card, card-inner, card-front, card-back)
+- **Imports/Exports**: Import React explicitly; use named exports for utilities, default for components
 - **Naming**:
-  - Components: PascalCase (ContactCard)
-  - Functions/variables: camelCase (getCardData)
-  - Files: kebab-case (contact-card.tsx)
-- **JSDoc**: Include JSDoc comments for all functions, components, and their props:
-  ```javascript
-  /**
-   * @param {HTMLElement} card - The flip card element
-   * @param {boolean} shouldFlip - Whether the card should be flipped
-   */
-  ```
-- **Accessibility**: Ensure WCAG 2.1 AA compliance with proper ARIA attributes:
-  - Use `aria-pressed`, `aria-expanded` and `aria-controls` for flip triggers
-  - Include `aria-live` regions for state changes
-  - Support keyboard interactions (Tab, Enter, Space, Escape)
-  - Respect prefers-reduced-motion setting
-- **Error Handling**: Use try/catch blocks with meaningful error messages
-- **Testing**: Include unit tests for components and accessibility tests
+  - Components/Classes: PascalCase (UniversalFlipCard)
+  - Functions/variables: camelCase (recordInteraction)
+  - Files: kebab-case (card-event-tracker.js)
+  - CSS classes: card-based namespacing (flip-card-front, universal-card-inner)
+- **Documentation**: Use JSDoc for all functions, classes and parameters
+- **Accessibility**: Ensure WCAG 2.1 AA compliance with:
+  - Proper ARIA roles, states (aria-pressed, aria-expanded, aria-controls)
+  - Focus management and keyboard navigation (Tab, Enter, Space, Escape)
+  - Screen reader announcements via aria-live regions
+  - Support for reduced motion preference
+- **Error Handling**: Use try/catch with meaningful error messages, avoid uncaught exceptions
+- **Testing**: Write tests for all components, test both functionality and accessibility
 
-Follow these guidelines when modifying or creating new code for consistency.
+Follow these guidelines when modifying code to maintain consistency and quality.
