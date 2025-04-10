@@ -9,6 +9,7 @@ An adaptive, device-agnostic flip card component that provides optimal user expe
 - Adapts to device capabilities without reducing features
 - Uses modern CSS (Container Queries, feature queries, etc.)
 - Fully accessible with ARIA support and screen reader announcements
+- Voice control using Web Speech API for hands-free operation
 - Respects user preferences (reduced motion, color scheme, etc.)
 
 ## Live Demo
@@ -117,7 +118,12 @@ const card = new UniversalFlipCard('#my-card', {
   announceToScreenReader: true, // Enable/disable screen reader announcements
   disableAutoFocus: false,      // Disable automatic focus management
   customFrontTriggerLabel: "View details", // Custom ARIA label for front trigger
-  customBackTriggerLabel: "Return to front"  // Custom ARIA label for back trigger
+  customBackTriggerLabel: "Return to front",  // Custom ARIA label for back trigger
+  enableVoiceControl: false,    // Enable/disable voice control
+  voiceCommands: {              // Customize voice commands
+    flip: ['flip', 'turn', 'rotate'],
+    flipBack: ['back', 'return', 'front']
+  }
 });
 ```
 
@@ -129,10 +135,13 @@ card.flip(true);  // Flip to back
 card.flip(false); // Flip to front
 
 // Change input method simulation
-card.setInputMethod('touch'); // Options: 'touch', 'mouse', 'keyboard'
+card.setInputMethod('touch'); // Options: 'touch', 'mouse', 'keyboard', 'voice'
 
 // Toggle hover behavior
 card.setHoverEnabled(false);
+
+// Enable or disable voice control
+card.setVoiceControlEnabled(true);
 ```
 
 ### Events
@@ -143,6 +152,50 @@ card.addEventListener('cardFlip', (e) => {
 });
 ```
 
+## Voice Control
+
+The Universal Flip Card supports voice control for hands-free operation:
+
+### Enabling Voice Control
+
+```javascript
+// Enable voice control when initializing
+const card = new UniversalFlipCard('#my-card', { enableVoiceControl: true });
+
+// Or enable it later
+card.setVoiceControlEnabled(true);
+```
+
+### Voice Commands
+
+By default, the card responds to these commands:
+- To flip to back: "flip", "turn", "rotate"
+- To flip to front: "back", "return", "front"
+
+You can customize the commands:
+
+```javascript
+const card = new UniversalFlipCard('#my-card', {
+  enableVoiceControl: true,
+  voiceCommands: {
+    flip: ['open', 'reveal', 'show details'],
+    flipBack: ['close', 'hide', 'back to overview']
+  }
+});
+```
+
+### Visual Indicator
+
+When voice control is enabled, a small indicator appears in the bottom-right corner of the screen to show that voice control is active.
+
+### Browser Support
+
+Voice control requires browsers that support the Web Speech API:
+- Chrome (desktop and Android)
+- Edge
+- Safari (iOS and macOS)
+- Opera
+
 ## Browser Support
 
 The component is designed for modern browsers that support:
@@ -150,6 +203,7 @@ The component is designed for modern browsers that support:
 - CSS Custom Properties
 - Container Queries (or uses fallback layout)
 - 3D transforms
+- Web Speech API (for voice control feature)
 
 Legacy browsers receive a functional but simplified experience.
 

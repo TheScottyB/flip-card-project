@@ -3,8 +3,15 @@
  * Used primarily for accessibility testing with Puppeteer and Axe
  */
 module.exports = {
-  // Test environment for DOM testing
   testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.js'],
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest'
+  },
+  moduleNameMapper: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+  },
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   
   // Test files pattern
   testMatch: [
@@ -13,6 +20,8 @@ module.exports = {
   ],
   
   // Test coverage
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
   collectCoverageFrom: [
     "src/js/**/*.js",
     "!**/node_modules/**",

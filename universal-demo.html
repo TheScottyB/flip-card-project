@@ -6,6 +6,15 @@
   <title>Universal Flip Card Demo</title>
   <link rel="stylesheet" href="src/styles/universal-flip-card.css">
   <style>
+    /* Voice control help text */
+    .control-help {
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-top: 0.25rem;
+      opacity: 0.8;
+      flex-basis: 100%;
+    }
+    
     /* Additional product card styling */
     .product-image {
       aspect-ratio: 1;
@@ -368,6 +377,12 @@
         <button class="control-btn" id="toggle-theme">Toggle Dark Mode</button>
         <button class="control-btn" id="toggle-contrast">Toggle High Contrast</button>
       </div>
+      
+      <div class="control-group">
+        <span class="control-label">Voice Control:</span>
+        <button class="control-btn" id="toggle-voice">Enable Voice Control</button>
+        <p class="control-help">Try saying "flip card" or "turn back"</p>
+      </div>
     </section>
     
     <footer class="demo-footer">
@@ -495,6 +510,22 @@
         const button = document.getElementById('toggle-contrast');
         const isActive = button.classList.toggle('active');
         document.body.classList.toggle('high-contrast', isActive);
+      });
+      
+      // Voice control toggle
+      document.getElementById('toggle-voice').addEventListener('click', () => {
+        const button = document.getElementById('toggle-voice');
+        const isActive = button.classList.toggle('active');
+        
+        if (window.demoCard) {
+          window.demoCard.setVoiceControlEnabled(isActive);
+          
+          if (isActive) {
+            button.textContent = 'Disable Voice Control';
+          } else {
+            button.textContent = 'Enable Voice Control';
+          }
+        }
       });
     }
     
