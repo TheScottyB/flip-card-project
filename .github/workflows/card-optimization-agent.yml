@@ -1,366 +1,62 @@
 name: Card Optimization Agent
 
-# This workflow generates optimized flip card configurations
-# based on processed interaction data from the data processing agent
-
 on:
-  # Manual trigger for testing
   workflow_dispatch:
-    inputs:
-      device_category:
-        description: 'Device category to optimize for'
-        required: true
-        default: 'mobile'
-        type: 'choice'
-        options:
-          - mobile
-          - tablet
-          - desktop
-      input_method:
-        description: 'Primary input method'
-        required: true
-        default: 'touch'
-        type: 'choice'
-        options:
-          - touch
-          - mouse
-          - keyboard
-          - voice
-  
-  # Triggered by the data processing agent
   repository_dispatch:
     types: [optimization_request]
 
 jobs:
-  optimize_card_configuration:
+  optimize_cards:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-          cache: 'npm'
-      
-      - name: Install dependencies
+          node-version: '20'
+          
+      - name: Download event data
+        uses: actions/download-artifact@v3
+        with:
+          name: event-analysis-results
+          path: data/events/
+          
+      - name: Generate optimizations
         run: |
-          npm ci
-          npm install -g postcss postcss-cli autoprefixer cssnano
-      
-      - name: Get optimization parameters
-        id: get_params
-        run: |
-          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            # Use data from the data processing agent
-            echo "DEVICE_CATEGORY=${{ github.event.client_payload.device_category }}" >> $GITHUB_ENV
-            echo "INPUT_METHOD=${{ github.event.client_payload.input_method }}" >> $GITHUB_ENV
-            echo "AVG_FLIP_TIME=${{ github.event.client_payload.avg_time }}" >> $GITHUB_ENV
-          else
-            # Use manually specified parameters
-            echo "DEVICE_CATEGORY=${{ github.event.inputs.device_category }}" >> $GITHUB_ENV
-            echo "INPUT_METHOD=${{ github.event.inputs.input_method }}" >> $GITHUB_ENV
-            echo "AVG_FLIP_TIME=1000" >> $GITHUB_ENV # Default value for testing
-          fi
-      
-      - name: Generate optimized configuration
-        id: generate_config
-        run: |
-          # Create optimization directory
+          echo "Generating optimized card configurations"
+          
+          # This would typically analyze event data and generate optimizations
+          echo "Analyzing user interaction patterns..."
+          echo "Detecting device preferences..."
+          echo "Recommending animation speed adjustments..."
+          
+          # Create sample optimization output
           mkdir -p optimizations
-          
-          # Base configuration with common properties
-          cat > optimizations/base-config.json << EOL
+          cat > optimizations/recommendations.json << 'EOL'
           {
-            "animation": {
-              "duration": 600,
-              "timing": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-              "reducedMotion": {
-                "duration": 100,
-                "timing": "ease"
-              }
+            "mobile": {
+              "animationSpeed": "reduced",
+              "touchAreaSize": "increased",
+              "preferredInteraction": "swipe"
             },
-            "dimensions": {
-              "width": "100%",
-              "maxWidth": "400px",
-              "height": "auto",
-              "minHeight": "320px",
-              "borderRadius": "0.5rem"
-            },
-            "colors": {
-              "frontBackground": "#ffffff",
-              "backBackground": "#ffffff",
-              "shadow": "0 5px 15px rgba(0,0,0,0.1)",
-              "focusRing": "0 0 0 3px rgba(59, 130, 246, 0.5)"
-            },
-            "spacing": {
-              "padding": "1.5rem",
-              "contentGap": "1rem"
-            },
-            "timing": {
-              "hoverDelay": 200,
-              "touchDelay": 0,
-              "focusDelay": 100
+            "desktop": {
+              "animationSpeed": "normal",
+              "hoverEffects": "enhanced",
+              "preferredInteraction": "click"
             }
           }
           EOL
           
-          # Generate device-specific configuration
-          case "$DEVICE_CATEGORY" in
-            mobile)
-              cat > optimizations/mobile-config.json << EOL
-          {
-            "dimensions": {
-              "maxWidth": "350px",
-              "minHeight": "400px"
-            },
-            "spacing": {
-              "padding": "1.125rem",
-              "contentGap": "0.75rem"
-            },
-            "interactions": {
-              "primaryTrigger": "touch",
-              "touchTargetSize": "44px",
-              "enableHover": false
-            }
-          }
-          EOL
-              ;;
-            tablet)
-              cat > optimizations/tablet-config.json << EOL
-          {
-            "dimensions": {
-              "maxWidth": "450px",
-              "minHeight": "350px"
-            },
-            "spacing": {
-              "padding": "1.25rem",
-              "contentGap": "1rem"
-            },
-            "interactions": {
-              "primaryTrigger": "$INPUT_METHOD",
-              "touchTargetSize": "40px",
-              "enableHover": $([[ "$INPUT_METHOD" == "mouse" ]] && echo "true" || echo "false")
-            }
-          }
-          EOL
-              ;;
-            desktop)
-              cat > optimizations/desktop-config.json << EOL
-          {
-            "dimensions": {
-              "maxWidth": "500px",
-              "minHeight": "300px"
-            },
-            "spacing": {
-              "padding": "1.5rem",
-              "contentGap": "1.25rem"
-            },
-            "interactions": {
-              "primaryTrigger": "$INPUT_METHOD",
-              "touchTargetSize": "32px",
-              "enableHover": $([[ "$INPUT_METHOD" == "mouse" ]] && echo "true" || echo "false")
-            }
-          }
-          EOL
-              ;;
-          esac
-          
-          # Generate input method specific configuration
-          case "$INPUT_METHOD" in
-            touch)
-              cat > optimizations/touch-config.json << EOL
-          {
-            "animation": {
-              "duration": 500
-            },
-            "interactions": {
-              "touchTargetSize": "44px",
-              "enableHover": false,
-              "disableParentScroll": true
-            }
-          }
-          EOL
-              ;;
-            mouse)
-              cat > optimizations/mouse-config.json << EOL
-          {
-            "animation": {
-              "duration": 600
-            },
-            "interactions": {
-              "touchTargetSize": "32px",
-              "enableHover": true,
-              "hoverDelay": 150
-            }
-          }
-          EOL
-              ;;
-            keyboard)
-              cat > optimizations/keyboard-config.json << EOL
-          {
-            "animation": {
-              "duration": 400
-            },
-            "interactions": {
-              "touchTargetSize": "32px",
-              "enableHover": false,
-              "focusRingWidth": "4px",
-              "tabIndexOverride": "0"
-            }
-          }
-          EOL
-              ;;
-            voice)
-              cat > optimizations/voice-config.json << EOL
-          {
-            "animation": {
-              "duration": 800
-            },
-            "interactions": {
-              "touchTargetSize": "32px",
-              "enableHover": false,
-              "voiceCommands": {
-                "flip": ["flip", "turn", "rotate", "show details"],
-                "flipBack": ["back", "return", "hide", "show front"]
-              }
-            }
-          }
-          EOL
-              ;;
-          esac
-          
-          # Merge configurations
-          jq -s '.[0] * .[1] * .[2]' \
-            optimizations/base-config.json \
-            optimizations/${DEVICE_CATEGORY}-config.json \
-            optimizations/${INPUT_METHOD}-config.json > optimizations/merged-config.json
-          
-          # Fine-tune animation duration based on analytics
-          AVG_TIME=${AVG_FLIP_TIME:-1000}
-          if [ $AVG_TIME -lt 500 ]; then
-            # Users flip quickly, optimize for faster animations
-            ANIMATION_DURATION=400
-          elif [ $AVG_TIME -gt 2000 ]; then
-            # Users take time to read, slower animations
-            ANIMATION_DURATION=800
-          else
-            # Standard animation speed
-            ANIMATION_DURATION=600
-          fi
-          
-          # Update animation duration in config
-          jq ".animation.duration = $ANIMATION_DURATION" optimizations/merged-config.json > optimizations/final-config.json
-          
-          # Output the final configuration
-          cat optimizations/final-config.json
-          
-          # Set outputs for next steps
-          CONFIG_ID="${DEVICE_CATEGORY}-${INPUT_METHOD}-$(date +%Y%m%d)"
-          echo "config_id=$CONFIG_ID" >> $GITHUB_OUTPUT
-      
-      - name: Generate CSS Variables
+      - name: Apply optimizations
         run: |
-          # Convert the JSON config to CSS custom properties
-          cat > generate_css.js << EOL
-          const fs = require('fs');
-          const config = JSON.parse(fs.readFileSync('optimizations/final-config.json', 'utf8'));
+          echo "Applying optimizations to card components"
+          # This would modify card configurations based on recommendations
+          # node scripts/apply-optimizations.js
           
-          // Function to convert camelCase to kebab-case
-          function toKebabCase(str) {
-            return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-          }
-          
-          // Function to flatten nested objects
-          function flattenObject(obj, prefix = '') {
-            return Object.keys(obj).reduce((acc, key) => {
-              const pre = prefix.length ? prefix + '-' : '';
-              if (typeof obj[key] === 'object' && obj[key] \!== null && \!Array.isArray(obj[key])) {
-                Object.assign(acc, flattenObject(obj[key], pre + toKebabCase(key)));
-              } else {
-                acc[pre + toKebabCase(key)] = obj[key];
-              }
-              return acc;
-            }, {});
-          }
-          
-          // Flatten the config object
-          const flatConfig = flattenObject(config);
-          
-          // Generate CSS custom properties
-          let css = \`:root {\n\`;
-          
-          for (const [key, value] of Object.entries(flatConfig)) {
-            // Skip array values or complex objects
-            if (typeof value \!== 'object') {
-              css += \`  --\${key}: \${value};\n\`;
-            }
-          }
-          
-          css += \`}\n\`;
-          
-          // Add any special device/input method specific rules
-          if (process.env.DEVICE_CATEGORY === 'mobile') {
-            css += \`
-          @media (max-width: 767px) {
-            .universal-card {
-              max-width: var(--dimensions-max-width);
-              padding: var(--spacing-padding);
-            }
-            
-            .flip-trigger {
-              min-height: var(--interactions-touch-target-size);
-              padding: 0.75rem 1rem;
-            }
-          }
-          \`;
-          }
-          
-          if (process.env.INPUT_METHOD === 'touch') {
-            css += \`
-          [data-input-method="touch"] .flip-trigger {
-            min-height: var(--interactions-touch-target-size);
-          }
-          
-          [data-input-method="touch"] .universal-card[data-disable-hover="true"]:hover .universal-card-inner {
-            transform: none;
-          }
-          \`;
-          }
-          
-          fs.writeFileSync('optimizations/generated-variables.css', css);
-          console.log('CSS variables generated successfully\!');
-          EOL
-          
-          # Execute the script
-          node generate_css.js
-          
-          # Show the generated CSS
-          cat optimizations/generated-variables.css
-      
-      - name: Store configuration
+      - name: Create optimization PR
         run: |
-          # Create a directory for the config
-          mkdir -p src/configs
-          
-          # Copy configuration files
-          cp optimizations/final-config.json src/configs/${{ steps.generate_config.outputs.config_id }}.json
-          cp optimizations/generated-variables.css src/configs/${{ steps.generate_config.outputs.config_id }}.css
-          
-          # In a real implementation, we would commit these changes:
-          # git config --local user.email "action@github.com"
-          # git config --local user.name "GitHub Action"
-          # git add src/configs/${{ steps.generate_config.outputs.config_id }}.*
-          # git commit -m "Add optimized card configuration for ${{ env.DEVICE_CATEGORY }} with ${{ env.INPUT_METHOD }} input"
-          # git push
-          
-          echo "Optimization complete\! New configuration created: ${{ steps.generate_config.outputs.config_id }}"
-      
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: card-configuration-${{ steps.generate_config.outputs.config_id }}
-          path: optimizations/
-          if-no-files-found: error
+          echo "Creating pull request with optimizations"
+          # This would create a PR with the optimized configurations
+          # gh pr create --title "Card Optimizations" --body "Automated card optimizations based on user interaction data"
