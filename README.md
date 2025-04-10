@@ -18,6 +18,8 @@ View the live demos on GitHub Pages:
 - **Responsive Design**: Works on all screen sizes
 - **Multiple Card Variants**: Standard, mini, and tall card formats
 - **CSS 3D Transforms**: Smooth flip animations with CSS
+- **Event-Driven Architecture**: Analytics and optimization system based on user interactions
+- **GitHub-Based Backend**: Serverless infrastructure using GitHub Apps and Actions
 - **Touch Device Support**: Works with touch gestures on mobile devices
 - **Reduced Motion Support**: Respects user's motion preference settings
 - **Browser Compatibility**: Works across all modern browsers with appropriate fallbacks
@@ -95,6 +97,22 @@ To use the flip card components in your project:
 - `/src/tests/` - Test files
 - `/dist/` - Distribution files (compiled CSS/JS)
 - `/react-components/` - React-specific components
+- `/webhook-proxy/` - Server for GitHub App integration
+- `/.github/workflows/` - GitHub Actions automation
+
+## Event-Driven Architecture
+
+The project includes an event-driven, multi-agent architecture for analytics and optimization:
+
+- **Client-Side Tracking**: JavaScript module for collecting interaction data
+- **Webhook Proxy Server**: Express server for handling GitHub API integration
+- **GitHub App Integration**: Authentication and API access 
+- **Multi-Agent Workflows**: GitHub Actions workflows for processing and optimization
+
+Documentation:
+- [Event-Driven Architecture Overview](EVENT-DRIVEN-ARCHITECTURE.md) - System design
+- [Event Tracking Quick Start](EVENT-TRACKING-QUICKSTART.md) - Setup instructions
+- [GitHub App Setup](GITHUB-APP-SETUP.md) - Detailed configuration
 
 ## Accessibility Features
 
