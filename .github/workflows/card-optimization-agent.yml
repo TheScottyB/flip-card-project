@@ -277,7 +277,7 @@ jobs:
           function flattenObject(obj, prefix = '') {
             return Object.keys(obj).reduce((acc, key) => {
               const pre = prefix.length ? prefix + '-' : '';
-              if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+              if (typeof obj[key] === 'object' && obj[key] \!== null && \!Array.isArray(obj[key])) {
                 Object.assign(acc, flattenObject(obj[key], pre + toKebabCase(key)));
               } else {
                 acc[pre + toKebabCase(key)] = obj[key];
@@ -294,7 +294,7 @@ jobs:
           
           for (const [key, value] of Object.entries(flatConfig)) {
             // Skip array values or complex objects
-            if (typeof value !== 'object') {
+            if (typeof value \!== 'object') {
               css += \`  --\${key}: \${value};\n\`;
             }
           }
@@ -331,7 +331,7 @@ jobs:
           }
           
           fs.writeFileSync('optimizations/generated-variables.css', css);
-          console.log('CSS variables generated successfully!');
+          console.log('CSS variables generated successfully\!');
           EOL
           
           # Execute the script
@@ -356,7 +356,7 @@ jobs:
           # git commit -m "Add optimized card configuration for ${{ env.DEVICE_CATEGORY }} with ${{ env.INPUT_METHOD }} input"
           # git push
           
-          echo "Optimization complete! New configuration created: ${{ steps.generate_config.outputs.config_id }}"
+          echo "Optimization complete\! New configuration created: ${{ steps.generate_config.outputs.config_id }}"
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
