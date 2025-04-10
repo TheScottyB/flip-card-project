@@ -4,7 +4,7 @@
  */
 
 // Import the class we're testing
-import '../js/universal-flip-card.js';
+import '../core/universal-flip-card.js';
 
 // Utility functions for testing
 const simulateEvent = (element, eventName, options = {}) => {

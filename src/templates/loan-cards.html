@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive, accessible loan information cards with multiple loan types.">
+  <title>Loan Information Cards</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../dist/css/flip-card.min.css">
+  
+  <!-- Tailwind CSS - Only used for design aspects, not core functionality -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="../../dist/js/flip-card.min.js" as="script">
+  <link rel="preload" href="../../dist/js/mortgage-calculator.js" as="script">
+  
+  <style>
+    /* Navigation styles */
+    .card-tabs {
+      display: flex;
+      margin-bottom: -1px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .card-tab {
+      padding: 0.75rem 1.5rem;
+      background-color: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-bottom: none;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .card-tab.active {
+      background-color: white;
+      border-bottom: 1px solid white;
+      font-weight: bold;
+      color: #1e40af;
+    }
+    
+    .card-tab:hover:not(.active) {
+      background-color: #e5e7eb;
+    }
+    
+    /* Card container styles */
+    .card-container {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      background-color: white;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Hide inactive cards */
+    .loan-card {
+      display: none;
+    }
+    
+    .loan-card.active {
+      display: block;
+    }
+    
+    /* Card specific theme colors */
+    .home-start-theme {
+      color: #D2A487;
+    }
+    
+    .va-loans-theme {
+      color: #4338ca;
+    }
+    
+    .conventional-theme {
+      color: #047857;
+    }
+    
+    /* Diagonal stripe decorations */
+    .diagonal-stripes {
+      background-image: linear-gradient(45deg, #333 25%, transparent 25%, transparent 50%, #333 50%, #333 75%, transparent 75%, transparent);
+      background-size: 15px 15px;
+    }
+    
+    /* Banner designs */
+    .va-banner {
+      background: linear-gradient(135deg, #4338ca 0%, #818cf8 100%);
+      color: white;
+    }
+    
+    .conventional-banner {
+      background: linear-gradient(135deg, #047857 0%, #34d399 100%);
+      color: white;
+    }
+    
+    .home-start-banner {
+      background: linear-gradient(135deg, #D2A487 0%, #fcd34d 100%);
+      color: #1f2937;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Screen reader announcements live region -->
+  <div id="screen-reader-announcer" 
+       class="sr-only" 
+       aria-live="polite" 
+       aria-atomic="true">
+  </div>
+  
+  <main id="main-content" class="max-w-4xl mx-auto py-8">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+      Loan Information Cards
+    </h1>
+    
+    <!-- Tab Navigation -->
+    <div class="card-tabs" role="tablist" aria-label="Loan types">
+      <button id="tab-home-start" class="card-tab active" role="tab" 
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-green-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl conventional-theme" id="payment-result-conv" aria-live="polite" aria-atomic="true">$1,538.67</div>
+                  <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+              <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Principal and interest only. Taxes and insurance not included.</p>
+                </div>
+                  <div class="input-group">
+                    <label for="loan-amount-conv" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-conv" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                           value="350000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-conv" data-card-type="conventional">
+                    <div id="amount-hint-conv" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-conv" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-conv" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                             value="20" min="3" max="50" step="0.5" data-card-type="conventional">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-conv" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-conv" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                             value="6.0" min="0.1" max="15" step="0.125" data-card-type="conventional">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-conv" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-conv" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" data-card-type="conventional">
+                      <option value="30">30 years
+or</h3>
+                <div class="calculator-inputs space-y-3">
+                  <div class="input-group">
+                    <label for="loan-amount-va" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-va" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                           value="300000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-va" data-card-type="va-loans">
+                    <div id="amount-hint-va" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-va" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-va" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                             value="0" min="0" max="50" step="0.5" data-card-type="va-loans">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-va" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-va" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                             value="5.75" min="0.1" max="15" step="0.125" data-card-type="va-loans">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-va" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-va" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" data-card-type="va-loans">
+                      <option value="30">30 years</option>
+                      <option value="20">20 years</option>
+                      <option value="15">15 years</option>
+                      <option value="10">10 years</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-indigo-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl va-loans-theme" id="payment-result-va" aria-live="polite">$1,751.24</div>
+                </div>
+              </div>
+              
+              <!-- Banner (VA Loans) -->
+              <div class="va-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">Supporting those who served our country!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+or</h3>
+                <div class="calculator-inputs space-y-3">
+                  <div class="input-group">
+                    <label for="loan-amount-home" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                    <input type="number" id="loan-amount-home" class="calculator-input calc-loan-amount w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           value="250000" min="10000" max="2000000" step="5000" aria-describedby="amount-hint-home" data-card-type="home-start">
+                    <div id="amount-hint-home" class="text-xs text-gray-500 mt-1">Enter amount between $10,000 and $2,000,000</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="input-group">
+                      <label for="down-payment-home" class="block text-sm font-medium text-gray-700 mb-1">Down Payment (%)</label>
+                      <input type="number" id="down-payment-home" class="calculator-input calc-down-payment w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                             value="3.5" min="0" max="50" step="0.5" data-card-type="home-start">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label for="interest-rate-home" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                      <input type="number" id="interest-rate-home" class="calculator-input calc-interest-rate w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                             value="6.25" min="0.1" max="15" step="0.125" data-card-type="home-start">
+                    </div>
+                  </div>
+                  
+                  <div class="input-group">
+                    <label for="loan-term-home" class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                    <select id="loan-term-home" class="calculator-input calc-loan-term w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-card-type="home-start">
+                      <option value="30">30 years</option>
+                      <option value="20">20 years</option>
+                      <option value="15">15 years</option>
+                      <option value="10">10 years</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="calculation-result mt-4 p-3 bg-white rounded-lg border border-blue-200 text-center">
+                  <div class="result-label text-sm text-gray-600">Estimated Monthly Payment (P&I)</div>
+                  <div class="payment-result font-bold text-xl home-start-theme" id="payment-result-home" aria-live="polite">$1,538.67</div>
+                </div>
+              </div>
+              
+              <!-- Banner (Home Start) -->
+              <div class="home-start-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">We make your path to homeownership easier!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+              data-card="va-loans">
+        VA Loans
+      </button>
+      <button id="tab-conventional" class="card-tab" role="tab"
+              aria-selected="false" aria-controls="card-conventional"
+              data-card="conventional">
+        Conventional Loans
+      </button>
+    </div>
+    
+    <!-- Card Container -->
+    <div class="card-container">
+      <!-- Premier Home Start Card -->
+      <div id="card-home-start" class="loan-card active" role="tabpanel" aria-labelledby="tab-home-start">
+        <div class="flip-card card-standard mx-auto" tabindex="0">
+          <div class="flip-card-inner shadow-xl">
+            <!-- Front Side -->
+            <div class="flip-card-front bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center home-start-theme mb-4">
+                Premier Home Start Program
+              </h2>
+              
+              <!-- Program Overview -->
+              <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-blue-800 mb-2">Program Overview</h3>
+                <p class="mb-3">
+                  We make your path to homeownership easier with down payment assistance
+                  directly from Premier Mortgage Resources.
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>FHA 30-Year Fixed-Rate Mortgage paired with down payment assistance</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>5% down payment assistance with 10-year amortized term</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>No required borrower contribution</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Key Features -->
+              <div class="mb-4">
+                <h3 class="font-semibold text-blue-800 mb-2">Key Features</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>Available nationwide (except New York)</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>No income limits</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>Minimum 600 FICO score</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Banner (Home Start) -->
+              <div class="home-start-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">We make your path to homeownership easier!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+              <button class="flip-trigger mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                      aria-label="Flip card to view more Premier Home Start details">
+                View Program Details
+              </button>
+            </div>
+            
+            <!-- Back Side -->
+            <div class="flip-card-back bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center home-start-theme mb-4">
+                Premier Home Start Details
+              </h2>
+              
+              <!-- Qualification Requirements -->
+              <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-yellow-800 mb-2">Qualification Requirements</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-yellow-600 mr-2">•</span>
+                    <span>Purchase only (no refinances)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-yellow-600 mr-2">•</span>
+                    <span>Loan-to-Value (LTV) 90% - 96.5%</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-yellow-600 mr-2">•</span>
+                    <span>Non-occupant borrowers allowed (family members only)</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Eligible Properties -->
+              <div class="bg-blue-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-blue-800 mb-2">Eligible Properties</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Primary residences (1-2 units)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Single-family homes, PUDs, townhomes, condos</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Attached/detached homes, modular & manufactured homes</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Contact Info -->
+              <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">For More Information</h3>
+                <p class="text-gray-700">Contact Emelie Maybrook at 312-772-6850 or <a href="mailto:emelie.maybrook@prmloans.com" class="text-blue-600 hover:underline">emelie.maybrook@prmloans.com</a></p>
+              </div>
+              
+              <!-- Back Side Flip Trigger -->
+              <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      aria-label="Flip card back to Premier Home Start overview">
+                Back to Overview
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- VA Loans Card -->
+      <div id="card-va-loans" class="loan-card" role="tabpanel" aria-labelledby="tab-va-loans">
+        <div class="flip-card card-standard mx-auto" tabindex="0">
+          <div class="flip-card-inner shadow-xl">
+            <!-- Front Side -->
+            <div class="flip-card-front bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center va-loans-theme mb-4">
+                VA Loans for Veterans
+              </h2>
+              
+              <!-- Program Overview -->
+              <div class="bg-indigo-50 p-4 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-indigo-800 mb-2">Program Overview</h3>
+                <p class="mb-3">
+                  Specialized loans for veterans, service members, and eligible surviving spouses, backed by the U.S. Department of Veterans Affairs.
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <span class="text-indigo-500 mr-2">•</span>
+                    <span>No down payment required in most cases</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-indigo-500 mr-2">•</span>
+                    <span>No private mortgage insurance (PMI)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-indigo-500 mr-2">•</span>
+                    <span>Competitive interest rates</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Key Features -->
+              <div class="mb-4">
+                <h3 class="font-semibold text-indigo-800 mb-2">Key Benefits</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-center">
+                    <span class="text-indigo-600 mr-2">✓</span>
+                    <span>Lower credit score requirements</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-indigo-600 mr-2">✓</span>
+                    <span>Easier to qualify with limited credit history</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-indigo-600 mr-2">✓</span>
+                    <span>No prepayment penalties</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Banner (VA Loans) -->
+              <div class="va-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">Supporting those who served our country!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+              <button class="flip-trigger mt-4 w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+                      aria-label="Flip card to view more VA loan details">
+                View Program Details
+              </button>
+            </div>
+            
+            <!-- Back Side -->
+            <div class="flip-card-back bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center va-loans-theme mb-4">
+                VA Loan Details
+              </h2>
+              
+              <!-- Eligibility Requirements -->
+              <div class="bg-indigo-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-indigo-800 mb-2">Eligibility Requirements</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-indigo-600 mr-2">•</span>
+                    <span>Certificate of Eligibility (COE) required</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-indigo-600 mr-2">•</span>
+                    <span>Meet service requirements (90+ consecutive days during wartime, 181+ days during peacetime, or 6+ years in National Guard)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-indigo-600 mr-2">•</span>
+                    <span>Minimum 580 credit score (lender may have higher requirements)</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Funding Fee -->
+              <div class="bg-blue-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-blue-800 mb-2">VA Funding Fee</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>One-time fee of 1.4% to 3.6% of loan amount</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Can be financed into the loan amount</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Waived for veterans with service-connected disabilities</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Contact Info -->
+              <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">For More Information</h3>
+                <p class="text-gray-700">Contact Emelie Maybrook at 312-772-6850 or <a href="mailto:emelie.maybrook@prmloans.com" class="text-blue-600 hover:underline">emelie.maybrook@prmloans.com</a></p>
+              </div>
+              
+              <!-- Back Side Flip Trigger -->
+              <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      aria-label="Flip card back to VA loans overview">
+                Back to Overview
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Conventional Loans Card -->
+      <div id="card-conventional" class="loan-card" role="tabpanel" aria-labelledby="tab-conventional">
+        <div class="flip-card card-standard mx-auto" tabindex="0">
+          <div class="flip-card-inner shadow-xl">
+            <!-- Front Side -->
+            <div class="flip-card-front bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center conventional-theme mb-4">
+                Conventional Mortgage Loans
+              </h2>
+              
+              <!-- Program Overview -->
+              <div class="bg-green-50 p-4 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-green-800 mb-2">Program Overview</h3>
+                <p class="mb-3">
+                  Traditional mortgage loans not backed by government programs, offering flexible terms and competitive rates.
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <span class="text-green-500 mr-2">•</span>
+                    <span>Fixed and adjustable rate options available</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-green-500 mr-2">•</span>
+                    <span>Loan terms from 10 to 30 years</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-green-500 mr-2">•</span>
+                    <span>PMI required with less than 20% down payment</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Key Features -->
+              <div class="mb-4">
+                <h3 class="font-semibold text-green-800 mb-2">Key Features</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>Lower down payment options available (as low as 3%)</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>Can be used for primary, secondary, or investment properties</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>PMI can be removed once 20% equity is reached</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Banner (Conventional) -->
+              <div class="conventional-banner p-3 rounded-lg my-4 text-center">
+                <p class="font-semibold">Flexible options for all homebuyers!</p>
+              </div>
+              
+              <!-- Front Side Flip Trigger -->
+              <button class="flip-trigger mt-4 w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" 
+                      aria-label="Flip card to view more conventional loan details">
+                View Program Details
+              </button>
+            </div>
+            
+            <!-- Back Side -->
+            <div class="flip-card-back bg-white p-6 rounded-lg">
+              <h2 class="text-2xl font-bold text-center conventional-theme mb-4">
+                Conventional Loan Details
+              </h2>
+              
+              <!-- Qualification Requirements -->
+              <div class="bg-green-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-green-800 mb-2">Qualification Requirements</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-green-600 mr-2">•</span>
+                    <span>Minimum credit score of 620 (higher scores get better rates)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-green-600 mr-2">•</span>
+                    <span>Debt-to-income ratio typically below 45%</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-green-600 mr-2">•</span>
+                    <span>Stable employment and income history</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Loan Limits -->
+              <div class="bg-blue-50 p-3 rounded-lg mb-4">
+                <h3 class="font-semibold text-blue-800 mb-2">Loan Limits</h3>
+                <ul class="space-y-1">
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Conforming loans: Up to $766,550 in most areas (2024)</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>High-balance loans: Up to $1,149,825 in high-cost areas</span>
+                  </li>
+                  <li class="flex items-start">
+                    <span class="text-blue-500 mr-2">•</span>
+                    <span>Jumbo loans available for amounts above conforming limits</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Contact Info -->
+              <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">For More Information</h3>
+                <p class="text-gray-700">Contact Emelie Maybrook at 312-772-6850 or <a href="mailto:emelie.maybrook@prmloans.com" class="text-blue-600 hover:underline">emelie.maybrook@prmloans.com</a></p>
+              </div>
+              
+              <!-- Back Side Flip Trigger -->
+              <button class="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      aria-label="Flip card back to conventional loans overview">
+                Back to Overview
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <p class="text-center mt-6 text-sm text-gray-600">
+      Click tabs to switch between loan types. Hover over or focus on cards to flip them.
+    </p>
+    
+    <div class="mt-10 text-center">
+      <a href="../../index.html" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+        ← Back to Home
+      </a>
+    </div>
+  </main>
+  
+  <!-- JavaScript for core flip card functionality -->
+  <script src="../../dist/js/flip-card.min.js"></script>
+  
+  <!-- Mortgage calculator functionality -->
+  <script src="../../dist/js/mortgage-calculator.js"></script>
+  
+  <!-- Tab switching functionality -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all tab buttons and cards
+      const tabButtons = document.querySelectorAll('.card-tab');
+      const loanCards = document.querySelectorAll('.loan-card');
+      
+      // Add click event listeners to tabs
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const cardId = this.getAttribute('data-card');
+          
+          // Update tabs - remove active class from all and add to current
+          tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('active');
+          this.setAttribute('aria-selected', 'true');
+          
+          // Update cards - hide all and show the selected one
+          loanCards.forEach(card => {
+            card.classList.remove('active');
+          });
+          document.getElementById(`card-${cardId}`).classList.add('active');
+          
+          // Announce to screen readers
+          const announcer = document.getElementById('screen-reader-announcer');
+          if (announcer) {
+            announcer.textContent = `${this.textContent.trim()} tab selected`;
+          }
+        });
+      });
+      
+      // Add keyboard navigation for tabs
+      tabButtons.forEach((button, index) => {
+        button.addEventListener('keydown', function(e) {
+          // Arrow right - move to next tab
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextTab = tabButtons[(index + 1) % tabButtons.length];
+            nextTab.click();
+            nextTab.focus();
+          }
+          
+          // Arrow left - move to previous tab
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevTab = tabButtons[(index - 1 + tabButtons.length) % tabButtons.length];
+            prevTab.click();
+            prevTab.focus();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
  */
 
 // Import workaround for module
-const CardEventTracker = require('../js/card-event-tracker.js');
+const CardEventTracker = require('../core/card-event-tracker.js');
 global.CardEventTracker = CardEventTracker;
 
 // Utility functions for testing

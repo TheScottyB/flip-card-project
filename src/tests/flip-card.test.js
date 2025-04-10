@@ -4,7 +4,7 @@
  */
 
 // Import the functions we're testing (need to add these to window for DOM testing)
-import '../js/flip-card.js';
+import '../core/flip-card.js';
 
 // Utility functions - also available from setup.js but imported here for clarity
 const simulateEvent = (element, eventName, options = {}) => {
