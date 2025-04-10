@@ -1,5 +1,10 @@
 # Flip Card Event Tracking System
 
+[![Pages Build Status](https://github.com/TheScottyB/flip-card-project/actions/workflows/github-pages.yml/badge.svg)](https://github.com/TheScottyB/flip-card-project/actions/workflows/github-pages.yml)
+[![Event Processing](https://github.com/TheScottyB/flip-card-project/actions/workflows/data-processing-agent.yml/badge.svg)](https://github.com/TheScottyB/flip-card-project/actions/workflows/data-processing-agent.yml)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![WCAG 2.1 AA](https://img.shields.io/badge/WCAG-2.1%20AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
+
 Interactive flip cards with built-in analytics and an event-driven architecture on GitHub.
 
 ## Why Use This System?

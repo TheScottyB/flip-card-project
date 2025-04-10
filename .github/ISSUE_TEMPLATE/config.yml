@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/TheScottyB/flip-card-project/discussions
+    about: Please ask and answer questions here
+  - name: Documentation
+    url: https://github.com/TheScottyB/flip-card-project#readme
+    about: Make sure you've checked the documentation first
+  - name: Demo Page
+    url: https://thescottyb.github.io/flip-card-project/
+    about: See the live demo of the flip card components
