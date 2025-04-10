@@ -190,8 +190,7 @@ class AnthropicAgentRunner extends AgentRunner {
   async executeAgent(prompt, data, options = {}) {
     try {
       // Create the message structure for Claude
-      const systemPrompt = \`You are an agent that analyzes card interaction patterns.
-                           You help identify user behavior patterns and suggest optimizations.\`;
+      const systemPrompt = 'You are an agent that analyzes card interaction patterns. You help identify user behavior patterns and suggest optimizations.';
       
       // Call Anthropic API with tool use
       const response = await this.anthropic.messages.create({
@@ -200,7 +199,7 @@ class AnthropicAgentRunner extends AgentRunner {
         messages: [
           {
             role: 'user',
-            content: \`\${prompt}\\n\\nHere is the data to analyze:\\n\${JSON.stringify(data, null, 2)}\`
+            content: '${prompt}\\n\\nHere is the data to analyze:\\n${JSON.stringify(data, null, 2)}'
           }
         ],
         tools: this.tools,

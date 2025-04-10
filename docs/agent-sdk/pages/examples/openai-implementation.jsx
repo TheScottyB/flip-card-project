@@ -131,7 +131,7 @@ class OpenAIAgentRunner extends AgentRunner {
         },
         { 
           role: 'user', 
-          content: `${prompt}\\n\\nData: ${JSON.stringify(data, null, 2)}`
+          content: '${prompt}\\n\\nData: ${JSON.stringify(data, null, 2)}'
         }
       ];
       
