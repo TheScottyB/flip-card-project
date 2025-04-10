@@ -3,9 +3,10 @@
  * This file runs before each test file
  */
 
-// Import required polyfills for older browsers
-import 'regenerator-runtime/runtime';
-import 'core-js/stable';
+// Load required polyfills for older browsers
+// Using require instead of import for Jest compatibility
+require('regenerator-runtime/runtime');
+require('core-js/stable');
 
 // Add DOM testing globals and mocks
 global.MutationObserver = class {
@@ -219,7 +220,7 @@ global.setupTestModules = () => {
         this.sessionData = {
           sessionId: this.sessionId,
           interactions: [],
-          deviceCapabilities: {},
+          deviceCapabilities: this.detectCapabilities(),
           sessionStart: Date.now()
         };
         this.lastInteraction = Date.now();
@@ -235,17 +236,53 @@ global.setupTestModules = () => {
         console.log(`Card event tracking initialized ${this.sessionId}`);
       }
       
+      // Session management method
+      checkSession() {
+        const now = Date.now();
+        const timeout = 30 * 60 * 1000; // 30 minutes
+        
+        if (now - this.lastInteraction > timeout) {
+          // End the old session
+          this.endSession();
+          
+          // Create new session
+          this.sessionId = `test-session-${now.toString(36)}-${Math.random().toString(36).substr(2, 10)}`;
+          this.sessionData = {
+            sessionId: this.sessionId,
+            interactions: [],
+            deviceCapabilities: this.detectCapabilities(),
+            sessionStart: now
+          };
+          this.lastInteraction = now;
+          this.sessionEnded = false;
+          
+          console.log(`New session started after timeout: ${this.sessionId}`);
+        }
+      }
+      
+      // Core event tracking methods
       // Core event tracking methods
       recordInteraction(data) {
-        this.lastInteraction = Date.now();
+        // Check session first
+        this.checkSession();
+        
+        // Only record if tracking is enabled
+        if (!window.enableCardTracking) {
+          return;
+        }
+        
         const interaction = {
           ...data,
           timestamp: Date.now()
         };
-        this.sessionData.interactions.push(interaction);
         
+        // Add to interactions array
+        this.sessionData.interactions.push(interaction);
+        this.lastInteraction = Date.now();
+        
+        // Send data if threshold reached
         if (this.sessionData.interactions.length >= this.options.sendThreshold) {
-          this.sendData();
+          this.sendData(false);
         }
       }
       
@@ -255,7 +292,6 @@ global.setupTestModules = () => {
           isFlipped: event.detail.isFlipped
         });
       }
-      
       handleHoverStart() {
         this.hoverStartTime = Date.now();
         this.recordInteraction({ type: 'hoverStart' });
@@ -272,20 +308,68 @@ global.setupTestModules = () => {
         }
       }
       
-      sendData(isFinal = false) {
-        // Clone current data to avoid race conditions
-        const dataToSend = JSON.parse(JSON.stringify(this.sessionData));
-        dataToSend.isFinal = isFinal;
-        
-        // Only send if enabled
-        if (this.options.enableDataSending || window.enableCardTracking) {
-          // This would normally send data to the server
-          // For tests we just provide the mocked behavior
+      detectCapabilities() {
+        // Use a simpler approach that directly respects window.matchMedia mocks
+        return {
+          reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+          pointer: window.matchMedia('(pointer: fine)').matches,
+          hover: window.matchMedia('(hover: hover)').matches,
+          touch: false,
+          screen: {
+            width: 1024,
+            height: 768
+          },
+          userAgent: 'Test User Agent',
+          language: 'en-US',
+          timezone: 'UTC',
+          pixelRatio: 1
+        };
+      }
+      
+      async sendData(isFinal = false) {
+        // Don't send if tracking disabled (unless final)
+        if (!window.enableCardTracking && !isFinal) {
+          return;
         }
         
-        // Reset interactions array if not final
-        if (!isFinal) {
-          this.sessionData.interactions = [];
+        // Don't send if data sending explicitly disabled (unless final)
+        if (!this.options.enableDataSending && !isFinal) {
+          return;
+        }
+        
+        try {
+          // First get token
+          const tokenResponse = await fetch(this.options.tokenEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const { token } = await tokenResponse.json();
+          
+          // Clone the interaction data to avoid race conditions
+          const dataToSend = JSON.parse(JSON.stringify(this.sessionData));
+  
+          // Then send events
+          await fetch(this.options.eventsEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              event_type: 'card_interaction_event',
+              client_payload: {
+                ...dataToSend,
+                isFinal
+              }
+            })
+          });
+          
+          // Clear interactions after successful send (unless final)
+          if (!isFinal) {
+            this.sessionData.interactions = [];
+          }
+        } catch (error) {
+          console.error('Error sending data:', error);
         }
       }
       

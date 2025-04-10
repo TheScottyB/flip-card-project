@@ -17,6 +17,7 @@
 - **Implementation Approach**:
   - Core components use vanilla JavaScript (.js) for maximum compatibility
   - React-specific components use TypeScript (.tsx)
+  - Use React 19 for all React components (see package.json dependencies)
 - **HTML Structure**: Follow BEM-like structure for card components (card, card-inner, card-front, card-back)
 - **Imports/Exports**: 
   - For JS: Use ES modules with named exports for utilities
