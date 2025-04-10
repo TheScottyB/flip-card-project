@@ -391,6 +391,12 @@
       </div>
     </section>
     
+    <!-- Debug output for event tracking -->
+    <div class="demo-controls" id="debug-panel">
+      <h2>Event Tracking Debug</h2>
+      <pre id="debug-output" style="background: #f5f5f5; padding: 1rem; max-height: 300px; overflow: auto; font-size: 0.8rem;"></pre>
+    </div>
+
     <footer class="demo-footer">
       <p>Universal Flip Card Demo - Works across all modern devices while maintaining feature parity</p>
     </footer>
@@ -424,6 +430,32 @@
       
       // Store tracker reference
       window.demoTracker = tracker;
+      
+      // Debug function to display tracking information
+      function updateDebugOutput() {
+        const debugOutput = document.getElementById('debug-output');
+        if (debugOutput) {
+          const data = {
+            sessionId: tracker.sessionId,
+            deviceCapabilities: tracker.sessionData.deviceCapabilities,
+            interactionCount: tracker.sessionData.interactions.length,
+            trackingEnabled: window.enableCardTracking ? "Yes" : "No",
+            lastInteraction: tracker.sessionData.interactions.length > 0 ? 
+                             tracker.sessionData.interactions[tracker.sessionData.interactions.length - 1] : "None"
+          };
+          debugOutput.textContent = JSON.stringify(data, null, 2);
+        }
+      }
+      
+      // Update debug output initially and after interactions
+      updateDebugOutput();
+      
+      // Override the recordInteraction method to update debug output
+      const originalRecordInteraction = tracker.recordInteraction;
+      tracker.recordInteraction = function(data) {
+        originalRecordInteraction.call(this, data);
+        updateDebugOutput();
+      };
       
       // Detect device capabilities
       const capabilities = {
@@ -559,10 +591,37 @@
           if (isActive) {
             button.textContent = 'Disable Event Tracking';
             console.log('Event tracking enabled - data will be sent to the agent system');
+            
+            // Add status message to debug panel
+            const debugOutput = document.getElementById('debug-output');
+            if (debugOutput) {
+              debugOutput.innerHTML += '\n\n<span style="color: green; font-weight: bold;">EVENT TRACKING ENABLED - Data will be sent to the server</span>';
+            }
+            
+            // Force a test event
+            window.demoTracker.recordInteraction({
+              type: 'tracking',
+              status: 'enabled'
+            });
           } else {
             button.textContent = 'Enable Event Tracking';
             console.log('Event tracking disabled - data will only be logged to console');
+            
+            // Add status message to debug panel
+            const debugOutput = document.getElementById('debug-output');
+            if (debugOutput) {
+              debugOutput.innerHTML += '\n\n<span style="color: red; font-weight: bold;">EVENT TRACKING DISABLED - Data will only be logged locally</span>';
+            }
+            
+            // Force a test event
+            window.demoTracker.recordInteraction({
+              type: 'tracking',
+              status: 'disabled'
+            });
           }
+          
+          // Update debug output
+          updateDebugOutput();
         }
       });
     }
