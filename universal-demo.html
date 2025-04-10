@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Flip Card Demo</title>
+  <link rel="stylesheet" href="src/styles/universal-flip-card.css">
+  <style>
+    /* Additional product card styling */
+    .product-image {
+      aspect-ratio: 1;
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    
+    .card-subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .product-price {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .product-rating {
+      color: #f59e0b;
+      margin-bottom: 0.5rem;
+    }
+    
+    .product-features-short {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .spec-section {
+      margin-bottom: 1rem;
+    }
+    
+    .spec-section h3 {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .spec-section ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+    }
+    
+    /* Dark theme overrides */
+    .dark-theme .card-subtitle {
+      color: #9ca3af;
+    }
+    
+    .dark-theme .spec-section h3 {
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+    
+    /* Base Demo Styling */
+    :root {
+      --color-primary: #3b82f6;
+      --color-primary-light: #93c5fd;
+      --color-secondary: #f59e0b;
+      --color-text: #1f2937;
+      --color-background: #f9fafb;
+      --color-surface: #ffffff;
+      --color-border: #e5e7eb;
+      
+      /* Fluid typography */
+      --font-size-sm: clamp(0.8rem, 0.17vw + 0.76rem, 0.89rem);
+      --font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
+      --font-size-md: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+      --font-size-lg: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+      --font-size-xl: clamp(1.95rem, 1.56vw + 1.56rem, 2.81rem);
+      
+      /* Spacing */
+      --space-2xs: clamp(0.31rem, 0.14vw + 0.29rem, 0.41rem);
+      --space-xs: clamp(0.56rem, 0.29vw + 0.5rem, 0.75rem);
+      --space-sm: clamp(0.88rem, 0.51vw + 0.76rem, 1.13rem);
+      --space-md: clamp(1.13rem, 0.63vw + 0.99rem, 1.5rem);
+      --space-lg: clamp(1.69rem, 0.85vw + 1.48rem, 2.25rem);
+      --space-xl: clamp(2.25rem, 1.29vw + 1.97rem, 3rem);
+    }
+    
+    /* Light mode (default) */
+    :root {
+      color-scheme: light;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-text: #f9fafb;
+        --color-background: #111827;
+        --color-surface: #1f2937;
+        --color-border: #374151;
+        color-scheme: dark;
+      }
+    }
+    
+    /* Base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: var(--font-size-base);
+      line-height: 1.5;
+      background-color: var(--color-background);
+      color: var(--color-text);
+      padding: var(--space-md);
+    }
+    
+    h1 {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--space-md);
+      text-align: center;
+    }
+    
+    h2 {
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--space-sm);
+    }
+    
+    h3 {
+      font-size: var(--font-size-md);
+      margin-bottom: var(--space-xs);
+    }
+    
+    /* Demo layout */
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-md);
+    }
+    
+    .demo-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+    
+    .demo-description {
+      max-width: 800px;
+      margin: 0 auto var(--space-lg);
+      text-align: center;
+    }
+    
+    /* Device capability display */
+    .capability-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      justify-content: center;
+      margin-bottom: var(--space-lg);
+      padding: var(--space-sm);
+      background-color: var(--color-surface);
+      border-radius: 0.5rem;
+      border: 1px solid var(--color-border);
+    }
+    
+    .capability-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-2xs) var(--space-xs);
+      background-color: var(--color-primary-light);
+      color: var(--color-text);
+      border-radius: 1rem;
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+    }
+    
+    .capability-badge.active {
+      background-color: var(--color-primary);
+      color: white;
+    }
+    
+    /* Card container - placeholder for flip card */
+    .card-container {
+      width: 100%;
+      max-width: 400px;
+      height: 450px;
+      margin: 0 auto var(--space-xl);
+      background-color: var(--color-surface);
+      border: 1px dashed var(--color-border);
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Controls section */
+    .demo-controls {
+      background-color: var(--color-surface);
+      border-radius: 0.5rem;
+      padding: var(--space-md);
+      margin-top: var(--space-lg);
+      border: 1px solid var(--color-border);
+    }
+    
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .control-label {
+      flex-basis: 100%;
+      font-weight: 600;
+      margin-bottom: var(--space-2xs);
+    }
+    
+    /* Control buttons */
+    .control-btn {
+      padding: var(--space-xs) var(--space-sm);
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.25rem;
+      font-size: var(--font-size-sm);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .control-btn:hover {
+      background-color: var(--color-primary-light);
+    }
+    
+    .control-btn.active {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    /* Footer */
+    .demo-footer {
+      text-align: center;
+      margin-top: var(--space-xl);
+      font-size: var(--font-size-sm);
+      color: var(--color-text);
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <header class="demo-header">
+      <h1>Universal Flip Card</h1>
+      <p class="demo-description">
+        This demo showcases a flip card that adapts to any device while maintaining complete
+        feature parity. It optimizes for your device capabilities without compromising on features.
+      </p>
+    </header>
+    
+    <section class="capability-display">
+      <div class="capability-badge" id="input-method">Detecting input...</div>
+      <div class="capability-badge" id="screen-size">Detecting screen...</div>
+      <div class="capability-badge" id="has-hover">Detecting hover...</div>
+      <div class="capability-badge" id="reduced-motion">Detecting motion preference...</div>
+      <div class="capability-badge" id="color-scheme">Detecting color scheme...</div>
+    </section>
+    
+    <!-- Universal Flip Card Component -->
+    <div class="card-container">
+      <div class="universal-card" id="demo-card" tabindex="0" aria-label="Product demo card">
+        <div class="universal-card-inner">
+          <!-- Front Side -->
+          <div class="universal-card-front">
+            <div class="card-content">
+              <div class="card-content-header">
+                <h2>Smart Watch Pro</h2>
+                <p class="card-subtitle">Next-gen wearable technology</p>
+              </div>
+              
+              <div class="product-image">
+                <div style="background-color: #93c5fd; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">⌚</div>
+              </div>
+              
+              <div class="product-info">
+                <p class="product-price"><strong>$299.99</strong></p>
+                <p class="product-rating">★★★★☆ (4.2/5)</p>
+                <ul class="product-features-short">
+                  <li>5-day battery life</li>
+                  <li>Water resistant to 50m</li>
+                  <li>Heart rate & sleep tracking</li>
+                </ul>
+              </div>
+              
+              <div class="card-content-footer">
+                <button class="flip-trigger">View Full Specifications</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Back Side -->
+          <div class="universal-card-back">
+            <div class="card-content">
+              <div class="card-content-header">
+                <h2>Smart Watch Pro</h2>
+                <p class="card-subtitle">Technical Specifications</p>
+              </div>
+              
+              <div class="spec-section">
+                <h3>Display</h3>
+                <ul>
+                  <li>1.4" AMOLED touchscreen</li>
+                  <li>450 x 450 resolution</li>
+                  <li>Always-on display option</li>
+                </ul>
+              </div>
+              
+              <div class="spec-section">
+                <h3>Features</h3>
+                <ul>
+                  <li>GPS and GLONASS</li>
+                  <li>Heartrate monitoring</li>
+                  <li>Blood oxygen sensor</li>
+                  <li>Sleep tracking</li>
+                  <li>50+ workout modes</li>
+                </ul>
+              </div>
+              
+              <div class="card-content-footer">
+                <button class="flip-trigger">Back to Overview</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Demo controls -->
+    <section class="demo-controls">
+      <h2>Interactive Controls</h2>
+      <p>Use these controls to simulate different device capabilities and see how the card adapts.</p>
+      
+      <div class="control-group">
+        <span class="control-label">Card Size:</span>
+        <button class="control-btn" id="size-small">Small (Mobile)</button>
+        <button class="control-btn active" id="size-medium">Medium (Tablet)</button>
+        <button class="control-btn" id="size-large">Large (Desktop)</button>
+      </div>
+      
+      <div class="control-group">
+        <span class="control-label">Input Method:</span>
+        <button class="control-btn" id="input-touch">Touch</button>
+        <button class="control-btn" id="input-mouse">Mouse</button>
+        <button class="control-btn" id="input-keyboard">Keyboard</button>
+      </div>
+      
+      <div class="control-group">
+        <span class="control-label">Preferences:</span>
+        <button class="control-btn" id="toggle-motion">Toggle Reduced Motion</button>
+        <button class="control-btn" id="toggle-theme">Toggle Dark Mode</button>
+        <button class="control-btn" id="toggle-contrast">Toggle High Contrast</button>
+      </div>
+    </section>
+    
+    <footer class="demo-footer">
+      <p>Universal Flip Card Demo - Works across all modern devices while maintaining feature parity</p>
+    </footer>
+  </div>
+  
+  <!-- Universal Flip Card Script -->
+  <script src="src/js/universal-flip-card.js"></script>
+  <script>
+    // Demo controller script
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize the flip card
+      const card = document.getElementById('demo-card');
+      const flipCard = new UniversalFlipCard(card, {
+        enableHover: true,
+        announceToScreenReader: true
+      });
+      
+      // Store reference to flip card instance
+      window.demoCard = flipCard;
+      
+      // Detect device capabilities
+      const capabilities = {
+        touch: 'ontouchstart' in window,
+        pointer: window.matchMedia('(pointer: fine)').matches,
+        hover: window.matchMedia('(hover: hover)').matches,
+        reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+        screenWidth: window.innerWidth
+      };
+      
+      // Update capability badges
+      document.getElementById('input-method').textContent = 
+        capabilities.touch ? 'Touch Input' : 'Pointer Input';
+      document.getElementById('input-method').classList.add('active');
+      
+      document.getElementById('screen-size').textContent = 
+        `Screen: ${capabilities.screenWidth}px`;
+      document.getElementById('screen-size').classList.add('active');
+      
+      document.getElementById('has-hover').textContent = 
+        capabilities.hover ? 'Hover: Available' : 'Hover: Not Available';
+      if (capabilities.hover) document.getElementById('has-hover').classList.add('active');
+      
+      document.getElementById('reduced-motion').textContent = 
+        capabilities.reducedMotion ? 'Reduced Motion: On' : 'Reduced Motion: Off';
+      if (capabilities.reducedMotion) document.getElementById('reduced-motion').classList.add('active');
+      
+      document.getElementById('color-scheme').textContent = 
+        capabilities.darkMode ? 'Dark Mode' : 'Light Mode';
+      document.getElementById('color-scheme').classList.add('active');
+      
+      // Mark the appropriate input method button as active
+      const inputMethodMap = {
+        'touch': 'input-touch',
+        'mouse': 'input-mouse',
+        'keyboard': 'input-keyboard'
+      };
+      
+      if (inputMethodMap[flipCard.inputMethod]) {
+        setActiveButton(inputMethodMap[flipCard.inputMethod], 
+          ['input-touch', 'input-mouse', 'input-keyboard']);
+      }
+      
+      // Set up demo control buttons
+      setupDemoControls();
+      
+      // Listen for card flip events
+      card.addEventListener('cardFlip', (e) => {
+        console.log('Card flipped:', e.detail.isFlipped);
+      });
+    });
+    
+    function setupDemoControls() {
+      // Card size controls
+      document.getElementById('size-small').addEventListener('click', () => {
+        setActiveButton('size-small', ['size-small', 'size-medium', 'size-large']);
+        document.documentElement.style.setProperty('--card-max-width', '280px');
+      });
+      
+      document.getElementById('size-medium').addEventListener('click', () => {
+        setActiveButton('size-medium', ['size-small', 'size-medium', 'size-large']);
+        document.documentElement.style.setProperty('--card-max-width', '400px');
+      });
+      
+      document.getElementById('size-large').addEventListener('click', () => {
+        setActiveButton('size-large', ['size-small', 'size-medium', 'size-large']);
+        document.documentElement.style.setProperty('--card-max-width', '500px');
+      });
+      
+      // Input method controls
+      document.getElementById('input-touch').addEventListener('click', () => {
+        setActiveButton('input-touch', ['input-touch', 'input-mouse', 'input-keyboard']);
+        window.demoCard.setInputMethod('touch');
+      });
+      
+      document.getElementById('input-mouse').addEventListener('click', () => {
+        setActiveButton('input-mouse', ['input-touch', 'input-mouse', 'input-keyboard']);
+        window.demoCard.setInputMethod('mouse');
+      });
+      
+      document.getElementById('input-keyboard').addEventListener('click', () => {
+        setActiveButton('input-keyboard', ['input-touch', 'input-mouse', 'input-keyboard']);
+        window.demoCard.setInputMethod('keyboard');
+        
+        // Focus the card for keyboard navigation
+        document.getElementById('demo-card').focus();
+      });
+      
+      // Preference toggles
+      document.getElementById('toggle-motion').addEventListener('click', () => {
+        const button = document.getElementById('toggle-motion');
+        const isActive = button.classList.toggle('active');
+        document.body.classList.toggle('reduced-motion', isActive);
+      });
+      
+      document.getElementById('toggle-theme').addEventListener('click', () => {
+        const button = document.getElementById('toggle-theme');
+        const isActive = button.classList.toggle('active');
+        document.body.classList.toggle('dark-theme', isActive);
+      });
+      
+      document.getElementById('toggle-contrast').addEventListener('click', () => {
+        const button = document.getElementById('toggle-contrast');
+        const isActive = button.classList.toggle('active');
+        document.body.classList.toggle('high-contrast', isActive);
+      });
+    }
+    
+    function setActiveButton(activeId, buttonIds) {
+      // Remove active class from all buttons in the group
+      buttonIds.forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      
+      // Add active class to the clicked button
+      document.getElementById(activeId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

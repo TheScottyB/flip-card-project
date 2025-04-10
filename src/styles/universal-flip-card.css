@@ -1,0 +1,261 @@
+/* 
+ * Universal Flip Card Component - Core Stylesheet
+ * Version: 1.0.0
+ * Features: Responsive, accessible, optimized for all devices
+ */
+
+/* Base custom properties */
+:root {
+  /* Card dimensions */
+  --card-width: 100%;
+  --card-max-width: clamp(280px, 100%, 400px);
+  --card-height: clamp(320px, 60vh, 450px); 
+  --card-border-radius: clamp(0.5rem, 2vw, 1rem);
+  
+  /* Animation */
+  --flip-duration: 0.6s;
+  --flip-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Colors */
+  --card-bg-front: #ffffff;
+  --card-bg-back: #ffffff;
+  --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  --card-focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  
+  /* Content */
+  --card-padding: clamp(0.75rem, 3vw, 1.5rem);
+  --card-content-gap: clamp(0.5rem, 2vw, 1rem);
+  
+  /* Input method specific properties */
+  --touch-target-size: 44px; /* Apple's minimum recommendation */
+}
+
+/* Reduced motion preference override */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --flip-duration: 0.1s;
+    --flip-timing-function: ease;
+  }
+}
+
+/* Light/dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --card-bg-front: #1f2937;
+    --card-bg-back: #1f2937;
+    --card-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+}
+
+/* Core flip card container */
+.universal-card {
+  container-type: inline-size;
+  container-name: card;
+  width: var(--card-width);
+  max-width: var(--card-max-width);
+  height: var(--card-height);
+  margin: 0 auto;
+  perspective: 1000px;
+  position: relative;
+}
+
+/* Card inner container */
+.universal-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--flip-duration) var(--flip-timing-function);
+  transform-style: preserve-3d;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* Force reduced motion when requested */
+.reduced-motion .universal-card-inner {
+  transition-duration: 0.1s !important;
+}
+
+/* Card front and back faces */
+.universal-card-front,
+.universal-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--card-border-radius);
+  overflow: auto;
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hide scrollbars but allow scrolling */
+.universal-card-front,
+.universal-card-back {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+.universal-card-front::-webkit-scrollbar,
+.universal-card-back::-webkit-scrollbar {
+  width: 6px;
+}
+
+.universal-card-front::-webkit-scrollbar-thumb,
+.universal-card-back::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+/* Card front styling */
+.universal-card-front {
+  background-color: var(--card-bg-front);
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+/* Card back styling */
+.universal-card-back {
+  background-color: var(--card-bg-back);
+  transform: rotateY(180deg);
+}
+
+/* Card flipping states */
+.universal-card.flipped .universal-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Hover effect only for devices that support hover */
+@media (hover: hover) {
+  .universal-card:not([data-disable-hover="true"]):hover .universal-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Focus states */
+.universal-card:focus-visible {
+  outline: none;
+}
+
+.universal-card:focus-visible .universal-card-inner {
+  box-shadow: var(--card-focus-ring);
+}
+
+/* Flip triggers (buttons) */
+.flip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #3b82f6;
+  color: white;
+  transition: background-color 0.2s;
+  
+  /* Default size for mouse */
+  min-height: 32px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Larger touch targets for touch input */
+[data-input-method="touch"] .flip-trigger {
+  min-height: var(--touch-target-size);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+/* Hover styles for devices that support hover */
+@media (hover: hover) {
+  .flip-trigger:hover {
+    background-color: #2563eb;
+  }
+}
+
+/* Focus styles for the trigger */
+.flip-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--card-focus-ring);
+}
+
+/* Card content layout using container queries */
+@container card (min-width: 350px) {
+  .card-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: var(--card-content-gap);
+  }
+  
+  .card-content-header,
+  .card-content-footer {
+    grid-column: 1 / -1;
+  }
+}
+
+@container card (max-width: 349px) {
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-content-gap);
+  }
+}
+
+/* High contrast mode */
+.high-contrast {
+  --card-bg-front: #ffffff;
+  --card-bg-back: #eeeeee;
+}
+
+.high-contrast.dark-theme {
+  --card-bg-front: #1a1a1a;
+  --card-bg-back: #2d2d2d;
+}
+
+.high-contrast .flip-trigger {
+  background-color: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.high-contrast.dark-theme .flip-trigger {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+/* Screen reader only elements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Fallbacks for browsers without transform-style: preserve-3d */
+@supports not (transform-style: preserve-3d) {
+  .universal-card-inner {
+    position: relative;
+  }
+  
+  .universal-card-back {
+    display: none;
+  }
+  
+  .universal-card.flipped .universal-card-front {
+    display: none;
+  }
+  
+  .universal-card.flipped .universal-card-back {
+    display: block;
+    transform: none;
+  }
+}
