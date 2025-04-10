@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "npm run build && npm run start",
     "start": "http-server . -p 8080",
-    "build": "postcss src/styles/**/*.css -o dist/css/flip-card.min.css",
-    "build:prod": "postcss src/styles/**/*.css -o dist/css/flip-card.min.css --env production",
+    "build": "postcss src/styles/flip-card.css -o dist/css/flip-card.min.css",
+    "build:prod": "postcss src/styles/flip-card.css -o dist/css/flip-card.min.css --env production",
     "build:universal": "postcss src/styles/universal-flip-card.css -o dist/css/universal-flip-card.min.css --env production",
     "test": "jest",
     "test:a11y": "jest --testPathPattern=a11y",
