@@ -6,6 +6,27 @@ export default function Home() {
     <div>
       <h1>Agent SDK Documentation</h1>
       
+      <div className="important-notice">
+        <h2>🚨 What We Mean By "Agent"</h2>
+        <p>The Agent SDK represents a fundamental rethinking of how agentic applications are built and orchestrated. It is <strong>not</strong>:</p>
+        <ul>
+          <li>A wrapper around the OpenAI Assistants API or Chat API</li>
+          <li>A simple function-calling implementation</li>
+          <li>A basic RAG pipeline with some orchestration</li>
+        </ul>
+        
+        <p>Instead, the Agent SDK is a comprehensive framework for building truly agentic applications with:</p>
+        <ul>
+          <li>Model-agnostic architecture that works with any AI provider or local implementation</li>
+          <li>Full control over agent behavior, capabilities and execution flow</li>
+          <li>Sophisticated state management and context handling</li>
+          <li>Built-in error handling and fallback strategies</li>
+          <li>Hybrid execution environments (client/server/edge)</li>
+        </ul>
+        
+        <p>When discussing "agents" in this project, we always mean this comprehensive, model-agnostic approach rather than any specific vendor implementation.</p>
+      </div>
+      
       <p className="intro">
         Welcome to the interactive documentation for the Agent SDK. This documentation provides a hands-on approach to understanding and implementing the Agent SDK in your applications.
       </p>
@@ -71,6 +92,36 @@ export default function Home() {
       </div>
       
       <style jsx>{`
+        .important-notice {
+          background: #fffaeb;
+          border-left: 5px solid #ff9900;
+          padding: 1.5rem;
+          margin: 2rem 0;
+          border-radius: 0 8px 8px 0;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .important-notice h2 {
+          margin-top: 0;
+          color: #d97706;
+          border-bottom: 1px solid #f0e6d2;
+          padding-bottom: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .important-notice p {
+          margin-bottom: 1rem;
+        }
+        
+        .important-notice ul {
+          padding-left: 1.5rem;
+          margin-bottom: 1.5rem;
+        }
+        
+        .important-notice li {
+          margin-bottom: 0.5rem;
+        }
+        
         .intro {
           font-size: 1.2rem;
           line-height: 1.6;

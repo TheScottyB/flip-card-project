@@ -1,5 +1,21 @@
 # Agent SDK Interactive Documentation
 
+> ## 🚨 IMPORTANT: What We Mean By "Agent"
+> 
+> The Agent SDK represents a fundamental rethinking of how agentic applications are built and orchestrated. It is **not**:
+> - A wrapper around the OpenAI Assistants API or Chat API
+> - A simple function-calling implementation
+> - A basic RAG pipeline with some orchestration
+>
+> Instead, the Agent SDK is a comprehensive framework for building truly agentic applications with:
+> - Model-agnostic architecture that works with any AI provider or local implementation
+> - Full control over agent behavior, capabilities and execution flow
+> - Sophisticated state management and context handling
+> - Built-in error handling and fallback strategies
+> - Hybrid execution environments (client/server/edge)
+>
+> When discussing "agents" in this project, we always mean this comprehensive, model-agnostic approach rather than any specific vendor implementation.
+
 ## Quick Reference
 
 ```bash
