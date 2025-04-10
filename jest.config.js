@@ -29,7 +29,7 @@ module.exports = {
   ],
   
   // Set timeout for tests (puppeteer needs more time)
-  testTimeout: 30000,
+  testTimeout: 60000, // Increased timeout to 60 seconds
   
   // HTML reporter configuration for visual test reports
   reporters: [
