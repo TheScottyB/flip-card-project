@@ -14,9 +14,13 @@
 
 ## Code Style Guidelines
 - **Architecture**: Follow event-driven architecture patterns for tracking
-- **Components**: Use functional React components with TypeScript (.tsx)
+- **Implementation Approach**:
+  - Core components use vanilla JavaScript (.js) for maximum compatibility
+  - React-specific components use TypeScript (.tsx)
 - **HTML Structure**: Follow BEM-like structure for card components (card, card-inner, card-front, card-back)
-- **Imports/Exports**: Import React explicitly; use named exports for utilities, default for components
+- **Imports/Exports**: 
+  - For JS: Use ES modules with named exports for utilities
+  - For React: Import React explicitly; use named exports for utilities, default for components
 - **Naming**:
   - Components/Classes: PascalCase (UniversalFlipCard)
   - Functions/variables: camelCase (recordInteraction)
