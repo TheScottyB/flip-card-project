@@ -95,3 +95,8 @@ desktop.ini
 *[<>:"|?*]*
 
 _site
+
+# GitHub App credentials
+.github/app/
+webhook-proxy/.env
+webhook-proxy/server.pid
