@@ -1,10 +1,10 @@
-# Managed Agent Runner Implementation for Flip Card Project
+# OpenAI-Powered Agent Implementation for Flip Card Project
 
-This document outlines a practical, maintainable implementation approach using a managed agent runner system to enhance the flip card system with intelligent agents.
+This document outlines a practical, maintainable implementation approach using OpenAI's APIs to enhance the flip card system with intelligent agents.
 
 ## Managed Runner Architecture
 
-The implementation uses a lightweight "managed runner" architecture that provides several key advantages:
+The implementation uses a lightweight "managed runner" architecture aligned with OpenAI's APIs that provides several key advantages:
 
 1. **Simplified Maintenance**: Centralizes configuration and reduces boilerplate
 2. **Modular Implementation**: Enables easy swapping of underlying agent technology
@@ -14,10 +14,10 @@ The implementation uses a lightweight "managed runner" architecture that provide
 
 ### How It Works
 
-1. Core operations are handled by a minimal `AgentRunner` that can use any agent implementation
-2. Agents are defined as simple JSON configurations that describe capabilities and integrations
+1. Core operations are handled by a minimal `AgentRunner` that integrates with OpenAI APIs
+2. Agents are defined using Functions API format for tool definition
 3. The runner orchestrates communication and handles all networking and state management  
-4. Implementation details are isolated, allowing us to switch between on-premise, hosted, or hybrid models
+4. Implementation details are isolated, allowing us to switch between Assistants API, Functions API, or custom implementations
 
 ```
   ┌─────────────────┐     ┌─────────────────┐
@@ -36,7 +36,7 @@ The implementation uses a lightweight "managed runner" architecture that provide
            │                     │
            ▼                     ▼
   ┌────────────────┐    ┌────────────────────┐
-  │ OpenAI Agent   │    │ Alternative        │
+  │ OpenAI APIs    │    │ Alternative        │
   │ Implementation │    │ Implementations    │
   └────────────────┘    └────────────────────┘
 ```
@@ -44,14 +44,14 @@ The implementation uses a lightweight "managed runner" architecture that provide
 ## 1. Installation
 
 ```bash
-npm install @openai/agent-runner
+npm install openai
 ```
 
 Add to package.json:
 
 ```json
 "dependencies": {
-  "@openai/agent-runner": "^0.1.x",
+  "openai": "^4.24.0",
   "react": "^19.0.0",
   "react-dom": "^19.0.0"
 }
@@ -63,95 +63,335 @@ Add to package.json:
 
 ```javascript
 // src/agents/card-interaction-agent.js
-import { AgentRunner } from '@openai/agent-runner';
+import OpenAI from 'openai';
 import { storeInteraction, analyzePatterns } from '../services/analytics-service';
 
-// Define agent capabilities as simple configuration
-const agentDefinition = {
-  name: 'CardInteractionAgent',
-  version: '1.0.0',
-  description: 'Tracks and analyzes card interactions to identify patterns',
-  
-  // Define available tools as simple functions with JSON Schema
-  tools: [
-    {
-      name: 'storeInteraction',
-      description: 'Store card interaction events',
-      schema: {
-        type: 'object',
-        properties: {
-          eventType: { type: 'string' },
-          cardId: { type: 'string' },
-          timestamp: { type: 'number' },
-          metadata: { type: 'object' }
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true // Only for client-side demo; use server-side in production
+});
+
+// Define functions using OpenAI Functions API format
+const functions = [
+  {
+    name: 'storeInteraction',
+    description: 'Store card interaction events',
+    parameters: {
+      type: 'object',
+      properties: {
+        eventType: { 
+          type: 'string',
+          description: 'Type of interaction event (flip, hover, touch, etc.)'
         },
-        required: ['eventType', 'cardId', 'timestamp']
-      }
-    },
-    {
-      name: 'analyzePatterns',
-      description: 'Analyze user interaction patterns',
-      schema: {
-        type: 'object',
-        properties: {
-          userId: { type: 'string' },
-          timeframe: { type: 'string' },
-          metricType: { type: 'string' }
+        cardId: { 
+          type: 'string',
+          description: 'Unique identifier for the card'
         },
-        required: ['userId']
-      }
+        timestamp: { 
+          type: 'integer',
+          description: 'Unix timestamp of when the event occurred'
+        },
+        metadata: { 
+          type: 'object',
+          description: 'Additional data about the interaction'
+        }
+      },
+      required: ['eventType', 'cardId', 'timestamp']
     }
-  ],
-  
-  // Agent instructions written in plain language
-  instructions: `
-    You are an agent responsible for tracking user interactions with flip cards.
-    
-    Your responsibilities:
-    1. Collect and store interaction events (flips, hovers, view durations)
-    2. Identify patterns in user behavior
-    3. Suggest optimizations for card display and content
-    4. Work asynchronously and efficiently
-    
-    Privacy requirements:
-    - Never store personally identifiable information
-    - Anonymize session data
-    - Focus on aggregate patterns, not individual tracking
-  `,
-  
-  // Configuration for different deployment options
-  deploymentOptions: {
-    clientSide: {
-      enabled: true,
-      throttleMs: 500  // Limit client-side processing
-    },
-    serverSide: {
-      enabled: true,
-      endpoint: '/api/agents/interaction'
-    },
-    hybrid: {
-      enabled: true,
-      clientFunctions: ['storeInteraction'],
-      serverFunctions: ['analyzePatterns']
+  },
+  {
+    name: 'analyzePatterns',
+    description: 'Analyze user interaction patterns to identify usage trends',
+    parameters: {
+      type: 'object',
+      properties: {
+        userId: { 
+          type: 'string',
+          description: 'Unique identifier for the user or session'
+        },
+        timeframe: { 
+          type: 'string',
+          enum: ['current_session', 'today', 'week', 'month', 'all'],
+          description: 'Time period to analyze'
+        },
+        metricType: { 
+          type: 'string',
+          enum: ['engagement', 'conversion', 'usability', 'all'],
+          description: 'Type of metrics to analyze'
+        }
+      },
+      required: ['userId']
     }
   }
-};
+];
+
+// System message that defines the agent's behavior
+const systemMessage = `
+You are an agent responsible for tracking user interactions with flip cards.
+
+Your responsibilities:
+1. Collect and store interaction events (flips, hovers, view durations)
+2. Identify patterns in user behavior
+3. Suggest optimizations for card display and content
+4. Work asynchronously and efficiently
+
+Privacy requirements:
+- Never store personally identifiable information
+- Anonymize session data
+- Focus on aggregate patterns, not individual tracking
+`;
 
 // Function handlers for the tools
-const toolHandlers = {
+const functionHandlers = {
   storeInteraction,
   analyzePatterns
 };
 
-// Create the managed agent through the runner
-export const cardInteractionAgent = new AgentRunner(agentDefinition, {
-  toolHandlers,
-  runOptions: {
-    // Allow fallback to local implementation if server unavailable
-    allowFallback: true,
-    // Default timeout for operations
-    timeout: 5000
+/**
+ * Managed runner for Card Interaction Agent that integrates with OpenAI
+ */
+class CardInteractionAgentRunner {
+  constructor(options = {}) {
+    this.options = {
+      model: 'gpt-4o',
+      temperature: 0.2,
+      allowFallback: true,
+      timeout: 5000,
+      deploymentMode: 'hybrid', // 'client', 'server', or 'hybrid'
+      ...options
+    };
+    
+    this.sessions = new Map();
   }
+  
+  /**
+   * Start a tracking session
+   */
+  startSession(params) {
+    const sessionId = params.sessionId || `session-${Date.now()}`;
+    
+    // Initialize the session
+    const session = {
+      id: sessionId,
+      startTime: Date.now(),
+      metadata: params.metadata || {},
+      events: [],
+      
+      // Track an interaction event
+      trackEvent: async (eventName, data) => {
+        // Store event in session history
+        const event = {
+          type: eventName,
+          data,
+          timestamp: Date.now()
+        };
+        
+        session.events.push(event);
+        
+        // Process with appropriate handler based on event type
+        if (eventName === 'storeInteraction') {
+          await this.executeTool('storeInteraction', data);
+        } else if (eventName === 'storeBatchInteractions' && data.events) {
+          // Handle batch operations
+          for (const event of data.events) {
+            await this.executeTool('storeInteraction', event);
+          }
+        }
+        
+        return { success: true };
+      },
+      
+      // Run a specific tool with AI assistance
+      runTool: async (toolName, data) => {
+        if (toolName === 'analyzePatterns') {
+          // This requires AI capabilities
+          return this.analyzeWithAI(session, data);
+        } else {
+          // Direct tool execution for non-AI tools
+          return this.executeTool(toolName, data);
+        }
+      },
+      
+      // End the session
+      end: () => {
+        session.endTime = Date.now();
+        session.duration = session.endTime - session.startTime;
+        
+        // Store final session data
+        console.log(`Session ${sessionId} ended after ${session.duration}ms with ${session.events.length} events`);
+        
+        // Clean up
+        this.sessions.delete(sessionId);
+        
+        return { success: true };
+      }
+    };
+    
+    // Store the session
+    this.sessions.set(sessionId, session);
+    
+    return session;
+  }
+  
+  /**
+   * Execute a function directly
+   */
+  async executeTool(toolName, data) {
+    try {
+      // Check if we have a handler for this tool
+      if (functionHandlers[toolName]) {
+        return await functionHandlers[toolName](data);
+      }
+      
+      console.warn(`No handler for tool: ${toolName}`);
+      return null;
+    } catch (error) {
+      console.error(`Error executing tool ${toolName}:`, error);
+      
+      // Return error information
+      return {
+        error: true,
+        message: error.message
+      };
+    }
+  }
+  
+  /**
+   * Use OpenAI to analyze patterns
+   */
+  async analyzeWithAI(session, data) {
+    try {
+      // Prepare context from session events
+      const events = session.events
+        .filter(e => e.type === 'storeInteraction')
+        .map(e => e.data);
+      
+      // If no events, return empty analysis
+      if (events.length === 0) {
+        return {
+          patterns: [],
+          metrics: { totalEvents: 0 }
+        };
+      }
+      
+      // Structure messages for OpenAI
+      const messages = [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: `Analyze these card interaction events for user ${data.userId} and identify usage patterns:\n${JSON.stringify(events, null, 2)}` }
+      ];
+      
+      // For client-side/fallback mode, use simplified approach
+      if (this.options.deploymentMode === 'client' || 
+          (this.options.allowFallback && !process.env.OPENAI_API_KEY)) {
+        return this.generateFallbackAnalysis(events);
+      }
+      
+      // Call OpenAI API with function calling
+      const response = await openai.chat.completions.create({
+        model: this.options.model,
+        temperature: this.options.temperature,
+        messages,
+        functions,
+        function_call: 'auto'
+      });
+      
+      // Extract the analysis from the response
+      const responseMessage = response.choices[0].message;
+      
+      if (responseMessage.function_call && 
+          responseMessage.function_call.name === 'analyzePatterns') {
+        // Parse the function arguments
+        const args = JSON.parse(responseMessage.function_call.arguments);
+        
+        // Validate and return the results
+        return {
+          patterns: args.patterns || [],
+          metrics: args.metrics || {},
+          recommendations: args.recommendations || []
+        };
+      }
+      
+      // If no function call, extract insights from the message content
+      const content = responseMessage.content || '';
+      return {
+        patterns: [{ type: 'general_observation', description: content }],
+        metrics: { totalEvents: events.length }
+      };
+    } catch (error) {
+      console.error('Error analyzing patterns with AI:', error);
+      
+      // Fallback to simplified analysis
+      return this.generateFallbackAnalysis(events);
+    }
+  }
+  
+  /**
+   * Generate basic analysis without requiring OpenAI
+   */
+  generateFallbackAnalysis(events) {
+    // Extract flip events
+    const flipEvents = events.filter(e => e.eventType === 'flip');
+    
+    // Calculate basic metrics
+    const flipCount = flipEvents.length;
+    let avgViewDuration = 0;
+    
+    if (flipCount >= 2) {
+      let totalDuration = 0;
+      let count = 0;
+      
+      for (let i = 1; i < flipEvents.length; i++) {
+        const duration = flipEvents[i].timestamp - flipEvents[i-1].timestamp;
+        if (duration > 0 && duration < 300000) { // Ignore outliers
+          totalDuration += duration;
+          count++;
+        }
+      }
+      
+      avgViewDuration = count > 0 ? Math.round(totalDuration / count) : 0;
+    }
+    
+    // Generate basic patterns
+    const patterns = [];
+    
+    if (avgViewDuration < 2000 && flipCount > 0) {
+      patterns.push({
+        type: 'short_view',
+        confidence: 0.8,
+        description: 'User is spending very little time viewing each side'
+      });
+    } else if (avgViewDuration > 10000 && flipCount > 0) {
+      patterns.push({
+        type: 'long_view',
+        confidence: 0.8,
+        description: 'User is spending significant time on each side'
+      });
+    }
+    
+    if (flipCount > 5 && avgViewDuration < 3000) {
+      patterns.push({
+        type: 'rapid_exploration',
+        confidence: 0.7,
+        description: 'User is rapidly exploring card content'
+      });
+    }
+    
+    // Return simplified analysis
+    return {
+      patterns,
+      metrics: {
+        flipCount,
+        avgViewDuration,
+        totalEvents: events.length
+      }
+    };
+  }
+}
+
+// Export a singleton instance
+export const cardInteractionAgent = new CardInteractionAgentRunner({
+  deploymentMode: process.env.NODE_ENV === 'production' ? 'hybrid' : 'client'
 });
 ```
 
@@ -159,112 +399,365 @@ export const cardInteractionAgent = new AgentRunner(agentDefinition, {
 
 ```javascript
 // src/agents/card-optimization-agent.js
-import { AgentRunner } from '@openai/agent-runner';
+import OpenAI from 'openai';
 import { 
   generateCardOptimizations, 
   adjustCardStyles, 
   rebalanceCardContent 
 } from '../services/optimization-service';
 
-// Define agent capabilities as simple configuration
-const agentDefinition = {
-  name: 'CardOptimizationAgent',
-  version: '1.0.0',
-  description: 'Optimizes card display and content based on interaction data',
-  
-  // Define available tools as simple functions with JSON Schema
-  tools: [
-    {
-      name: 'generateCardOptimizations',
-      description: 'Generate optimizations for card display',
-      schema: {
-        type: 'object',
-        properties: {
-          cardType: { type: 'string' },
-          deviceType: { type: 'string' },
-          interactionHistory: { type: 'array' }
+// Initialize OpenAI client - in production this should be server-side only
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true // Only for demo purposes
+});
+
+// Define functions using OpenAI Functions API format
+const functions = [
+  {
+    name: 'generateCardOptimizations',
+    description: 'Generate optimizations for card display based on user interaction data',
+    parameters: {
+      type: 'object',
+      properties: {
+        cardType: { 
+          type: 'string',
+          enum: ['standard', 'contact', 'product', 'universal', 'loan'],
+          description: 'The type of card to optimize'
         },
-        required: ['cardType', 'deviceType']
-      }
-    },
-    {
-      name: 'adjustCardStyles',
-      description: 'Modify card styling based on user behavior',
-      schema: {
-        type: 'object',
-        properties: {
-          cardId: { type: 'string' },
-          styleAdjustments: { type: 'object' }
+        deviceType: { 
+          type: 'string', 
+          enum: ['mobile', 'tablet', 'desktop'],
+          description: 'The device type to optimize for'
         },
-        required: ['cardId', 'styleAdjustments']
-      }
-    },
-    {
-      name: 'rebalanceCardContent',
-      description: 'Rebalance content between card faces',
-      schema: {
-        type: 'object',
-        properties: {
-          cardId: { type: 'string' },
-          frontFaceMetrics: { type: 'object' },
-          backFaceMetrics: { type: 'object' }
+        interactionHistory: { 
+          type: 'array',
+          description: 'Array of previous user interactions with cards'
         },
-        required: ['cardId']
-      }
+        userPreferences: {
+          type: 'object',
+          properties: {
+            prefersReducedMotion: { type: 'boolean' },
+            prefersDarkMode: { type: 'boolean' },
+            preferredColorScheme: { type: 'string' }
+          },
+          description: 'User preferences that may affect optimization recommendations'
+        }
+      },
+      required: ['cardType', 'deviceType']
     }
-  ],
-  
-  // Agent instructions written in plain language
-  instructions: `
-    You are an agent responsible for optimizing flip cards based on interaction data.
-    
-    Your responsibilities:
-    1. Analyze interaction patterns to identify improvement opportunities
-    2. Generate specific style and content adjustments
-    3. Implement A/B tests to validate optimizations
-    4. Continuously improve card performance
-    
-    Optimization priorities:
-    - Increase engagement (flip rate, view time)
-    - Improve conversion metrics
-    - Enhance accessibility
-    - Optimize for device capabilities
-  `,
-  
-  // Configuration for different deployment options
-  deploymentOptions: {
-    clientSide: {
-      enabled: true,
-      throttleMs: 1000  // More intensive operations need higher throttle
-    },
-    serverSide: {
-      enabled: true,
-      endpoint: '/api/agents/optimization',
-      batchProcessing: true
-    },
-    hybrid: {
-      enabled: true,
-      clientFunctions: ['adjustCardStyles'],  // Simple style changes can be client-side
-      serverFunctions: ['generateCardOptimizations', 'rebalanceCardContent'] // Complex operations server-side
+  },
+  {
+    name: 'adjustCardStyles',
+    description: 'Apply styling changes to a specific card',
+    parameters: {
+      type: 'object',
+      properties: {
+        cardId: { 
+          type: 'string',
+          description: 'Unique identifier for the card'
+        },
+        styleAdjustments: { 
+          type: 'object',
+          properties: {
+            fontSize: { type: 'string' },
+            lineHeight: { type: 'string' },
+            padding: { type: 'string' },
+            borderRadius: { type: 'string' },
+            animationDuration: { type: 'number' },
+            shadow: { type: 'string' },
+            maxWidth: { type: 'string' }
+          },
+          description: 'CSS properties to modify on the card'
+        }
+      },
+      required: ['cardId', 'styleAdjustments']
+    }
+  },
+  {
+    name: 'rebalanceCardContent',
+    description: 'Move content between card faces for optimal user experience',
+    parameters: {
+      type: 'object',
+      properties: {
+        cardId: { 
+          type: 'string',
+          description: 'Unique identifier for the card'
+        },
+        frontFaceMetrics: { 
+          type: 'object',
+          properties: {
+            viewTime: { type: 'number' },
+            interactionCount: { type: 'number' },
+            contentDensity: { type: 'string' }
+          },
+          description: 'Metrics about the front face of the card'
+        },
+        backFaceMetrics: { 
+          type: 'object',
+          properties: {
+            viewTime: { type: 'number' },
+            interactionCount: { type: 'number' },
+            contentDensity: { type: 'string' }
+          },
+          description: 'Metrics about the back face of the card'
+        },
+        recommendedChanges: {
+          type: 'object',
+          properties: {
+            moveToFront: { type: 'array', items: { type: 'string' } },
+            moveToBack: { type: 'array', items: { type: 'string' } }
+          },
+          description: 'Recommended content elements to move between card faces'
+        }
+      },
+      required: ['cardId']
     }
   }
-};
+];
+
+// System message that defines the agent's behavior
+const systemMessage = `
+You are an expert AI assistant specialized in optimizing interactive card components.
+
+Your responsibilities:
+1. Analyze interaction patterns to identify improvement opportunities
+2. Generate specific style and content adjustments
+3. Implement A/B tests to validate optimizations
+4. Continuously improve card performance
+
+Optimization priorities:
+- Increase engagement (flip rate, view time)
+- Improve conversion metrics
+- Enhance accessibility
+- Optimize for device capabilities
+
+When recommending optimizations:
+- For mobile devices, prefer larger touch targets (min 44px), larger fonts, and simpler layouts
+- For users with reduced motion preference, suggest disabling animations
+- For low engagement cards (short view times), suggest content simplification
+- For high flip rates, suggest better content organization between front/back faces
+`;
 
 // Function handlers for the tools
-const toolHandlers = {
+const functionHandlers = {
   generateCardOptimizations,
   adjustCardStyles,
   rebalanceCardContent
 };
 
-// Create the managed agent through the runner
-export const cardOptimizationAgent = new AgentRunner(agentDefinition, {
-  toolHandlers,
-  runOptions: {
-    allowFallback: true,
-    timeout: 10000,  // Longer timeout for complex operations
-    cacheResults: true  // Cache optimization results 
+/**
+ * Card Optimization Agent that uses OpenAI's API
+ */
+class CardOptimizationAgent {
+  constructor(options = {}) {
+    this.options = {
+      model: 'gpt-4o',
+      temperature: 0.1, // Lower temperature for more consistent recommendations
+      deploymentMode: 'server', // Prefer server-side for optimization logic
+      allowFallback: true,
+      cacheResults: true,
+      ...options
+    };
+    
+    this.optimizationCache = new Map();
+    this.pendingTasks = new Map();
   }
+  
+  /**
+   * Run an optimization task using OpenAI
+   */
+  async run(task) {
+    const { action, inputs } = task;
+    const taskId = `${action}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    
+    // Create a promise that will be resolved when the task completes
+    let resolveTask, rejectTask;
+    const taskPromise = new Promise((resolve, reject) => {
+      resolveTask = resolve;
+      rejectTask = reject;
+    });
+    
+    // Store the task
+    this.pendingTasks.set(taskId, {
+      id: taskId,
+      action,
+      inputs,
+      status: 'pending',
+      startTime: Date.now(),
+      onComplete: null,
+      promise: taskPromise,
+      resolve: resolveTask,
+      reject: rejectTask
+    });
+    
+    // Process the task
+    this.processTask(taskId)
+      .then(result => {
+        const task = this.pendingTasks.get(taskId);
+        if (task) {
+          task.status = 'completed';
+          task.result = result;
+          task.completedAt = Date.now();
+          
+          // Call the onComplete callback if registered
+          if (task.onComplete) {
+            task.onComplete(result);
+          }
+          
+          // Resolve the promise
+          task.resolve(result);
+          
+          // Clean up after some time
+          setTimeout(() => {
+            this.pendingTasks.delete(taskId);
+          }, 60000);
+        }
+      })
+      .catch(error => {
+        const task = this.pendingTasks.get(taskId);
+        if (task) {
+          task.status = 'error';
+          task.error = error;
+          task.completedAt = Date.now();
+          task.reject(error);
+          
+          // Clean up after some time
+          setTimeout(() => {
+            this.pendingTasks.delete(taskId);
+          }, 60000);
+        }
+      });
+    
+    // Return a task object with methods to check status and register callbacks
+    return {
+      id: taskId,
+      onComplete: (callback) => {
+        const task = this.pendingTasks.get(taskId);
+        if (task) {
+          task.onComplete = callback;
+          // If task already completed, call the callback immediately
+          if (task.status === 'completed' && task.result) {
+            callback(task.result);
+          }
+        }
+        return taskPromise;
+      },
+      getStatus: () => {
+        const task = this.pendingTasks.get(taskId);
+        return task ? task.status : 'unknown';
+      },
+      getResult: () => {
+        const task = this.pendingTasks.get(taskId);
+        return task && task.status === 'completed' ? task.result : null;
+      },
+      cancel: () => {
+        const task = this.pendingTasks.get(taskId);
+        if (task && task.status === 'pending') {
+          task.status = 'cancelled';
+          task.completedAt = Date.now();
+          this.pendingTasks.delete(taskId);
+          return true;
+        }
+        return false;
+      }
+    };
+  }
+  
+  /**
+   * Process a task with OpenAI or fallback
+   */
+  async processTask(taskId) {
+    const task = this.pendingTasks.get(taskId);
+    if (!task) {
+      throw new Error(`Task ${taskId} not found`);
+    }
+    
+    // Check cache first if enabled
+    if (this.options.cacheResults) {
+      const cacheKey = `${task.action}-${JSON.stringify(task.inputs)}`;
+      const cachedResult = this.optimizationCache.get(cacheKey);
+      if (cachedResult) {
+        console.log(`Using cached result for ${task.action}`);
+        return cachedResult;
+      }
+    }
+    
+    // Select function based on the action
+    let functionName = null;
+    switch (task.action) {
+      case 'generateOptimizations':
+        functionName = 'generateCardOptimizations';
+        break;
+      case 'adjustStyles':
+        functionName = 'adjustCardStyles';
+        break;
+      case 'rebalanceContent':
+        functionName = 'rebalanceCardContent';
+        break;
+    }
+    
+    // If we're in client mode or need to use fallback, use local implementation
+    if ((this.options.deploymentMode === 'client' || 
+        (this.options.allowFallback && !process.env.OPENAI_API_KEY)) &&
+        functionHandlers[functionName]) {
+      return await functionHandlers[functionName](task.inputs);
+    }
+    
+    try {
+      // Create messages for the API call
+      const messages = [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: `Analyze the following data and optimize the card experience:\n${JSON.stringify(task.inputs, null, 2)}` }
+      ];
+      
+      // Call OpenAI API
+      const response = await openai.chat.completions.create({
+        model: this.options.model,
+        temperature: this.options.temperature,
+        messages,
+        functions,
+        function_call: { name: functionName }
+      });
+      
+      // Extract the result
+      const responseMessage = response.choices[0].message;
+      
+      if (responseMessage.function_call) {
+        const result = JSON.parse(responseMessage.function_call.arguments);
+        
+        // Cache the result if caching is enabled
+        if (this.options.cacheResults) {
+          const cacheKey = `${task.action}-${JSON.stringify(task.inputs)}`;
+          this.optimizationCache.set(cacheKey, result);
+        }
+        
+        return result;
+      }
+      
+      // If no function call, return the content as a general recommendation
+      return {
+        generalRecommendation: responseMessage.content,
+        type: 'general'
+      };
+      
+    } catch (error) {
+      console.error(`Error processing task ${taskId}:`, error);
+      
+      // Fall back to local implementations if available
+      if (this.options.allowFallback && functionHandlers[functionName]) {
+        console.log(`Falling back to local implementation for ${functionName}`);
+        return await functionHandlers[functionName](task.inputs);
+      }
+      
+      throw error;
+    }
+  }
+}
+
+// Export a singleton instance
+export const cardOptimizationAgent = new CardOptimizationAgent({
+  deploymentMode: process.env.NODE_ENV === 'production' ? 'server' : 'client'
 });
 ```
 
@@ -968,7 +1461,7 @@ The real power of our approach comes from agent collaboration. Unlike isolated a
 
 ```javascript
 // src/agents/agent-orchestrator.js
-import { AgentOrchestrator } from '@openai/agent-runner';
+import OpenAI from 'openai';
 import { cardInteractionAgent } from './card-interaction-agent';
 import { cardOptimizationAgent } from './card-optimization-agent';
 
@@ -985,109 +1478,323 @@ const MESSAGE_TYPES = {
   STYLE_UPDATE_PERFORMED: 'style_update_performed'
 };
 
-// Create orchestrator configuration
-const orchestratorConfig = {
-  name: 'CardAgentOrchestrator',
-  version: '1.0.0',
+// Initialize OpenAI client (server-side only in production)
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true // Only for demo
+});
+
+/**
+ * Agent Orchestrator for coordinating multiple AI agents
+ */
+class AgentOrchestrator {
+  constructor(config = {}) {
+    this.config = {
+      name: 'CardAgentOrchestrator',
+      version: '1.0.0',
+      logMessages: true,
+      persistence: {
+        enabled: true,
+        adapter: 'sessionStorage'
+      },
+      ...config
+    };
+    
+    this.initialized = false;
+    this.messages = [];
+    this.messageHandlers = new Map();
+    this.nextMessageId = 1;
+  }
   
-  // Define which agents can communicate
-  agents: [
-    {
-      agent: cardInteractionAgent,
-      canSend: [
-        MESSAGE_TYPES.INTERACTION_INSIGHTS,
-        MESSAGE_TYPES.USER_PREFERENCE_DETECTED,
-        MESSAGE_TYPES.BEHAVIOR_PATTERN_IDENTIFIED
-      ],
-      canReceive: [
-        MESSAGE_TYPES.OPTIMIZATION_APPLIED,
-        MESSAGE_TYPES.CONTENT_REBALANCE_SUGGESTION,
-        MESSAGE_TYPES.STYLE_UPDATE_PERFORMED
-      ]
-    },
-    {
-      agent: cardOptimizationAgent,
-      canSend: [
-        MESSAGE_TYPES.OPTIMIZATION_APPLIED,
-        MESSAGE_TYPES.CONTENT_REBALANCE_SUGGESTION,
-        MESSAGE_TYPES.STYLE_UPDATE_PERFORMED
-      ],
-      canReceive: [
-        MESSAGE_TYPES.INTERACTION_INSIGHTS,
-        MESSAGE_TYPES.USER_PREFERENCE_DETECTED,
-        MESSAGE_TYPES.BEHAVIOR_PATTERN_IDENTIFIED
-      ]
+  /**
+   * Initialize the orchestrator
+   */
+  initialize() {
+    if (this.initialized) return;
+    
+    // Set up persistence if enabled
+    if (this.config.persistence.enabled) {
+      try {
+        // Load existing messages
+        if (this.config.persistence.adapter === 'sessionStorage') {
+          const savedMessages = sessionStorage.getItem('agentMessages');
+          if (savedMessages) {
+            this.messages = JSON.parse(savedMessages);
+            this.nextMessageId = this.messages.length > 0 
+              ? Math.max(...this.messages.map(m => m.id)) + 1 
+              : 1;
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load persisted messages:', error);
+      }
     }
-  ],
+    
+    this.initialized = true;
+    return this;
+  }
   
-  // Define deployment options for the orchestrator
-  deploymentOptions: {
-    // Allow switching between local and remote coordination
-    mode: 'hybrid',
+  /**
+   * Send a message between agents
+   */
+  async sendMessage(options) {
+    if (!this.initialized) {
+      this.initialize();
+    }
     
-    // Fallback strategy if primary mode fails
-    fallbackMode: 'local',
+    const { from, to, type, payload } = options;
     
-    // Events can be logged for debugging and analytics
-    eventLogging: true,
+    // Validate message
+    if (!from || !to || !type) {
+      throw new Error('Invalid message: must specify from, to, and type');
+    }
     
-    // Set persistency options for communication
-    persistence: {
-      enabled: true,
-      adapter: 'sessionStorage'  // Could be 'localStorage', 'remoteStorage'
+    // Create message object
+    const message = {
+      id: this.nextMessageId++,
+      from: typeof from === 'string' ? from : from.constructor.name,
+      to: typeof to === 'string' ? to : to.constructor.name,
+      type,
+      payload: payload || {},
+      timestamp: Date.now()
+    };
+    
+    // Log the message
+    if (this.config.logMessages) {
+      console.log(`[Agent Orchestrator] Message sent: ${message.from} → ${message.to} (${message.type})`);
+    }
+    
+    // Add to message history
+    this.messages.push(message);
+    
+    // Persist messages if enabled
+    if (this.config.persistence.enabled) {
+      try {
+        if (this.config.persistence.adapter === 'sessionStorage') {
+          sessionStorage.setItem('agentMessages', JSON.stringify(this.messages));
+        }
+      } catch (error) {
+        console.warn('Failed to persist messages:', error);
+      }
+    }
+    
+    // Execute handlers
+    const handlers = this.messageHandlers.get(`${message.to}:${message.type}`) || [];
+    const handlerPromises = handlers.map(handler => handler(message));
+    
+    // Wait for all handlers to complete
+    const results = await Promise.allSettled(handlerPromises);
+    
+    // Return the message ID for reference
+    return { messageId: message.id, handled: handlers.length > 0 };
+  }
+  
+  /**
+   * Register a message handler for a specific agent and message type
+   */
+  onMessage(agent, messageType, handler) {
+    if (!this.initialized) {
+      this.initialize();
+    }
+    
+    const agentName = typeof agent === 'string' ? agent : agent.constructor.name;
+    const key = `${agentName}:${messageType}`;
+    
+    // Create handler array if it doesn't exist
+    if (!this.messageHandlers.has(key)) {
+      this.messageHandlers.set(key, []);
+    }
+    
+    // Add the handler
+    this.messageHandlers.get(key).push(handler);
+    
+    // Return a function to unregister the handler
+    return () => {
+      const handlers = this.messageHandlers.get(key) || [];
+      const index = handlers.indexOf(handler);
+      if (index !== -1) {
+        handlers.splice(index, 1);
+      }
+    };
+  }
+  
+  /**
+   * Register a handler for any message of a specific type
+   */
+  onAnyMessage(messageType, handler) {
+    if (!this.initialized) {
+      this.initialize();
+    }
+    
+    // Create a unique key for tracking this handler
+    const handleId = `any:${messageType}:${Date.now()}`;
+    
+    // We'll track all the individual handlers we create
+    const registeredHandlers = [];
+    
+    // Get all registered agents
+    const allAgentNames = new Set([
+      ...Array.from(this.messageHandlers.keys()).map(key => key.split(':')[0])
+    ]);
+    
+    // Register the handler for each agent
+    for (const agentName of allAgentNames) {
+      const unregister = this.onMessage(agentName, messageType, handler);
+      registeredHandlers.push(unregister);
+    }
+    
+    // Return a function to unregister all handlers
+    return () => {
+      registeredHandlers.forEach(unregister => unregister());
+    };
+  }
+  
+  /**
+   * Get message history for debugging
+   */
+  getMessageHistory() {
+    return [...this.messages];
+  }
+  
+  /**
+   * Clear message history
+   */
+  clearMessageHistory() {
+    this.messages = [];
+    
+    // Clear persisted messages
+    if (this.config.persistence.enabled) {
+      try {
+        if (this.config.persistence.adapter === 'sessionStorage') {
+          sessionStorage.removeItem('agentMessages');
+        }
+      } catch (error) {
+        console.warn('Failed to clear persisted messages:', error);
+      }
     }
   }
-};
+  
+  /**
+   * Use OpenAI to mediate communication between agents
+   * This is a more advanced capability that can interpret and translate between agents
+   */
+  async mediateMessage(options) {
+    const { from, to, content, context } = options;
+    
+    // Use OpenAI to interpret the message
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        temperature: 0.2,
+        messages: [
+          {
+            role: 'system',
+            content: `You are a mediator between AI agents. 
+            Your job is to interpret messages from one agent and translate them for another agent.
+            From Agent: ${from}
+            To Agent: ${to}
+            
+            Context: ${context || 'No additional context provided'}`
+          },
+          {
+            role: 'user',
+            content: `Please interpret this message and translate it appropriately for the receiving agent: ${content}`
+          }
+        ]
+      });
+      
+      // Get the interpreted message
+      const interpretedMessage = response.choices[0].message.content;
+      
+      // Forward the interpreted message
+      return this.sendMessage({
+        from,
+        to,
+        type: MESSAGE_TYPES.MEDIATED_MESSAGE,
+        payload: {
+          originalContent: content,
+          interpretedContent: interpretedMessage,
+          context
+        }
+      });
+    } catch (error) {
+      console.error('Failed to mediate message:', error);
+      
+      // Fall back to sending the original message
+      return this.sendMessage({
+        from,
+        to,
+        type: MESSAGE_TYPES.MEDIATED_MESSAGE,
+        payload: {
+          originalContent: content,
+          interpretedContent: content, // No interpretation
+          context,
+          error: 'Mediation failed'
+        }
+      });
+    }
+  }
+}
 
-// Create the orchestrator instance
-const orchestrator = new AgentOrchestrator(orchestratorConfig);
+// Create orchestrator instance
+const orchestrator = new AgentOrchestrator({
+  name: 'CardAgentOrchestrator',
+  logMessages: true,
+  persistence: {
+    enabled: true,
+    adapter: 'sessionStorage'
+  }
+});
 
 // Set up message handlers
 orchestrator.onMessage(
-  cardInteractionAgent,
+  'CardInteractionAgent',
   MESSAGE_TYPES.OPTIMIZATION_APPLIED,
-  async (message, metadata) => {
-    console.log(`InteractionAgent: Received optimization confirmation from ${metadata.sender}`);
+  async (message) => {
+    console.log(`InteractionAgent: Received optimization confirmation`);
     
     // Monitor effectiveness of applied optimization
-    const monitorTask = await cardInteractionAgent.run({
-      task: 'Monitor optimization effectiveness',
-      inputs: {
-        optimization: message.optimization,
-        optimizationId: message.optimizationId
+    const monitorTask = await cardInteractionAgent.trackingSession.runTool(
+      'analyzePatterns',
+      {
+        userId: 'system',
+        metricType: 'optimization_effectiveness',
+        optimizationId: message.payload.optimizationId
       }
-    });
+    );
     
-    // Store the task reference for later follow up
-    return { taskId: monitorTask.id };
+    return { success: true, taskId: message.id };
   }
 );
 
 orchestrator.onMessage(
-  cardOptimizationAgent,
+  'CardOptimizationAgent',
   MESSAGE_TYPES.INTERACTION_INSIGHTS,
-  async (message, metadata) => {
-    console.log(`OptimizationAgent: Received insights from ${metadata.sender}`);
+  async (message) => {
+    console.log(`OptimizationAgent: Received insights`);
     
     // Generate optimizations based on insights
     const optimizationTask = await cardOptimizationAgent.run({
-      task: 'Generate optimizations from insights',
+      action: 'generateOptimizations',
       inputs: {
-        insights: message.insights
+        cardType: message.payload.insights.cardType || 'universal',
+        deviceType: message.payload.insights.deviceType || 'desktop',
+        interactionHistory: message.payload.insights.interactions || [],
+        userPreferences: message.payload.insights.userPreferences || {}
       }
     });
     
     // Send notification when optimizations are ready
     optimizationTask.onComplete(async (result) => {
-      if (result.optimizations) {
+      if (result && (result.styles || result.behavior || result.content)) {
         await orchestrator.sendMessage({
-          from: cardOptimizationAgent,
-          to: cardInteractionAgent,
+          from: 'CardOptimizationAgent',
+          to: 'CardInteractionAgent',
           type: MESSAGE_TYPES.OPTIMIZATION_APPLIED,
           payload: {
             optimizationId: optimizationTask.id,
-            optimization: result.optimizations,
-            targetCards: message.insights.cardIds || []
+            optimization: result,
+            targetCards: message.payload.insights.cardIds || []
           }
         });
       }
@@ -1109,8 +1816,8 @@ export const agentOrchestrator = {
   // Send interaction insights to optimization agent
   async notifyInteractionInsight(insights) {
     return orchestrator.sendMessage({
-      from: cardInteractionAgent,
-      to: cardOptimizationAgent,
+      from: 'CardInteractionAgent',
+      to: 'CardOptimizationAgent',
       type: MESSAGE_TYPES.INTERACTION_INSIGHTS,
       payload: { 
         insights,
@@ -1122,8 +1829,8 @@ export const agentOrchestrator = {
   // Request optimizations directly
   async requestOptimization(data) {
     return orchestrator.sendMessage({
-      from: cardInteractionAgent,
-      to: cardOptimizationAgent,
+      from: 'CardInteractionAgent',
+      to: 'CardOptimizationAgent',
       type: MESSAGE_TYPES.OPTIMIZATION_REQUEST,
       payload: {
         request: data,
@@ -1140,6 +1847,21 @@ export const agentOrchestrator = {
   // Listen for specific message types
   onMessage(type, callback) {
     return orchestrator.onAnyMessage(type, callback);
+  },
+  
+  // Clear message history
+  clearHistory() {
+    orchestrator.clearMessageHistory();
+  },
+  
+  // Advanced - mediate a message between agents using AI
+  async mediateMessage(from, to, content, context) {
+    return orchestrator.mediateMessage({
+      from,
+      to,
+      content,
+      context
+    });
   }
 };
 ```

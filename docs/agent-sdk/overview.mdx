@@ -1,0 +1,71 @@
+# Agent SDK Overview
+
+The Agent SDK provides a framework for building intelligent agents that can interact with your application components. It uses a "managed runner" architecture that offers flexibility, maintainability, and optimal performance.
+
+## Interactive Demo
+
+Experiment with a basic implementation of the Agent SDK:
+
+<AgentDemo 
+  config={{
+    model: "openai/gpt-4o",
+    tools: [
+      { name: "storeInteraction", enabled: true },
+      { name: "analyzePatterns", enabled: true }
+    ],
+    memory: true,
+    deploymentMode: "hybrid"
+  }}
+  initialPrompt="Analyze these user interactions"
+  sampleData={{
+    interactions: [
+      { type: "flip", timestamp: 1650012345678, metadata: { isFlipped: true, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012355678, metadata: { duration: 2500 } },
+      { type: "flip", timestamp: 1650012365678, metadata: { isFlipped: false, inputMethod: "touch" } }
+    ]
+  }}
+/>
+
+## Key Benefits
+
+- **Simplified Maintenance**: Centralizes configuration and reduces boilerplate
+- **Modular Implementation**: Enables easy swapping of underlying agent technology
+- **Flexible Deployment**: Supports both client-side and server-side execution
+- **Minimal Dependencies**: Reduces version conflicts and update requirements
+- **Easier Testing**: Allows for mocking of agent behaviors in development
+
+## How It Works
+
+1. Core operations are handled by a minimal `AgentRunner` that can use any agent implementation
+2. Agents are defined using a standardized tool definition format
+3. The runner orchestrates communication and handles all networking and state management
+4. Implementation details are isolated, allowing switching between different AI providers
+
+```
+  ┌─────────────────┐     ┌─────────────────┐
+  │ Card Components │     │ Business Logic  │
+  └────────┬────────┘     └────────┬────────┘
+           │                       │
+           ▼                       ▼
+  ┌─────────────────────────────────────────┐
+  │            Agent Runner API             │
+  └────────────────────┬────────────────────┘
+                       │
+                       ▼
+  ┌─────────────────────────────────────────┐
+  │      Implementation Adapter Layer       │
+  └────────┬─────────────────────┬──────────┘
+           │                     │
+           ▼                     ▼
+  ┌────────────────┐    ┌────────────────────┐
+  │ OpenAI APIs    │    │ Alternative        │
+  │ Implementation │    │ Implementations    │
+  └────────────────┘    └────────────────────┘
+```
+
+## Next Steps
+
+- Learn about the [detailed architecture](./architecture.mdx)
+- Explore [implementation options](./implementation-options.mdx)
+- Follow the [integration guide](./integration-guide.mdx)
+- Check out [examples](./examples/)

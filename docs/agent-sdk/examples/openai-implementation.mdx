@@ -1,0 +1,217 @@
+# OpenAI Implementation of Agent SDK
+
+This example shows how to implement the Agent SDK using OpenAI's APIs. The implementation leverages the Function Calling feature to provide structured interaction between your application and AI agents.
+
+## Live Demo
+
+Try out the OpenAI integration:
+
+<AgentDemo 
+  config={{
+    model: "openai/gpt-4o",
+    tools: [
+      { name: "storeInteraction", enabled: true },
+      { name: "analyzePatterns", enabled: true }
+    ],
+    memory: true,
+    deploymentMode: "hybrid"
+  }}
+  initialPrompt="Analyze these user interactions for optimization opportunities"
+  sampleData={{
+    interactions: [
+      { type: "flip", timestamp: 1650012345678, metadata: { isFlipped: true, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012355678, metadata: { duration: 2500 } },
+      { type: "flip", timestamp: 1650012365678, metadata: { isFlipped: false, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012375678, metadata: { duration: 900 } },
+      { type: "flip", timestamp: 1650012385678, metadata: { isFlipped: true, inputMethod: "mouse" } }
+    ],
+    userPreferences: {
+      reducedMotion: false,
+      colorScheme: "light"
+    },
+    deviceInfo: {
+      type: "mobile",
+      screenWidth: 390,
+      screenHeight: 844
+    }
+  }}
+/>
+
+## Implementation Code
+
+```javascript
+import OpenAI from 'openai';
+import { AgentRunner } from '../core/AgentRunner';
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+// Define tools using OpenAI Functions API format
+const tools = [
+  {
+    name: 'storeInteraction',
+    description: 'Store card interaction events',
+    parameters: {
+      type: 'object',
+      properties: {
+        eventType: { 
+          type: 'string',
+          description: 'Type of interaction event (flip, hover, touch, etc.)'
+        },
+        cardId: { 
+          type: 'string',
+          description: 'Unique identifier for the card'
+        },
+        timestamp: { 
+          type: 'integer',
+          description: 'Unix timestamp of when the event occurred'
+        },
+        metadata: { 
+          type: 'object',
+          description: 'Additional data about the interaction'
+        }
+      },
+      required: ['eventType', 'cardId', 'timestamp']
+    }
+  },
+  {
+    name: 'analyzePatterns',
+    description: 'Analyze user interaction patterns',
+    parameters: {
+      type: 'object',
+      properties: {
+        userId: { 
+          type: 'string',
+          description: 'Unique identifier for the user or session'
+        },
+        timeframe: { 
+          type: 'string',
+          enum: ['current_session', 'today', 'week', 'month', 'all'],
+          description: 'Time period to analyze'
+        },
+        metricType: { 
+          type: 'string',
+          enum: ['engagement', 'conversion', 'usability', 'all'],
+          description: 'Type of metrics to analyze'
+        }
+      },
+      required: ['userId']
+    }
+  }
+];
+
+// Create the OpenAI implementation of the agent runner
+class OpenAIAgentRunner extends AgentRunner {
+  constructor(options) {
+    super(options);
+    this.openai = openai;
+    this.model = options.model || 'gpt-4o';
+    this.tools = tools;
+  }
+  
+  async executeAgent(prompt, data, options = {}) {
+    try {
+      // Create messages for the API call
+      const messages = [
+        { 
+          role: 'system', 
+          content: `You are an agent responsible for tracking and analyzing card interactions. 
+                    Analyze patterns in user behavior to provide optimization insights.`
+        },
+        { 
+          role: 'user', 
+          content: `${prompt}\n\nData: ${JSON.stringify(data, null, 2)}`
+        }
+      ];
+      
+      // Call OpenAI API with function calling
+      const response = await this.openai.chat.completions.create({
+        model: this.model,
+        temperature: 0.2,
+        messages,
+        tools: this.tools.map(tool => ({
+          type: 'function',
+          function: tool
+        })),
+        tool_choice: 'auto'
+      });
+      
+      // Process the response
+      return this.processResponse(response);
+    } catch (error) {
+      console.error('Error executing agent with OpenAI:', error);
+      throw error;
+    }
+  }
+  
+  processResponse(response) {
+    const message = response.choices[0].message;
+    
+    if (message.tool_calls && message.tool_calls.length > 0) {
+      // Process function calls
+      const results = message.tool_calls.map(toolCall => {
+        const functionName = toolCall.function.name;
+        const args = JSON.parse(toolCall.function.arguments);
+        
+        return {
+          tool: functionName,
+          args,
+          id: toolCall.id
+        };
+      });
+      
+      return {
+        type: 'tool_calls',
+        results,
+        message: message.content || ''
+      };
+    }
+    
+    // Return direct message content
+    return {
+      type: 'message',
+      content: message.content
+    };
+  }
+}
+
+// Example usage
+const runner = new OpenAIAgentRunner({
+  model: 'gpt-4o',
+  deploymentMode: 'hybrid'
+});
+
+// Run the agent with some data
+const result = await runner.executeAgent(
+  'Analyze these interactions and suggest optimizations', 
+  {
+    interactions: [
+      { type: 'flip', timestamp: Date.now(), metadata: { isFlipped: true } }
+    ]
+  }
+);
+
+console.log(result);
+```
+
+## Configuration Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `model` | string | The OpenAI model to use (default: 'gpt-4o') |
+| `temperature` | number | Temperature setting for response creativity (0-1) |
+| `tools` | array | Tool definitions using OpenAI function calling format |
+| `deploymentMode` | string | 'client', 'server', or 'hybrid' deployment mode |
+| `memory` | boolean | Whether to enable context memory between requests |
+
+## Making it Your Own
+
+You can easily adapt this implementation by:
+
+1. Customizing the tools to match your specific application needs
+2. Adjusting the system prompt to provide domain-specific guidance
+3. Implementing your own `processResponse` method to handle the results
+
+Try modifying the configuration in the demo above to see how different settings affect the agent's behavior.

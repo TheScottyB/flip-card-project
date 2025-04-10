@@ -6,7 +6,7 @@
  */
 
 // Import the module under test
-const CardEventTracker = require('../../js/card-event-tracker.js');
+const CardEventTracker = require('../../core/card-event-tracker.js');
 
 // Mock fetch globally
 global.fetch = jest.fn(() =>

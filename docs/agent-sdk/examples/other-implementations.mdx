@@ -1,0 +1,313 @@
+# Alternative Agent SDK Implementations
+
+The Agent SDK is designed to be model-agnostic, allowing you to use different AI providers or even local implementations. This page demonstrates some alternative approaches.
+
+## Local-Only Implementation
+
+<AgentDemo 
+  config={{
+    model: "local/rule-based",
+    tools: [
+      { name: "storeInteraction", enabled: true },
+      { name: "analyzePatterns", enabled: true }
+    ],
+    memory: false,
+    deploymentMode: "client"
+  }}
+  initialPrompt="Analyze these user interactions"
+  sampleData={{
+    interactions: [
+      { type: "flip", timestamp: 1650012345678, metadata: { isFlipped: true, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012355678, metadata: { duration: 2500 } },
+      { type: "flip", timestamp: 1650012365678, metadata: { isFlipped: false, inputMethod: "touch" } }
+    ]
+  }}
+/>
+
+```javascript
+import { AgentRunner } from '../core/AgentRunner';
+
+/**
+ * Rule-based local implementation that doesn't require external AI APIs
+ */
+class LocalAgentRunner extends AgentRunner {
+  constructor(options) {
+    super(options);
+  }
+  
+  async executeAgent(prompt, data, options = {}) {
+    // Simple rule-based analysis of the data
+    const results = {
+      insights: [],
+      metrics: {}
+    };
+    
+    // Extract and count interaction types
+    const interactions = data.interactions || [];
+    const types = {};
+    
+    interactions.forEach(interaction => {
+      types[interaction.type] = (types[interaction.type] || 0) + 1;
+    });
+    
+    results.metrics.interactionCounts = types;
+    
+    // Calculate time ranges
+    if (interactions.length > 1) {
+      const timestamps = interactions.map(i => i.timestamp).sort();
+      results.metrics.sessionDuration = timestamps[timestamps.length - 1] - timestamps[0];
+    }
+    
+    // Apply simple rules to generate insights
+    if (types.flip > 3) {
+      results.insights.push({
+        type: 'high_engagement',
+        confidence: 0.8,
+        description: 'User is actively flipping cards, showing engagement'
+      });
+    }
+    
+    if (types.hover && interactions.some(i => i.type === 'hover' && i.metadata?.duration > 5000)) {
+      results.insights.push({
+        type: 'content_interest',
+        confidence: 0.7,
+        description: 'User is spending significant time hovering, indicating interest in content'
+      });
+    }
+    
+    return results;
+  }
+}
+
+// Example usage
+const runner = new LocalAgentRunner({
+  deploymentMode: 'client'
+});
+
+const insights = await runner.executeAgent(
+  'Analyze user engagement', 
+  {
+    interactions: [
+      { type: 'flip', timestamp: Date.now() - 5000 },
+      { type: 'hover', timestamp: Date.now() - 3000, metadata: { duration: 2000 } },
+      { type: 'flip', timestamp: Date.now() }
+    ]
+  }
+);
+
+console.log(insights);
+```
+
+## Anthropic API Implementation
+
+You can also implement the Agent SDK using Anthropic's Claude models:
+
+<AgentDemo 
+  config={{
+    model: "anthropic/claude-3-opus",
+    tools: [
+      { name: "storeInteraction", enabled: true },
+      { name: "analyzePatterns", enabled: true }
+    ],
+    memory: true,
+    deploymentMode: "server"
+  }}
+  initialPrompt="What recommendations can you make based on these interaction patterns?"
+  sampleData={{
+    interactions: [
+      { type: "flip", timestamp: 1650012345678, metadata: { isFlipped: true, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012355678, metadata: { duration: 7500 } },
+      { type: "flip", timestamp: 1650012365678, metadata: { isFlipped: false, inputMethod: "touch" } },
+      { type: "hover", timestamp: 1650012375678, metadata: { duration: 6200 } }
+    ]
+  }}
+/>
+
+```javascript
+import Anthropic from '@anthropic-ai/sdk';
+import { AgentRunner } from '../core/AgentRunner';
+
+class AnthropicAgentRunner extends AgentRunner {
+  constructor(options) {
+    super(options);
+    this.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+    this.model = options.model || 'claude-3-opus';
+    
+    // Define tools in Anthropic's tool format
+    this.tools = [
+      {
+        name: 'storeInteraction',
+        description: 'Store card interaction events',
+        input_schema: {
+          type: 'object',
+          properties: {
+            eventType: { 
+              type: 'string',
+              description: 'Type of interaction event'
+            },
+            cardId: { 
+              type: 'string',
+              description: 'Card identifier'
+            },
+            timestamp: { 
+              type: 'integer',
+              description: 'Event timestamp'
+            },
+            metadata: { 
+              type: 'object',
+              description: 'Additional data'
+            }
+          },
+          required: ['eventType', 'cardId', 'timestamp']
+        }
+      },
+      {
+        name: 'analyzePatterns',
+        description: 'Analyze interaction patterns',
+        input_schema: {
+          type: 'object',
+          properties: {
+            userId: { 
+              type: 'string',
+              description: 'User identifier'
+            },
+            timeframe: { 
+              type: 'string',
+              enum: ['current_session', 'today', 'week', 'month', 'all']
+            },
+            metricType: { 
+              type: 'string',
+              enum: ['engagement', 'conversion', 'usability', 'all']
+            }
+          },
+          required: ['userId']
+        }
+      }
+    ];
+  }
+  
+  async executeAgent(prompt, data, options = {}) {
+    try {
+      // Create the message structure for Claude
+      const systemPrompt = `You are an agent that analyzes card interaction patterns.
+                           You help identify user behavior patterns and suggest optimizations.`;
+      
+      // Call Anthropic API with tool use
+      const response = await this.anthropic.messages.create({
+        model: this.model,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}\n\nHere is the data to analyze:\n${JSON.stringify(data, null, 2)}`
+          }
+        ],
+        tools: this.tools,
+        max_tokens: 1024
+      });
+      
+      // Process and return the response
+      return this.processAnthropicResponse(response);
+    } catch (error) {
+      console.error('Error with Anthropic API:', error);
+      throw error;
+    }
+  }
+  
+  processAnthropicResponse(response) {
+    // Handle tool use in the response
+    const message = response.content[0];
+    
+    if (message.type === 'tool_use') {
+      return {
+        type: 'tool_use',
+        tool: message.name,
+        args: message.input,
+        id: message.id
+      };
+    }
+    
+    // Handle text response
+    return {
+      type: 'message',
+      content: message.text
+    };
+  }
+}
+
+// Example usage
+const runner = new AnthropicAgentRunner({
+  model: 'claude-3-opus',
+  deploymentMode: 'server'
+});
+
+// Execute the agent
+const result = await runner.executeAgent(
+  'What patterns do you see in this data?',
+  { /* interaction data */ }
+);
+```
+
+## Hybrid Implementation
+
+For production applications, a hybrid approach that can switch between providers or fall back to local processing might be ideal:
+
+```javascript
+import { AgentRunner } from '../core/AgentRunner';
+import OpenAIAgentRunner from './OpenAIAgentRunner';
+import AnthropicAgentRunner from './AnthropicAgentRunner';
+import LocalAgentRunner from './LocalAgentRunner';
+
+class HybridAgentRunner extends AgentRunner {
+  constructor(options) {
+    super(options);
+    
+    // Initialize different implementations
+    this.implementations = {
+      openai: new OpenAIAgentRunner(options),
+      anthropic: new AnthropicAgentRunner(options),
+      local: new LocalAgentRunner(options)
+    };
+    
+    this.preferredImplementation = options.preferredImplementation || 'openai';
+    this.fallbackOrder = options.fallbackOrder || ['anthropic', 'local'];
+  }
+  
+  async executeAgent(prompt, data, options = {}) {
+    // Try preferred implementation first
+    try {
+      return await this.implementations[this.preferredImplementation].executeAgent(prompt, data, options);
+    } catch (error) {
+      console.warn(`Primary implementation (${this.preferredImplementation}) failed:`, error);
+      
+      // Try fallbacks in order
+      for (const fallback of this.fallbackOrder) {
+        try {
+          console.log(`Attempting fallback to ${fallback} implementation`);
+          return await this.implementations[fallback].executeAgent(prompt, data, options);
+        } catch (fallbackError) {
+          console.warn(`Fallback implementation (${fallback}) failed:`, fallbackError);
+        }
+      }
+      
+      // All implementations failed - throw error
+      throw new Error('All agent implementations failed');
+    }
+  }
+}
+```
+
+## Comparing Implementations
+
+Each implementation approach has its own advantages:
+
+| Implementation | Advantages | Disadvantages |
+|----------------|------------|--------------|
+| **OpenAI API** | High-quality analysis, function calling | Requires API key, network dependency |
+| **Anthropic API** | Excellent reasoning capabilities | Similar API dependencies |
+| **Local Rule-based** | No external dependencies, fast | Limited analytical capabilities |
+| **Hybrid** | Reliability through fallbacks | More complex implementation |
+
+The beauty of the Agent SDK is that you can switch between these implementations without changing your application code, as they all conform to the same interface.
