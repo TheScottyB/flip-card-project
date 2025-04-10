@@ -54,7 +54,7 @@ if [ ! -z "$custom_webhook" ]; then
   WEBHOOK_URL=$custom_webhook
 fi
 
-# Create a temporary directory to store the app credentials
+# Create a directory to store the app credentials (excluded from git via .gitignore)
 mkdir -p .github/app
 CREDS_DIR=".github/app"
 
