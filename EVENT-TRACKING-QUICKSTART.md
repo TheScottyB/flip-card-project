@@ -76,6 +76,7 @@ See `EVENT-DRIVEN-ARCHITECTURE.md` for a complete description of the system's de
 ## Security Notes
 
 - Protect your GitHub App credentials
-- Never commit the `.github/app` directory or `.env` files
+- Never commit the `.github/app` directory or `webhook-proxy/.env` files (these are already in .gitignore)
+- The private key is stored in `.github/app/private-key.pem` and referenced in the webhook proxy's `.env` file
 - Use environment variables for sensitive information
 - Rate limit API requests to prevent abuse
