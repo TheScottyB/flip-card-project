@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Demo of React flip card components with TypeScript support">
+  <title>React Flip Card Components</title>
+  
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+  
+  <!-- React & React DOM -->
+  <script crossorigin src="https://unpkg.com/react@19/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js"></script>
+  
+  <!-- Flip card styles -->
+  <link rel="stylesheet" href="dist/css/flip-card.min.css">
+  <link rel="stylesheet" href="dist/css/universal-flip-card.min.css">
+
+  <style>
+    /* Additional styles for the demo page */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">
+    Skip to main content
+  </a>
+  
+  <!-- Screen reader announcer -->
+  <div id="flip-card-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  
+  <header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">React Flip Card Components</h1>
+        <nav>
+          <ul class="flex space-x-4">
+            <li>
+              <a href="index.html" class="text-blue-600 hover:text-blue-800">Home</a>
+            </li>
+            <li>
+              <a href="universal-demo.html" class="text-blue-600 hover:text-blue-800">Universal Demo</a>
+            </li>
+            <li>
+              <a href="react-card.html" class="text-blue-600 hover:text-blue-800">Basic React</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+  
+  <main id="main-content" class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-gray-800">TypeScript React Components</h2>
+      <p class="text-gray-600 mb-6">
+        This page demonstrates our enhanced React components for flip cards, built with TypeScript and
+        modern React practices. Our components provide full accessibility support, custom hooks,
+        and a comprehensive type system.
+      </p>
+      
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-xl font-bold mb-4">Core Features</h3>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 list-disc list-inside text-gray-700">
+          <li>TypeScript support with comprehensive type definitions</li>
+          <li>Functional and class-based component options</li>
+          <li>Custom hooks for state management</li>
+          <li>Full ARIA accessibility compliance</li>
+          <li>Device capability detection</li>
+          <li>Voice control support</li>
+          <li>Touch, keyboard, and mouse support</li>
+          <li>User preference detection</li>
+        </ul>
+      </div>
+    </section>
+    
+    <!-- React component will be rendered here -->
+    <div id="root" class="mb-12"></div>
+    
+    <section class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold mb-4 text-gray-800">Installation & Usage</h2>
+      
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Installation</h3>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+npm install @your-org/flip-card-react</pre>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Import Components</h3>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+import { FlipCard, UniversalFlipCard, useFlipCard } from '@your-org/flip-card-react';</pre>
+      </div>
+      
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Using the Custom Hook</h3>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+const MyCustomCard = () => {
+  const {
+    isFlipped,
+    flipCard,
+    toggleFlip,
+    containerProps,
+    frontTriggerProps,
+    backTriggerProps
+  } = useFlipCard(false);
+  
+  return (
+    <div {...containerProps}>
+      <div className="flip-card-inner">
+        <div className="flip-card-front">
+          {/* Your front content */}
+          <button {...frontTriggerProps}>Show More</button>
+        </div>
+        <div className="flip-card-back">
+          {/* Your back content */}
+          <button {...backTriggerProps}>Back</button>
+        </div>
+      </div>
+    </div>
+  );
+};</pre>
+      </div>
+    </section>
+  </main>
+  
+  <footer class="bg-white mt-12 py-6 px-4">
+    <div class="max-w-6xl mx-auto text-center text-gray-600">
+      <p>
+        Flip Card Project &copy; 2025 - <a href="https://github.com/TheScottyB/flip-card-project" class="text-blue-600 hover:underline">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Import our compiled TypeScript demo script -->
+  <script type="module">
+    // Since we can't easily compile TypeScript here, we'll use dynamic imports
+    import React from 'https://esm.sh/react@19';
+    import ReactDOM from 'https://esm.sh/react-dom@19';
+
+    // Simple demo component as a fallback 
+    const DemoFallback = () => {
+      const [isFlipped, setIsFlipped] = React.useState(false);
+      
+      return (
+        <div className="text-center p-6 bg-yellow-50 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">TypeScript React Components</h2>
+          <p className="mb-4">
+            The full TypeScript React components would normally render here, but they require a build step to compile.
+            Please see the repository for the complete TypeScript implementation.
+          </p>
+          <div className="flip-card card-standard mx-auto">
+            <div className={`flip-card-inner ${isFlipped ? 'flipped' : ''}`}>
+              <div className="flip-card-front bg-white p-6 rounded shadow">
+                <h3 className="text-lg font-bold mb-2">Front Side</h3>
+                <p className="mb-4">This is a simple React-rendered flip card.</p>
+                <button 
+                  className="px-4 py-2 bg-blue-600 text-white rounded" 
+                  onClick={() => setIsFlipped(true)}
+                >
+                  View Details
+                </button>
+              </div>
+              <div className="flip-card-back bg-white p-6 rounded shadow">
+                <h3 className="text-lg font-bold mb-2">Back Side</h3>
+                <p className="mb-4">You've flipped the card using React state!</p>
+                <button 
+                  className="px-4 py-2 bg-gray-200 rounded" 
+                  onClick={() => setIsFlipped(false)}
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the demo fallback
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(React.createElement(DemoFallback));
+    }
+  </script>
+</body>
+</html>
