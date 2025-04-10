@@ -22,7 +22,15 @@
     "test:accessibility": "jest --testPathPattern=calculator/accessibility",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:report": "node scripts/generate-report.js"
+    "test:report": "node scripts/generate-report.js",
+    "test:config": "test/scripts/test-verify-config.sh",
+    "test:events": "test/scripts/test-integration.sh",
+    "verify": "scripts/verify-config.sh",
+    "launch": "scripts/launch-event-environment.sh",
+    "events:start": "cd webhook-proxy && npm start",
+    "events:stop": "kill $(cat webhook-proxy/server.pid 2>/dev/null) || echo 'Server not running'",
+    "dashboard": "http-server . -p 9000 -o tools/dev/event-dashboard.html",
+    "simulate": "node tools/dev/event-simulator.js"
   },
   "repository": {
     "type": "git",

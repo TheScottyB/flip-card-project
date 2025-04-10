@@ -1,0 +1,909 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flip Card Event Tracking Dashboard</title>
+  <style>
+    :root {
+      --primary: #4a6da7;
+      --secondary: #5e81ac;
+      --success: #a3be8c;
+      --danger: #bf616a;
+      --warning: #ebcb8b;
+      --info: #88c0d0;
+      --light: #eceff4;
+      --dark: #2e3440;
+      --bg: #f8f9fa;
+      --text: #2e3440;
+      --border: #d8dee9;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header h1 {
+      margin: 0;
+      color: var(--primary);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .stat-card h3 {
+      margin-top: 0;
+      font-size: 14px;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: var(--primary);
+    }
+    
+    .chart-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .chart-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      min-height: 300px;
+      border: 1px solid var(--border);
+    }
+    
+    .activity-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+    
+    .activity-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .activity-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .activity-icon.flip {
+      background-color: var(--primary);
+    }
+    
+    .activity-icon.hover {
+      background-color: var(--info);
+    }
+    
+    .activity-icon.touch {
+      background-color: var(--warning);
+    }
+    
+    .activity-content {
+      flex-grow: 1;
+    }
+    
+    .activity-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .activity-time {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .settings-section {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background-color: var(--secondary);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background-color: #d08770;
+    }
+    
+    .btn-success {
+      background-color: var(--success);
+    }
+    
+    .btn-success:hover {
+      background-color: #8fbcbb;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-online {
+      background-color: var(--success);
+    }
+    
+    .status-offline {
+      background-color: var(--danger);
+    }
+    
+    .server-status {
+      display: flex;
+      align-items: center;
+    }
+    
+    #line-chart, #pie-chart {
+      width: 100%;
+      height: 260px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .loader {
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Flip Card Event Tracking Dashboard</h1>
+      <div class="server-status" id="server-status">
+        <span class="status-indicator status-offline"></span>
+        <span>Offline</span>
+      </div>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Sessions</h3>
+        <div class="value" id="total-sessions">--</div>
+        <div>Today: <span id="today-sessions">--</span></div>
+      </div>
+      <div class="stat-card">
+        <h3>Total Events</h3>
+        <div class="value" id="total-events">--</div>
+        <div>Today: <span id="today-events">--</span></div>
+      </div>
+      <div class="stat-card">
+        <h3>Active Cards</h3>
+        <div class="value" id="active-cards">--</div>
+        <div>Interactions: <span id="card-interactions">--</span></div>
+      </div>
+      <div class="stat-card">
+        <h3>Server Status</h3>
+        <div class="value" id="server-uptime">--</div>
+        <div>Last restart: <span id="last-restart">--</span></div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="monitoring">Monitoring</div>
+      <div class="tab" data-tab="tools">Developer Tools</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </div>
+    
+    <div class="tab-content active" id="tab-monitoring">
+      <div class="chart-container">
+        <div class="chart-card">
+          <h3>Event Timeline</h3>
+          <div id="line-chart"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Event Types</h3>
+          <div id="pie-chart"></div>
+        </div>
+      </div>
+      
+      <div class="activity-container">
+        <h3>Recent Activity</h3>
+        <ul class="activity-list" id="activity-list">
+          <li class="activity-item">
+            <div class="activity-icon flip">F</div>
+            <div class="activity-content">
+              <div class="activity-title">Card flipped to back</div>
+              <div class="activity-time">Session: abc123 • 2 minutes ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-icon hover">H</div>
+            <div class="activity-content">
+              <div class="activity-title">Hover interaction (2.5s)</div>
+              <div class="activity-time">Session: abc123 • 3 minutes ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-icon touch">T</div>
+            <div class="activity-content">
+              <div class="activity-title">Touch interaction</div>
+              <div class="activity-time">Session: def456 • 5 minutes ago</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="tab-tools">
+      <div class="settings-section">
+        <h3>Event Simulator</h3>
+        <p>Generate test events to validate your event tracking system</p>
+        
+        <div class="form-group">
+          <label for="event-count">Number of Events</label>
+          <input type="number" id="event-count" value="10" min="1" max="100">
+        </div>
+        
+        <div class="form-group">
+          <label for="event-type">Event Type</label>
+          <select id="event-type">
+            <option value="mixed">Mixed</option>
+            <option value="flip">Flip Events</option>
+            <option value="hover">Hover Events</option>
+            <option value="touch">Touch Events</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="device-type">Device Type</label>
+          <select id="device-type">
+            <option value="mixed">Mixed</option>
+            <option value="desktop">Desktop</option>
+            <option value="mobile">Mobile</option>
+            <option value="tablet">Tablet</option>
+          </select>
+        </div>
+        
+        <div class="button-group">
+          <button id="generate-events">Generate Events</button>
+          <button id="start-continuous" class="btn-success">Start Continuous</button>
+          <button id="stop-continuous" class="btn-danger" disabled>Stop</button>
+        </div>
+        
+        <div id="simulator-status" style="margin-top: 15px;"></div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Server Controls</h3>
+        <p>Manage the webhook proxy server</p>
+        
+        <div class="button-group">
+          <button id="restart-server">Restart Server</button>
+          <button id="clear-logs">Clear Logs</button>
+        </div>
+        
+        <div style="margin-top: 20px;">
+          <h4>Server Output</h4>
+          <pre id="server-logs" style="background: #2e3440; color: #d8dee9; padding: 15px; border-radius: 4px; height: 200px; overflow: auto; font-size: 12px; font-family: monospace;">Connecting to server...</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="tab-settings">
+      <div class="settings-section">
+        <h3>Webhook Proxy Configuration</h3>
+        
+        <div class="form-group">
+          <label for="token-endpoint">Token Endpoint</label>
+          <input type="text" id="token-endpoint" value="http://localhost:3000/token">
+        </div>
+        
+        <div class="form-group">
+          <label for="events-endpoint">Events Endpoint</label>
+          <input type="text" id="events-endpoint" value="http://localhost:3000/events">
+        </div>
+        
+        <div class="form-group">
+          <label for="allowed-origins">Allowed Origins (comma-separated)</label>
+          <input type="text" id="allowed-origins" value="http://localhost:8080,http://127.0.0.1:8080">
+        </div>
+        
+        <button id="save-settings">Save Settings</button>
+        <span id="settings-status" style="margin-left: 10px;"></span>
+      </div>
+      
+      <div class="settings-section">
+        <h3>GitHub App Connection</h3>
+        <p>These settings control how the webhook proxy connects to GitHub</p>
+        
+        <div class="form-group">
+          <label for="github-owner">GitHub Owner</label>
+          <input type="text" id="github-owner" placeholder="e.g., TheScottyB">
+        </div>
+        
+        <div class="form-group">
+          <label for="github-repo">GitHub Repository</label>
+          <input type="text" id="github-repo" placeholder="e.g., flip-card-project">
+        </div>
+        
+        <button id="test-github">Test GitHub Connection</button>
+        <span id="github-status" style="margin-left: 10px;"></span>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Mock data for demonstration
+    const mockData = {
+      sessions: 128,
+      todaySessions: 23,
+      events: 1547,
+      todayEvents: 312,
+      activeCards: 5,
+      cardInteractions: 87,
+      serverUptime: '3d 5h 12m',
+      lastRestart: '2023-04-07 09:15',
+      timelineData: [
+        { time: '00:00', count: 5 },
+        { time: '02:00', count: 3 },
+        { time: '04:00', count: 2 },
+        { time: '06:00', count: 7 },
+        { time: '08:00', count: 15 },
+        { time: '10:00', count: 25 },
+        { time: '12:00', count: 32 },
+        { time: '14:00', count: 28 },
+        { time: '16:00', count: 22 },
+        { time: '18:00', count: 18 },
+        { time: '20:00', count: 10 },
+        { time: '22:00', count: 8 }
+      ],
+      eventTypes: [
+        { type: 'flip', count: 856 },
+        { type: 'hover', count: 423 },
+        { type: 'touch', count: 268 }
+      ],
+      recentActivity: [
+        { type: 'flip', session: 'session-12345', time: '2 minutes ago', details: 'Card flipped to back' },
+        { type: 'hover', session: 'session-12345', time: '3 minutes ago', details: 'Hover interaction (2.5s)' },
+        { type: 'touch', session: 'session-54321', time: '5 minutes ago', details: 'Touch interaction' },
+        { type: 'flip', session: 'session-54321', time: '7 minutes ago', details: 'Card flipped to front' },
+        { type: 'hover', session: 'session-67890', time: '10 minutes ago', details: 'Hover interaction (1.2s)' }
+      ]
+    };
+    
+    // Simple chart drawing functions (without external libraries for demo)
+    function drawLineChart(data) {
+      const canvas = document.createElement('canvas');
+      canvas.width = document.getElementById('line-chart').clientWidth;
+      canvas.height = document.getElementById('line-chart').clientHeight;
+      document.getElementById('line-chart').innerHTML = '';
+      document.getElementById('line-chart').appendChild(canvas);
+      
+      const ctx = canvas.getContext('2d');
+      const padding = 40;
+      const width = canvas.width - padding * 2;
+      const height = canvas.height - padding * 2;
+      
+      // Find max value
+      const maxValue = Math.max(...data.map(d => d.count)) * 1.2;
+      
+      // Draw axes
+      ctx.beginPath();
+      ctx.strokeStyle = '#d8dee9';
+      ctx.moveTo(padding, padding);
+      ctx.lineTo(padding, height + padding);
+      ctx.lineTo(width + padding, height + padding);
+      ctx.stroke();
+      
+      // Plot data
+      const step = width / (data.length - 1);
+      ctx.beginPath();
+      ctx.strokeStyle = '#5e81ac';
+      ctx.lineWidth = 2;
+      data.forEach((d, i) => {
+        const x = padding + i * step;
+        const y = padding + height - (d.count / maxValue) * height;
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      
+      // Draw points
+      data.forEach((d, i) => {
+        const x = padding + i * step;
+        const y = padding + height - (d.count / maxValue) * height;
+        ctx.beginPath();
+        ctx.fillStyle = '#5e81ac';
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Draw x-axis labels
+      ctx.fillStyle = '#4c566a';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      data.forEach((d, i) => {
+        if (i % 2 === 0) { // Skip some labels to avoid crowding
+          const x = padding + i * step;
+          ctx.fillText(d.time, x, height + padding + 15);
+        }
+      });
+      
+      // Draw y-axis labels
+      ctx.textAlign = 'right';
+      const yStep = maxValue / 5;
+      for (let i = 0; i <= 5; i++) {
+        const y = padding + height - (i * yStep / maxValue) * height;
+        ctx.fillText(Math.round(i * yStep), padding - 5, y + 3);
+      }
+    }
+    
+    function drawPieChart(data) {
+      const canvas = document.createElement('canvas');
+      canvas.width = document.getElementById('pie-chart').clientWidth;
+      canvas.height = document.getElementById('pie-chart').clientHeight;
+      document.getElementById('pie-chart').innerHTML = '';
+      document.getElementById('pie-chart').appendChild(canvas);
+      
+      const ctx = canvas.getContext('2d');
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) - 40;
+      
+      const total = data.reduce((sum, d) => sum + d.count, 0);
+      let startAngle = 0;
+      
+      const colors = ['#5e81ac', '#88c0d0', '#ebcb8b'];
+      
+      // Draw slices
+      data.forEach((d, i) => {
+        const endAngle = startAngle + (d.count / total) * (Math.PI * 2);
+        
+        ctx.beginPath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+        
+        startAngle = endAngle;
+      });
+      
+      // Draw legends
+      ctx.font = '12px sans-serif';
+      let legendY = centerY - radius;
+      data.forEach((d, i) => {
+        const percent = Math.round((d.count / total) * 100);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillRect(centerX + radius + 20, legendY, 15, 15);
+        
+        ctx.fillStyle = '#2e3440';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${d.type} (${percent}%)`, centerX + radius + 40, legendY + 12);
+        legendY += 25;
+      });
+    }
+    
+    function populateActivityList(activities) {
+      const list = document.getElementById('activity-list');
+      list.innerHTML = '';
+      
+      activities.forEach(activity => {
+        const item = document.createElement('li');
+        item.className = 'activity-item';
+        
+        const icon = document.createElement('div');
+        icon.className = `activity-icon ${activity.type}`;
+        icon.textContent = activity.type.charAt(0).toUpperCase();
+        
+        const content = document.createElement('div');
+        content.className = 'activity-content';
+        
+        const title = document.createElement('div');
+        title.className = 'activity-title';
+        title.textContent = activity.details;
+        
+        const time = document.createElement('div');
+        time.className = 'activity-time';
+        time.textContent = `Session: ${activity.session} • ${activity.time}`;
+        
+        content.appendChild(title);
+        content.appendChild(time);
+        
+        item.appendChild(icon);
+        item.appendChild(content);
+        
+        list.appendChild(item);
+      });
+    }
+    
+    // Initialize the dashboard
+    function initDashboard() {
+      // Update stats
+      document.getElementById('total-sessions').textContent = mockData.sessions;
+      document.getElementById('today-sessions').textContent = mockData.todaySessions;
+      document.getElementById('total-events').textContent = mockData.events;
+      document.getElementById('today-events').textContent = mockData.todayEvents;
+      document.getElementById('active-cards').textContent = mockData.activeCards;
+      document.getElementById('card-interactions').textContent = mockData.cardInteractions;
+      document.getElementById('server-uptime').textContent = mockData.serverUptime;
+      document.getElementById('last-restart').textContent = mockData.lastRestart;
+      
+      // Draw charts
+      drawLineChart(mockData.timelineData);
+      drawPieChart(mockData.eventTypes);
+      
+      // Populate activity list
+      populateActivityList(mockData.recentActivity);
+      
+      // Check server status
+      checkServerStatus();
+      
+      // Set up tab navigation
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+        });
+      });
+      
+      // Setup tool buttons
+      document.getElementById('generate-events').addEventListener('click', generateEvents);
+      document.getElementById('start-continuous').addEventListener('click', startContinuous);
+      document.getElementById('stop-continuous').addEventListener('click', stopContinuous);
+      document.getElementById('restart-server').addEventListener('click', restartServer);
+      document.getElementById('clear-logs').addEventListener('click', clearLogs);
+      document.getElementById('save-settings').addEventListener('click', saveSettings);
+      document.getElementById('test-github').addEventListener('click', testGitHubConnection);
+      
+      // Re-render charts on window resize
+      window.addEventListener('resize', () => {
+        drawLineChart(mockData.timelineData);
+        drawPieChart(mockData.eventTypes);
+      });
+      
+      // Initial server log
+      document.getElementById('server-logs').textContent = 'Server logs will appear here...';
+    }
+    
+    // Check server status
+    async function checkServerStatus() {
+      const statusIndicator = document.querySelector('#server-status .status-indicator');
+      const statusText = document.querySelector('#server-status span:last-child');
+      
+      try {
+        const response = await fetch('http://localhost:3000/health', { method: 'GET' });
+        
+        if (response.ok) {
+          statusIndicator.className = 'status-indicator status-online';
+          statusText.textContent = 'Online';
+        } else {
+          statusIndicator.className = 'status-indicator status-offline';
+          statusText.textContent = 'Error';
+        }
+      } catch (error) {
+        statusIndicator.className = 'status-indicator status-offline';
+        statusText.textContent = 'Offline';
+      }
+    }
+    
+    // Tool functions (simulated)
+    function generateEvents() {
+      const count = document.getElementById('event-count').value;
+      const eventType = document.getElementById('event-type').value;
+      const deviceType = document.getElementById('device-type').value;
+      
+      const status = document.getElementById('simulator-status');
+      status.innerHTML = `<div class="loader"></div> Generating ${count} ${eventType} events for ${deviceType}...`;
+      
+      setTimeout(() => {
+        status.innerHTML = `<span style="color: var(--success);">✓ Generated ${count} events successfully\!</span>`;
+        
+        // Add new mock activities
+        const newActivities = [];
+        for (let i = 0; i < Math.min(count, 3); i++) {
+          let type, details;
+          if (eventType === 'mixed') {
+            const types = ['flip', 'hover', 'touch'];
+            type = types[Math.floor(Math.random() * types.length)];
+          } else {
+            type = eventType;
+          }
+          
+          switch (type) {
+            case 'flip':
+              details = Math.random() > 0.5 ? 'Card flipped to back' : 'Card flipped to front';
+              break;
+            case 'hover':
+              details = `Hover interaction (${(Math.random() * 3 + 0.5).toFixed(1)}s)`;
+              break;
+            case 'touch':
+              details = 'Touch interaction';
+              break;
+          }
+          
+          newActivities.push({
+            type,
+            session: `session-${Math.floor(Math.random() * 100000)}`,
+            time: 'just now',
+            details
+          });
+        }
+        
+        populateActivityList([...newActivities, ...mockData.recentActivity.slice(0, 2)]);
+      }, 1500);
+    }
+    
+    let continuousInterval;
+    
+    function startContinuous() {
+      document.getElementById('start-continuous').disabled = true;
+      document.getElementById('stop-continuous').disabled = false;
+      document.getElementById('generate-events').disabled = true;
+      
+      const status = document.getElementById('simulator-status');
+      status.innerHTML = `<div class="loader"></div> Continuous event generation started...`;
+      
+      // Mock continuous event generation
+      continuousInterval = setInterval(() => {
+        const newActivity = {
+          type: ['flip', 'hover', 'touch'][Math.floor(Math.random() * 3)],
+          session: `session-${Math.floor(Math.random() * 100000)}`,
+          time: 'just now',
+          details: 'Automated event'
+        };
+        
+        switch (newActivity.type) {
+          case 'flip':
+            newActivity.details = Math.random() > 0.5 ? 'Card flipped to back' : 'Card flipped to front';
+            break;
+          case 'hover':
+            newActivity.details = `Hover interaction (${(Math.random() * 3 + 0.5).toFixed(1)}s)`;
+            break;
+          case 'touch':
+            newActivity.details = 'Touch interaction';
+            break;
+        }
+        
+        const activities = document.getElementById('activity-list').querySelectorAll('.activity-item');
+        if (activities.length > 0) {
+          activities[activities.length - 1].remove();
+        }
+        
+        const list = document.getElementById('activity-list');
+        const item = document.createElement('li');
+        item.className = 'activity-item';
+        
+        const icon = document.createElement('div');
+        icon.className = `activity-icon ${newActivity.type}`;
+        icon.textContent = newActivity.type.charAt(0).toUpperCase();
+        
+        const content = document.createElement('div');
+        content.className = 'activity-content';
+        
+        const title = document.createElement('div');
+        title.className = 'activity-title';
+        title.textContent = newActivity.details;
+        
+        const time = document.createElement('div');
+        time.className = 'activity-time';
+        time.textContent = `Session: ${newActivity.session} • ${newActivity.time}`;
+        
+        content.appendChild(title);
+        content.appendChild(time);
+        
+        item.appendChild(icon);
+        item.appendChild(content);
+        
+        list.prepend(item);
+      }, 2000);
+    }
+    
+    function stopContinuous() {
+      clearInterval(continuousInterval);
+      document.getElementById('start-continuous').disabled = false;
+      document.getElementById('stop-continuous').disabled = true;
+      document.getElementById('generate-events').disabled = false;
+      
+      const status = document.getElementById('simulator-status');
+      status.innerHTML = '<span style="color: var(--warning);">Continuous event generation stopped.</span>';
+    }
+    
+    function restartServer() {
+      const logs = document.getElementById('server-logs');
+      logs.textContent = 'Stopping server...\n';
+      
+      setTimeout(() => {
+        logs.textContent += 'Server stopped.\n';
+        logs.textContent += 'Starting server...\n';
+        
+        setTimeout(() => {
+          logs.textContent += 'Server started successfully on port 3000.\n';
+          logs.textContent += 'Webhook proxy is now listening for events.\n';
+          logs.textContent += 'Token endpoint: http://localhost:3000/token\n';
+          logs.textContent += 'Events endpoint: http://localhost:3000/events\n';
+          
+          checkServerStatus();
+        }, 1500);
+      }, 1000);
+    }
+    
+    function clearLogs() {
+      document.getElementById('server-logs').textContent = 'Logs cleared.\n';
+    }
+    
+    function saveSettings() {
+      const status = document.getElementById('settings-status');
+      status.innerHTML = '<div class="loader"></div> Saving settings...';
+      
+      setTimeout(() => {
+        status.innerHTML = '<span style="color: var(--success);">✓ Settings saved successfully\!</span>';
+        
+        setTimeout(() => {
+          status.innerHTML = '';
+        }, 3000);
+      }, 1000);
+    }
+    
+    function testGitHubConnection() {
+      const status = document.getElementById('github-status');
+      status.innerHTML = '<div class="loader"></div> Testing connection...';
+      
+      setTimeout(() => {
+        status.innerHTML = '<span style="color: var(--success);">✓ Connection successful\!</span>';
+        
+        setTimeout(() => {
+          status.innerHTML = '';
+        }, 3000);
+      }, 1500);
+    }
+    
+    // Initialize the dashboard when the page loads
+    window.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>

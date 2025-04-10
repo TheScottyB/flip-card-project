@@ -100,3 +100,14 @@ _site
 .github/app/
 webhook-proxy/.env
 webhook-proxy/server.pid
+
+# Temporary files used for demonstration
+.github/app/private-key.pem
+webhook-proxy/.env.sample
+webhook-proxy/.env
+
+# Development tools and temporary files
+tools/dev/simulator-config.json
+webhook-proxy/server.log
+webhook-proxy/.env
+.github/app/

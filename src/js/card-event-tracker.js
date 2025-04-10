@@ -287,6 +287,12 @@ class CardEventTracker {
       console.log('Card event data:', dataToSend);
     }
     
+    // Reset interactions array if this isn't the final send
+    // to avoid sending duplicate data while we process network requests
+    if (!isFinal) {
+      this.sessionData.interactions = [];
+    }
+    
     // Only send data if we're in production mode or explicitly enabled
     if (this.options.enableDataSending || window.enableCardTracking) {
       try {
@@ -327,13 +333,8 @@ class CardEventTracker {
         }
       } catch (err) {
         console.error('Failed to send card event data:', err);
+        // Don't return - we still want to continue test execution
       }
-    }
-    
-    // Reset interactions array if this isn't the final send
-    // to avoid sending duplicate data
-    if (!isFinal) {
-      this.sessionData.interactions = [];
     }
   }
   

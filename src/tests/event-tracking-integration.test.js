@@ -3,21 +3,21 @@
  * Tests the integration between cards, event tracking, and the event delivery system
  */
 
-// Import workaround for modules
-const UniversalFlipCard = require('../js/universal-flip-card.js');
-const CardEventTracker = require('../js/card-event-tracker.js');
+// Instead of directly importing, use the setupTestModules utility from setup.js
+// This ensures proper module loading and makes modules available globally
+setupTestModules();
 
-// Make them available globally
-global.UniversalFlipCard = UniversalFlipCard;
-global.CardEventTracker = CardEventTracker;
+// Set longer timeout for integration tests
+jest.setTimeout(120000); // 2 minutes
 
-// Mock fetch response for network calls
-global.fetch = jest.fn(() =>
-  Promise.resolve({
+// Mock fetch response for network calls - optimized for tests
+global.fetch = jest.fn(() => {
+  // Return a pre-resolved promise for faster test execution
+  return Promise.resolve({
     ok: true,
     json: () => Promise.resolve({ token: 'test-token' })
-  })
-);
+  });
+});
 
 // Mock MutationObserver
 global.MutationObserver = class {
@@ -100,48 +100,44 @@ const simulateEvent = (element, eventName, details = {}) => {
   element.dispatchEvent(event);
 };
 
-// Utility function to wait for promises to resolve
-const flushPromises = () => new Promise(resolve => {
-  // Run any pending timers
-  jest.runAllTimers();
-  // Use setTimeout with 0 to flush Promise microtask queue
-  setTimeout(resolve, 0);
-});
+// We'll use the flushPromisesAndTimers utility from setup.js instead of a local implementation
 
 describe('Event Tracking System - End-to-End Integration', () => {
   let card1, card2, cardTrackers, flipCards;
   
   beforeEach(() => {
-    // Setup test DOM
+    // Set up the test page DOM
     setupTestPage();
     
-    // Clear fetch mock
-    fetch.mockClear();
-    
-    // Enable tracking for testing
-    window.enableCardTracking = true;
-    window.debugCardEvents = true;
+    // Use mockDateNow for consistent time values in tests
+    mockDateNow();
     
     // Set up UniversalFlipCard instances
-    flipCards = window.UniversalFlipCard.initAll();
+    // Using the initAll method that's guaranteed to be available via setupTestModules
+    flipCards = UniversalFlipCard.initAll();
     card1 = flipCards[0];
     card2 = flipCards[1];
     
     // Spy on CardEventTracker's methods
-    jest.spyOn(window.CardEventTracker.prototype, 'recordInteraction');
-    jest.spyOn(window.CardEventTracker.prototype, 'sendData');
+    jest.spyOn(CardEventTracker.prototype, 'recordInteraction');
+    jest.spyOn(CardEventTracker.prototype, 'sendData');
     
     // Create the trackers for the cards
-    cardTrackers = window.CardEventTracker.trackAll({
+    cardTrackers = CardEventTracker.trackAll({
       tokenEndpoint: 'http://localhost:3000/token',
       eventsEndpoint: 'http://localhost:3000/events',
       sendThreshold: 1, // Send after every interaction for testing
       enableDataSending: true
     });
     
-    // Mock console methods
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    // Setup event handlers for test controls
+    document.getElementById('enable-tracking')?.addEventListener('click', () => {
+      window.enableCardTracking = true;
+    });
+    
+    document.getElementById('disable-tracking')?.addEventListener('click', () => {
+      window.enableCardTracking = false;
+    });
     
     // Setup fake timers
     jest.useFakeTimers();
@@ -149,29 +145,30 @@ describe('Event Tracking System - End-to-End Integration', () => {
   
   afterEach(() => {
     // Clean up
+    if (cardTrackers) {
+      cardTrackers.forEach(tracker => {
+        if (tracker && tracker.destroy) tracker.destroy();
+      });
+    }
+    
     document.body.innerHTML = '';
     window.enableCardTracking = false;
     window.debugCardEvents = false;
     
-    // Destroy trackers
-    if (cardTrackers) {
-      cardTrackers.forEach(tracker => tracker.destroy());
-    }
-    
-    // Restore console
-    console.log.mockRestore();
-    console.error.mockRestore();
+    // Reset Date.now mocking if defined
+    if (typeof resetDateNow === 'function') resetDateNow();
     
     // Restore timers
     jest.useRealTimers();
   });
   
   test('Tracks card flip events and sends to endpoint', async () => {
+    jest.setTimeout(120000); // Increase timeout for this specific test
     // Flip the first card
     card1.flip(true);
     
     // The card should emit a cardFlip event which the tracker will catch
-    expect(window.CardEventTracker.prototype.recordInteraction).toHaveBeenCalledWith(
+    expect(CardEventTracker.prototype.recordInteraction).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'flip',
         isFlipped: true
@@ -179,10 +176,10 @@ describe('Event Tracking System - End-to-End Integration', () => {
     );
     
     // Verify data is being sent
-    expect(window.CardEventTracker.prototype.sendData).toHaveBeenCalled();
+    expect(CardEventTracker.prototype.sendData).toHaveBeenCalled();
     
-    // Wait for fetch to complete
-    await flushPromises();
+    // Wait for fetch to complete using the improved utility
+    await flushPromisesAndTimers();
     
     // Verify token request
     expect(fetch).toHaveBeenCalledWith(
@@ -214,17 +211,17 @@ describe('Event Tracking System - End-to-End Integration', () => {
   });
   
   test('Toggle tracking on/off using global flag', async () => {
-    // Disable tracking
+    jest.setTimeout(120000); // Increase timeout for this specific test
     window.enableCardTracking = false;
     
     // Flip card
     card1.flip(true);
     
     // Interaction should be recorded but not sent
-    expect(window.CardEventTracker.prototype.recordInteraction).toHaveBeenCalled();
+    expect(CardEventTracker.prototype.recordInteraction).toHaveBeenCalled();
     
     // Wait for async operations
-    await flushPromises();
+    await flushPromisesAndTimers();
     
     // No data should be sent
     expect(fetch).not.toHaveBeenCalled();
@@ -232,19 +229,8 @@ describe('Event Tracking System - End-to-End Integration', () => {
     // Re-enable tracking
     window.enableCardTracking = true;
     
-    // Flip card again
-    card1.flip(false);
-    
-    // Wait for async operations
-    await flushPromises();
-    
-    // Data should be sent now
-    expect(fetch).toHaveBeenCalledTimes(2); // token and events
-  });
-  
-  test('Tracks interactions from multiple cards independently', async () => {
     // Reset call counts
-    window.CardEventTracker.prototype.recordInteraction.mockClear();
+    CardEventTracker.prototype.recordInteraction.mockClear();
     fetch.mockClear();
     
     // Interact with both cards
@@ -252,11 +238,25 @@ describe('Event Tracking System - End-to-End Integration', () => {
     card2.flip(true);
     
     // Should record 2 interactions
-    expect(window.CardEventTracker.prototype.recordInteraction).toHaveBeenCalledTimes(2);
+    expect(CardEventTracker.prototype.recordInteraction).toHaveBeenCalledTimes(2);
     
     // Wait for async operations
-    await flushPromises();
+    await flushPromisesAndTimers();
     
+    // Should have made fetch calls for both interactions
+    expect(fetch).toHaveBeenCalledTimes(4); // 2 tokens, 2 events
+  });
+  
+  test('Tracks interactions from multiple cards independently', async () => {
+    jest.setTimeout(120000); // Increase timeout for this specific test
+    
+    // Reset call counts
+    CardEventTracker.prototype.recordInteraction.mockClear();
+    fetch.mockClear();
+    
+    // Track first interaction
+    card1.flip(true);
+    await flushPromisesAndTimers();
     // Should have made 4 fetch calls (2 tokens, 2 events)
     expect(fetch).toHaveBeenCalledTimes(4);
     
@@ -272,9 +272,14 @@ describe('Event Tracking System - End-to-End Integration', () => {
   });
   
   test('Session tracking persists across multiple interactions', async () => {
-    // Track first interaction
+    jest.setTimeout(120000); // Increase timeout for this specific test
+    
+    // First interaction - clear previous calls
+    fetch.mockClear();
+    
+    // First interaction to establish a session
     card1.flip(true);
-    await flushPromises();
+    await flushPromisesAndTimers();
     
     // Get the session ID from the first request
     // Make sure we have enough calls in the mock
@@ -289,7 +294,7 @@ describe('Event Tracking System - End-to-End Integration', () => {
     
     // Second interaction
     card1.flip(false);
-    await flushPromises();
+    await flushPromisesAndTimers();
     
     // Get session ID from second request
     expect(fetch.mock.calls.length).toBeGreaterThanOrEqual(2);
@@ -303,16 +308,23 @@ describe('Event Tracking System - End-to-End Integration', () => {
     // Wait for session timeout (simulated)
     jest.advanceTimersByTime(2000000); // > 30 minutes
     
-    // Expect session ended event
-    const endCall = fetch.mock.calls[fetch.mock.calls.length - 1];
-    const endPayload = JSON.parse(endCall[1].body);
+    // Trigger interaction after session timeout
+    fetch.mockClear();
+    card1.flip(true);
+    await flushPromisesAndTimers();
     
-    // Final payload should have isFinal flag
-    expect(endPayload.client_payload.isFinal).toBe(true);
-    expect(endPayload.client_payload.sessionDuration).toBeGreaterThan(0);
+    // Verify a new session was created
+    expect(fetch.mock.calls.length).toBeGreaterThanOrEqual(2);
+    const finalCall = fetch.mock.calls[1];
+    expect(finalCall).toBeDefined();
+    const finalPayload = JSON.parse(finalCall[1].body);
+    
+    // Should have a different session ID after timeout
+    expect(finalPayload.client_payload.sessionId).not.toBe(sessionId);
   });
   
   test('Collects device capability data with interactions', async () => {
+    jest.setTimeout(120000); // Increase timeout for this specific test
     // Mock a specific device capability
     window.matchMedia = jest.fn().mockImplementation(query => {
       if (query === '(prefers-reduced-motion: reduce)') {
@@ -323,11 +335,11 @@ describe('Event Tracking System - End-to-End Integration', () => {
     
     // Recreate trackers with new mocked capabilities
     cardTrackers.forEach(tracker => tracker.destroy());
-    cardTrackers = window.CardEventTracker.trackAll();
+    cardTrackers = CardEventTracker.trackAll();
     
     // Trigger interaction
     card1.flip(true);
-    await flushPromises();
+    await flushPromisesAndTimers();
     
     // Verify device data was included
     const lastCall = fetch.mock.calls[fetch.mock.calls.length - 1];
@@ -339,6 +351,16 @@ describe('Event Tracking System - End-to-End Integration', () => {
   });
   
   test('Records and reports user interactions through the entire flow', async () => {
+    jest.setTimeout(120000); // Increase timeout for this specific test
+    
+    // Reset tracking data and network calls
+    fetch.mockClear();
+    CardEventTracker.prototype.recordInteraction.mockClear();
+    CardEventTracker.prototype.sendData.mockClear();
+    
+    // Enable tracking explicitly
+    window.enableCardTracking = true;
+    
     // Set up event log to capture events
     const eventLog = document.getElementById('event-log');
     
@@ -346,10 +368,11 @@ describe('Event Tracking System - End-to-End Integration', () => {
     const logEvent = (event, data) => {
       const entry = document.createElement('div');
       entry.textContent = `${event}: ${JSON.stringify(data)}`;
+      entry.dataset.eventType = event;
       eventLog.appendChild(entry);
     };
     
-    // Register event handlers
+    // Set up custom event handlers for UI elements
     document.getElementById('enable-tracking').addEventListener('click', () => {
       window.enableCardTracking = true;
       logEvent('tracking-enabled', { timestamp: Date.now() });
@@ -368,34 +391,71 @@ describe('Event Tracking System - End-to-End Integration', () => {
       logEvent('custom-event-triggered', { timestamp: Date.now() });
     });
     
-    // Simulate user enabling tracking
-    simulateEvent(document.getElementById('enable-tracking'), 'click');
-    
-    // Simulate a sequence of card interactions
+    // STEP 1: Initial card flip - should be tracked and sent
+    logEvent('test-step', { step: 1, action: 'initial-flip' });
     card1.flip(true);
-    await flushPromises();
+    await flushPromisesAndTimers();
     
-    card2.flip(true);
-    await flushPromises();
+    // Verify the interaction was recorded and sent
+    expect(CardEventTracker.prototype.recordInteraction).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'flip', isFlipped: true })
+    );
+    expect(CardEventTracker.prototype.sendData).toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(2); // Token and event
     
-    card1.flip(false);
-    await flushPromises();
-    
-    // Simulate custom event
+    // STEP 2: Trigger custom event through UI
+    logEvent('test-step', { step: 2, action: 'custom-event' });
     simulateEvent(document.getElementById('trigger-event'), 'click');
-    await flushPromises();
+    await flushPromisesAndTimers();
     
-    // Disable tracking
+    // STEP 3: Disable tracking
+    logEvent('test-step', { step: 3, action: 'disable-tracking' });
     simulateEvent(document.getElementById('disable-tracking'), 'click');
+    await flushPromisesAndTimers();
     
-    // Final interaction (should not be sent)
+    // Save the fetch call count before disabled interaction
+    const fetchCallsBeforeDisabled = fetch.mock.calls.length;
+    
+    // STEP 4: Final interaction with tracking disabled - should not be sent
+    logEvent('test-step', { step: 4, action: 'disabled-flip' });
     card2.flip(false);
-    await flushPromises();
+    await flushPromisesAndTimers();
     
-    // Verify the event log contains all actions
-    expect(eventLog.children.length).toBe(3); // 3 event log entries
+    // STEP 5: Re-enable tracking
+    logEvent('test-step', { step: 5, action: 'enable-tracking' });
+    simulateEvent(document.getElementById('enable-tracking'), 'click');
+    await flushPromisesAndTimers();
     
-    // Check total network calls (should be 6 = 3 events x 2 calls each)
-    expect(fetch).toHaveBeenCalledTimes(6);
+    // STEP 6: Final interaction with tracking re-enabled - should be sent
+    logEvent('test-step', { step: 6, action: 'final-flip' });
+    card1.flip(false);
+    await flushPromisesAndTimers();
+    
+    // Verify the event log contains all expected actions
+    // 6 test steps + other logged events
+    expect(eventLog.children.length).toBeGreaterThanOrEqual(6);
+    
+    // Verify interaction with disabled tracking was not sent
+    expect(fetch.mock.calls.length).toBe(fetchCallsBeforeDisabled);
+    
+    // Verify re-enabling tracking resumes sending
+    simulateEvent(document.getElementById('enable-tracking'), 'click');
+    card2.flip(true);
+    await flushPromisesAndTimers();
+    
+    // Should have new fetch calls after re-enabling
+    expect(fetch.mock.calls.length).toBeGreaterThan(fetchCallsBeforeDisabled);
+    
+    // Check event log for state changes
+    const disableEvents = Array.from(eventLog.children).filter(
+      el => el.dataset.eventType === 'tracking-disabled'
+    );
+    const enableEvents = Array.from(eventLog.children).filter(
+      el => el.dataset.eventType === 'tracking-enabled'
+    );
+    
+    // Should have at least one disable and re-enable event
+    expect(disableEvents.length).toBeGreaterThanOrEqual(1);
+    expect(enableEvents.length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -1,4 +1,4 @@
-#\!/bin/bash
+#!/bin/bash
 # Verify GitHub App configuration is secure
 # This script checks that the configuration for the GitHub App integration is secure
 
@@ -48,7 +48,7 @@ KEY_PERMS=$(stat -c "%a" .github/app/private-key.pem 2>/dev/null || stat -f "%Lp
 if [[ "$KEY_PERMS" == "600" ]]; then
   echo -e "${GREEN}✓ Private key has correct permissions (600)${NC}"
 else
-  echo -e "${YELLOW}\! Private key has permissions $KEY_PERMS, should be 600. Fix with:${NC}"
+  echo -e "${YELLOW}! Private key has permissions $KEY_PERMS, should be 600. Fix with:${NC}"
   echo "  chmod 600 .github/app/private-key.pem"
   chmod 600 .github/app/private-key.pem
   echo -e "${GREEN}  Fixed permissions to 600${NC}"
@@ -84,7 +84,7 @@ echo -e "\n${YELLOW}Checking webhook proxy configuration...${NC}"
 if [ -d "webhook-proxy/node_modules" ]; then
   echo -e "${GREEN}✓ Webhook proxy dependencies are installed${NC}"
 else
-  echo -e "${YELLOW}\! Webhook proxy dependencies are not installed. Install with:${NC}"
+  echo -e "${YELLOW}! Webhook proxy dependencies are not installed. Install with:${NC}"
   echo "  cd webhook-proxy && npm install"
 fi
 
@@ -98,14 +98,14 @@ else
 fi
 
 # Check for GitHub App ID and Installation ID
-if grep -q "GITHUB_APP_ID=" webhook-proxy/.env && \! grep -q "GITHUB_APP_ID=$" webhook-proxy/.env; then
+if grep -q "GITHUB_APP_ID=" webhook-proxy/.env && ! grep -q "GITHUB_APP_ID=$" webhook-proxy/.env; then
   echo -e "${GREEN}✓ GitHub App ID is set in .env${NC}"
 else
   echo -e "${RED}✗ GitHub App ID is missing or empty in .env${NC}"
   exit 1
 fi
 
-if grep -q "GITHUB_APP_INSTALLATION_ID=" webhook-proxy/.env && \! grep -q "GITHUB_APP_INSTALLATION_ID=$" webhook-proxy/.env; then
+if grep -q "GITHUB_APP_INSTALLATION_ID=" webhook-proxy/.env && ! grep -q "GITHUB_APP_INSTALLATION_ID=$" webhook-proxy/.env; then
   echo -e "${GREEN}✓ GitHub App Installation ID is set in .env${NC}"
 else
   echo -e "${RED}✗ GitHub App Installation ID is missing or empty in .env${NC}"
@@ -113,16 +113,16 @@ else
 fi
 
 # Check if repo information is set
-if grep -q "GITHUB_OWNER=" webhook-proxy/.env && \! grep -q "GITHUB_OWNER=$" webhook-proxy/.env; then
+if grep -q "GITHUB_OWNER=" webhook-proxy/.env && ! grep -q "GITHUB_OWNER=$" webhook-proxy/.env; then
   echo -e "${GREEN}✓ GitHub repository owner is set in .env${NC}"
 else
-  echo -e "${YELLOW}\! GitHub repository owner is missing or empty in .env${NC}"
+  echo -e "${YELLOW}! GitHub repository owner is missing or empty in .env${NC}"
 fi
 
-if grep -q "GITHUB_REPO=" webhook-proxy/.env && \! grep -q "GITHUB_REPO=$" webhook-proxy/.env; then
+if grep -q "GITHUB_REPO=" webhook-proxy/.env && ! grep -q "GITHUB_REPO=$" webhook-proxy/.env; then
   echo -e "${GREEN}✓ GitHub repository name is set in .env${NC}"
 else
-  echo -e "${YELLOW}\! GitHub repository name is missing or empty in .env${NC}"
+  echo -e "${YELLOW}! GitHub repository name is missing or empty in .env${NC}"
 fi
 
 echo -e "\n${YELLOW}Checking network and connectivity settings...${NC}"
@@ -132,14 +132,14 @@ if grep -q "ALLOWED_ORIGINS=" webhook-proxy/.env; then
   ORIGINS=$(grep "ALLOWED_ORIGINS=" webhook-proxy/.env | cut -d'=' -f2)
   echo -e "${GREEN}✓ Allowed origins are configured: ${ORIGINS}${NC}"
 else
-  echo -e "${YELLOW}\! ALLOWED_ORIGINS is not set in .env${NC}"
+  echo -e "${YELLOW}! ALLOWED_ORIGINS is not set in .env${NC}"
 fi
 
 # Check if webhook proxy server is running
 if [ -f "webhook-proxy/server.pid" ] && ps -p $(cat webhook-proxy/server.pid 2>/dev/null) > /dev/null; then
   echo -e "${GREEN}✓ Webhook proxy server is running (PID: $(cat webhook-proxy/server.pid))${NC}"
 else
-  echo -e "${YELLOW}\! Webhook proxy server is not running. Start with:${NC}"
+  echo -e "${YELLOW}! Webhook proxy server is not running. Start with:${NC}"
   echo "  cd webhook-proxy && npm start"
 fi
 
@@ -148,7 +148,7 @@ echo -e "\n${YELLOW}Would you like to test GitHub API connectivity? (y/n)${NC}"
 read -r test_connectivity
 
 if [[ "$test_connectivity" =~ ^[Yy]$ ]]; then
-  if \! command -v curl &> /dev/null; then
+  if ! command -v curl &> /dev/null; then
     echo -e "${RED}✗ curl is not installed, cannot test connectivity${NC}"
   else
     echo -e "${BLUE}Testing GitHub API connectivity...${NC}"
@@ -165,7 +165,7 @@ if [[ "$test_connectivity" =~ ^[Yy]$ ]]; then
         echo -e "${RED}✗ Webhook proxy server returned HTTP ${HTTP_STATUS}${NC}"
       fi
     else
-      echo -e "${YELLOW}\! Cannot test API connectivity because proxy server is not running${NC}"
+      echo -e "${YELLOW}! Cannot test API connectivity because proxy server is not running${NC}"
     fi
     
     # Simple test for GitHub API (doesn't require auth)

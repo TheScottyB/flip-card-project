@@ -1,0 +1,53 @@
+name: Process Card Events
+
+on:
+  repository_dispatch:
+    types: [card_interaction_event]
+
+jobs:
+  process_events:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Process event data
+        run: |
+          echo "Processing card interaction event"
+          echo "Session ID: ${{ github.event.client_payload.sessionId }}"
+          echo "Interaction count: ${{ github.event.client_payload.interactions.length }}"
+          echo "Device: ${{ github.event.client_payload.deviceCapabilities.userAgent }}"
+          
+          # Example of analyzing the data
+          if [[ "${{ github.event.client_payload.deviceCapabilities.touch }}" == "true" ]]; then
+            echo "Touch device detected"
+          else
+            echo "Desktop device detected"
+          fi
+          
+          # Store the data for later processing
+          mkdir -p data/events
+          echo '${{ toJSON(github.event.client_payload) }}' > data/events/session-${{ github.event.client_payload.sessionId }}.json
+      
+      - name: Run analytics
+        run: |
+          echo "Running analytics on collected data"
+          # This would typically call a script to process the data
+          # node scripts/analyze-events.js
+          
+      - name: Generate optimization suggestions
+        run: |
+          echo "Generating optimization suggestions based on interactions"
+          # This would call a script to generate optimizations
+          # node scripts/generate-optimizations.js
+          
+      - name: Store results
+        uses: actions/upload-artifact@v3
+        with:
+          name: event-analysis-results
+          path: data/events/
