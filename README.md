@@ -1,33 +1,31 @@
 # Flip Card Event Tracking System
 
-A comprehensive event-driven system for tracking interactions with flip card components.
+Interactive flip cards with built-in analytics and an event-driven architecture on GitHub.
 
-## Features
+## Why Use This System?
 
-- **Universal Flip Card Component**: Accessible, responsive card with animation
-- **Event Tracking System**: Tracks user interactions with cards
-- **Event-Driven Architecture**: Uses GitHub as a serverless backend
-- **Developer Tools**: Dashboard, simulator, and verification utilities
+- **Accessible UI Components**: WCAG 2.1 AA compliant flip cards that work across all devices
+- **Built-in Analytics**: Track user engagement without additional services
+- **Serverless Architecture**: Uses GitHub as your backend - no AWS/Azure required
+- **Easy Integration**: Drop-in JavaScript with minimal configuration
+
+## Live Demos
+
+- [Basic Flip Card](https://thescottyb.github.io/flip-card-project/index.html)
+- [Mobile-First Demo](https://thescottyb.github.io/flip-card-project/mobile-demo.html)
+- [Universal Card with Tracking](https://thescottyb.github.io/flip-card-project/universal-demo.html)
 
 ## Quick Start
 
 ```bash
-# Clone the repository
+# Option 1: Use prebuilt assets in your project
+<script src="https://thescottyb.github.io/flip-card-project/dist/js/flip-card.min.js"></script>
+<link rel="stylesheet" href="https://thescottyb.github.io/flip-card-project/dist/css/flip-card.min.css">
+
+# Option 2: Clone and run locally
 git clone https://github.com/TheScottyB/flip-card-project.git
 cd flip-card-project
-
-# Install dependencies
-npm install
-cd webhook-proxy && npm install && cd ..
-
-# Launch the complete environment
-npm run launch
-
-# Open the event dashboard
-npm run dashboard
-
-# Generate test events
-npm run simulate
+npm install && npm run dev
 ```
 
 ## Documentation
@@ -55,7 +53,7 @@ npm run simulate
 | `npm run test:config` | Run configuration verification tests |
 | `npm run test:events` | Run event integration tests |
 
-## Architecture Overview
+## How It Works
 
 ```
 ┌──────────────────┐     ┌────────────────────┐     ┌───────────────────┐
@@ -66,17 +64,53 @@ npm run simulate
 └──────────────────┘     └────────────────────┘     └───────────────────┘
 ```
 
-The system uses an event-driven architecture where:
+**Simple Architecture, Powerful Results:**
 
-1. Client-side JavaScript tracks card interactions
-2. Events are sent to a webhook proxy server
-3. The proxy authenticates and forwards events to GitHub
-4. GitHub Actions workflows process the events
-5. Processing results are used to optimize cards
+1. **Track** - Users interact with your cards, interactions are captured automatically
+2. **Process** - Data flows through a secure webhook to GitHub
+3. **Analyze** - GitHub Actions workflows parse and analyze the data
+4. **Optimize** - Get insights to improve your card components
+
+**Benefits:**
+- Zero infrastructure costs (uses GitHub's compute)
+- Privacy-focused (optional anonymization)
+- Works with any website or React application
+
+## Implementation Examples
+
+### Basic Card (HTML/CSS/JS)
+
+```html
+<div class="flip-card">
+  <div class="flip-card-inner">
+    <div class="flip-card-front">
+      <h2>Front Content</h2>
+      <button class="flip-trigger">View Details</button>
+    </div>
+    <div class="flip-card-back">
+      <h2>Back Content</h2>
+      <button class="flip-trigger">Back</button>
+    </div>
+  </div>
+</div>
+```
+
+### React Component (TypeScript)
+
+```tsx
+import React from 'react';
+import { FlipCard } from 'flip-card-project';
+
+export const MyCard = () => (
+  <FlipCard
+    frontContent={<h2>Front Side</h2>}
+    backContent={<h2>Back Side</h2>}
+    trackEvents={true}
+  />
+);
+```
 
 ## Developer Tools
-
-### Event Dashboard
 
 A web-based dashboard for monitoring and managing the event tracking system.
 
