@@ -86,14 +86,192 @@
   
   <!-- React component implementation --> 
   <script type="text/babel">
+    // Mock API for agent status updates (would normally be a real server endpoint)
+    const mockAgentStatusAPI = {
+      isAvailable: true,
+      lastActiveTime: new Date().toISOString(),
+      
+      checkAvailability: () => {
+        // Simulate API call with dynamic availability
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            // Random availability status for demo purposes
+            const isAvailable = Math.random() > 0.3;
+            const lastActiveTime = isAvailable 
+              ? new Date().toISOString() 
+              : new Date(Date.now() - Math.random() * 7200000).toISOString();
+              
+            resolve({
+              isAvailable,
+              lastActiveTime
+            });
+          }, 500);
+        });
+      },
+      
+      scheduleCallback: (timeSlot, phone) => {
+        // Simulate API call for callback scheduling
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const success = Math.random() > 0.1; // 90% success rate
+            resolve({
+              success,
+              confirmationId: success ? Math.random().toString(36).substring(2, 10).toUpperCase() : null,
+              scheduledTime: timeSlot
+            });
+          }, 800);
+        });
+      }
+    };
+    
+    // Helper function to format date
+    function formatTimeAgo(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMinutes = Math.floor((now - date) / 60000);
+      
+      if (diffMinutes < 1) return 'Just now';
+      if (diffMinutes < 60) return `${diffMinutes} minutes ago`;
+      if (diffMinutes < 120) return '1 hour ago';
+      if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} hours ago`;
+      return `${Math.floor(diffMinutes / 1440)} days ago`;
+    }
+  
+    // Event Analytics Service - Simulated server actions
+    const analyticsService = {
+      // Track card interactions
+      trackEvent: (eventType, eventData = {}) => {
+        // In a real implementation, this would send data to a server
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            console.log(`[Analytics] Event: ${eventType}`, eventData);
+            
+            // For demo, store in session storage so we can display stats
+            const events = JSON.parse(sessionStorage.getItem('cardEvents') || '[]');
+            events.push({
+              type: eventType,
+              timestamp: new Date().toISOString(),
+              data: eventData
+            });
+            sessionStorage.setItem('cardEvents', JSON.stringify(events));
+            
+            resolve({ success: true });
+          }, 200);
+        });
+      },
+      
+      // Get analytics data
+      getInteractionStats: () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const events = JSON.parse(sessionStorage.getItem('cardEvents') || '[]');
+            
+            // Calculate stats
+            const flipCount = events.filter(e => e.type === 'flip').length;
+            const callbackRequests = events.filter(e => e.type === 'callback_request').length;
+            const viewDuration = events
+              .filter(e => e.type === 'view_duration')
+              .reduce((sum, event) => sum + (event.data.duration || 0), 0);
+              
+            resolve({
+              totalInteractions: events.length,
+              flipCount,
+              callbackRequests,
+              averageViewTime: events.length ? Math.round(viewDuration / events.length) : 0,
+              mostRecentInteraction: events.length ? events[events.length - 1].timestamp : null
+            });
+          }, 300);
+        });
+      }
+    };
+  
     // Contact card component
     function ContactCard() {
       // State for tracking flip status
       const [isFlipped, setIsFlipped] = React.useState(false);
+      const [agentStatus, setAgentStatus] = React.useState({ isAvailable: true, lastActiveTime: new Date() });
+      const [isLoading, setIsLoading] = React.useState(false);
+      const [viewStartTime, setViewStartTime] = React.useState(Date.now());
+      const [analyticsData, setAnalyticsData] = React.useState(null);
+      const [showAnalytics, setShowAnalytics] = React.useState(false);
+      const [callbackData, setCallbackData] = React.useState({
+        timeSlot: 'morning',
+        phone: '',
+        submitted: false,
+        confirmation: null,
+        error: null
+      });
+      
+      // On component mount
+      React.useEffect(() => {
+        // Track card view
+        analyticsService.trackEvent('card_view', { 
+          cardType: 'contact',
+          initialRender: true
+        });
+        
+        // Update view start time
+        setViewStartTime(Date.now());
+        
+        // Set up cleanup function to track view duration
+        return () => {
+          const duration = Date.now() - viewStartTime;
+          analyticsService.trackEvent('view_duration', { duration });
+        };
+      }, []);
+      
+      // Fetch initial analytics
+      React.useEffect(() => {
+        fetchAnalytics();
+      }, []);
+      
+      // Fetch agent status on load and every 30 seconds
+      React.useEffect(() => {
+        fetchAgentStatus();
+        
+        const intervalId = setInterval(fetchAgentStatus, 30000);
+        return () => clearInterval(intervalId);
+      }, []);
+      
+      // Fetch analytics data
+      const fetchAnalytics = async () => {
+        try {
+          const stats = await analyticsService.getInteractionStats();
+          setAnalyticsData(stats);
+        } catch (error) {
+          console.error("Failed to fetch analytics data:", error);
+        }
+      };
+      
+      // Fetch agent availability status
+      const fetchAgentStatus = async () => {
+        try {
+          const status = await mockAgentStatusAPI.checkAvailability();
+          setAgentStatus(status);
+          
+          // Track status change
+          analyticsService.trackEvent('agent_status_change', { 
+            isAvailable: status.isAvailable 
+          });
+        } catch (error) {
+          console.error("Failed to fetch agent status:", error);
+        }
+      };
       
       // Toggle flip state
       const toggleFlip = () => {
-        setIsFlipped(!isFlipped);
+        const newFlipState = !isFlipped;
+        setIsFlipped(newFlipState);
+        
+        // Track flip event
+        analyticsService.trackEvent('flip', { 
+          toFront: !newFlipState,
+          toBack: newFlipState
+        });
+        
+        // Update analytics after action
+        fetchAnalytics();
+        
         // Announce to screen readers
         const announcer = document.getElementById('flip-card-announcer');
         if (announcer) {
@@ -103,8 +281,175 @@
         }
       };
       
+      // Toggle analytics overlay
+      const toggleAnalytics = () => {
+        setShowAnalytics(!showAnalytics);
+        fetchAnalytics(); // Refresh analytics when showing
+      };
+      
+      // Handle callback submission
+      const handleCallbackSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!callbackData.phone || callbackData.phone.length < 10) {
+          setCallbackData({
+            ...callbackData,
+            error: "Please enter a valid phone number"
+          });
+          return;
+        }
+        
+        setIsLoading(true);
+        
+        try {
+          // First track the callback request event
+          await analyticsService.trackEvent('callback_request', {
+            timeSlot: callbackData.timeSlot,
+            agentAvailable: agentStatus.isAvailable
+          });
+          
+          // Then schedule the callback
+          const result = await mockAgentStatusAPI.scheduleCallback(
+            callbackData.timeSlot,
+            callbackData.phone
+          );
+          
+          if (result.success) {
+            setCallbackData({
+              ...callbackData,
+              submitted: true,
+              confirmation: result.confirmationId,
+              error: null
+            });
+            
+            // Track successful submission
+            analyticsService.trackEvent('callback_confirmed', {
+              confirmationId: result.confirmationId,
+              timeSlot: callbackData.timeSlot
+            });
+          } else {
+            setCallbackData({
+              ...callbackData,
+              error: "Unable to schedule callback. Please try again."
+            });
+            
+            // Track failed submission
+            analyticsService.trackEvent('callback_failed');
+          }
+          
+          // Update analytics after action
+          fetchAnalytics();
+        } catch (error) {
+          setCallbackData({
+            ...callbackData,
+            error: "Service unavailable. Please try again later."
+          });
+          
+          // Track error
+          analyticsService.trackEvent('callback_error', {
+            errorMessage: error.message
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // Reset callback form
+      const resetCallbackForm = () => {
+        setCallbackData({
+          timeSlot: 'morning',
+          phone: '',
+          submitted: false,
+          confirmation: null,
+          error: null
+        });
+      };
+      
       return (
-        <div className={`flip-card ${isFlipped ? 'flipped' : ''}`} 
+        <React.Fragment>
+          {/* Analytics Overlay */}
+          {showAnalytics && analyticsData && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold">Card Analytics Dashboard</h3>
+                  <button 
+                    onClick={toggleAnalytics}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-blue-800 mb-2">Interaction Summary</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white p-3 rounded shadow-sm">
+                      <p className="text-xs text-gray-500">Total Interactions</p>
+                      <p className="text-2xl font-bold text-blue-600">{analyticsData.totalInteractions}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded shadow-sm">
+                      <p className="text-xs text-gray-500">Card Flips</p>
+                      <p className="text-2xl font-bold text-purple-600">{analyticsData.flipCount}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded shadow-sm">
+                      <p className="text-xs text-gray-500">Callback Requests</p>
+                      <p className="text-2xl font-bold text-green-600">{analyticsData.callbackRequests}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded shadow-sm">
+                      <p className="text-xs text-gray-500">Avg. View Time</p>
+                      <p className="text-2xl font-bold text-orange-600">{analyticsData.averageViewTime}ms</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-gray-500 text-center mb-4">
+                  {analyticsData.mostRecentInteraction ? (
+                    <p>Last interaction: {new Date(analyticsData.mostRecentInteraction).toLocaleString()}</p>
+                  ) : (
+                    <p>No interactions recorded yet</p>
+                  )}
+                </div>
+                
+                <div className="flex justify-end mt-4">
+                  <button 
+                    onClick={fetchAnalytics}
+                    className="text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 py-1 px-3 rounded mr-2"
+                  >
+                    Refresh Data
+                  </button>
+                  <button 
+                    onClick={() => {
+                      sessionStorage.removeItem('cardEvents');
+                      fetchAnalytics();
+                    }}
+                    className="text-sm bg-red-100 hover:bg-red-200 text-red-800 py-1 px-3 rounded"
+                  >
+                    Reset Analytics
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Debug Controls - Only visible in dev mode */}
+          <div className="fixed bottom-2 right-2 z-40 flex">
+            <button 
+              onClick={toggleAnalytics}
+              className="bg-gray-800 text-white text-xs px-2 py-1 rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none"
+            >
+              <span className="flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics
+              </span>
+            </button>
+          </div>
+          
+          <div className={`flip-card ${isFlipped ? 'flipped' : ''}`} 
              tabIndex="0" 
              aria-label="Contact information card. Press Enter to flip"
              onKeyDown={(e) => {
@@ -127,7 +472,7 @@
               {/* Professional Details */}
               <div className="flex items-center mb-4">
                 <div className="w-20 h-20 rounded-full bg-blue-300 border-2 border-blue-500 flex items-center justify-center overflow-hidden">
-                  <img src="./src/images/avatars/dawn-headshot.jpg" 
+                  <img src="./src/images/avatars/optimized/dawn-headshot-small.jpg" 
                       alt="Dawn Zurick" 
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -139,6 +484,14 @@
                 <div className="ml-4">
                   <p className="text-lg font-semibold text-gray-700">Managing Broker (IL) / Broker (WI)</p>
                   <p className="text-gray-600">Team Lead / Regional Administrator</p>
+                  
+                  {/* Live agent status indicator */}
+                  <div className="flex items-center mt-1">
+                    <span className={`inline-block w-3 h-3 rounded-full mr-1 ${agentStatus.isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-xs text-gray-500">
+                      {agentStatus.isAvailable ? 'Available Now' : `Last active ${formatTimeAgo(agentStatus.lastActiveTime)}`}
+                    </span>
+                  </div>
                 </div>
               </div>
               
@@ -185,11 +538,98 @@
             {/* Back Side */}
             <div className="flip-card-back bg-white p-6 rounded-lg" role="region" aria-label="Contact card back">
               <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
-                Office Information
+                {callbackData.submitted ? "Callback Requested" : "Request a Callback"}
               </h2>
               
+              {!callbackData.submitted ? (
+                /* Callback Request Form */
+                <form onSubmit={handleCallbackSubmit} className="space-y-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm text-blue-800 mb-2">
+                      {agentStatus.isAvailable 
+                        ? "Dawn is available now! Request a callback at your preferred time:"
+                        : "Dawn is currently unavailable. Schedule a callback:"}
+                    </p>
+                    
+                    <div className="mb-3">
+                      <label htmlFor="timeSlot" className="block text-sm font-medium text-gray-700 mb-1">
+                        Preferred Time
+                      </label>
+                      <select 
+                        id="timeSlot"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value={callbackData.timeSlot}
+                        onChange={(e) => setCallbackData({...callbackData, timeSlot: e.target.value})}
+                      >
+                        <option value="morning">Morning (9am-12pm)</option>
+                        <option value="afternoon">Afternoon (12pm-5pm)</option>
+                        <option value="evening">Evening (5pm-7pm)</option>
+                        <option value="asap">As Soon As Possible</option>
+                      </select>
+                    </div>
+                    
+                    <div className="mb-1">
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                        Your Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="(555) 123-4567"
+                        value={callbackData.phone}
+                        onChange={(e) => setCallbackData({...callbackData, phone: e.target.value, error: null})}
+                      />
+                    </div>
+                    
+                    {callbackData.error && (
+                      <p className="text-red-600 text-sm mt-1">{callbackData.error}</p>
+                    )}
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : "Request Callback"}
+                  </button>
+                </form>
+              ) : (
+                /* Confirmation Message */
+                <div className="bg-green-50 p-4 rounded-lg text-center">
+                  <div className="flex items-center justify-center mb-3">
+                    <svg className="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-green-800 mb-2">Callback Requested!</h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Dawn will call you back during your selected time window.
+                  </p>
+                  <div className="bg-white p-3 rounded border border-green-200 mb-3">
+                    <p className="text-xs text-gray-500 mb-1">Confirmation ID</p>
+                    <p className="font-mono font-bold text-gray-700">{callbackData.confirmation}</p>
+                  </div>
+                  <button
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium focus:outline-none"
+                    onClick={resetCallbackForm}
+                  >
+                    Request Another Callback
+                  </button>
+                </div>
+              )}
+              
               {/* Office Location */}
-              <div className="bg-yellow-50 p-3 rounded-lg mb-4">
+              <div className="bg-yellow-50 p-3 rounded-lg mt-4 mb-4">
                 <h3 className="font-semibold text-yellow-800 mb-2">Location</h3>
                 <address className="not-italic">
                   <p className="text-gray-700">1827 Walden Office Square, Suite 325</p>
@@ -197,31 +637,16 @@
                 </address>
               </div>
               
-              {/* Additional Office Information */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-semibold text-blue-800 mb-1">Office Hours</h3>
-                  <p className="text-gray-700">Monday-Friday: 9am-5pm</p>
-                  <p className="text-gray-700">Saturday: By appointment</p>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold text-blue-800 mb-1">Support Staff</h3>
-                  <p className="text-gray-700">Administrative: Jane Smith</p>
-                  <p className="text-gray-700">Marketing: John Doe</p>
-                </div>
-                
-                {/* Company Logo */}
-                <div className="mt-4 flex justify-center">
-                  <div className="bg-yellow-400 w-24 h-10 flex items-center justify-center text-gray-800 font-bold rounded">
-                    Vylla
-                  </div>
-                </div>
+              {/* Office Hours */}
+              <div className="mb-4">
+                <h3 className="font-semibold text-blue-800 mb-1">Office Hours</h3>
+                <p className="text-gray-700">Monday-Friday: 9am-5pm</p>
+                <p className="text-gray-700">Saturday: By appointment</p>
               </div>
               
               {/* Back Side Flip Trigger */}
               <button 
-                className="flip-trigger mt-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flip-trigger mt-3 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 onClick={toggleFlip}
                 aria-pressed={!isFlipped}
                 aria-label="Flip card back to contact information">
@@ -230,6 +655,7 @@
             </div>
           </div>
         </div>
+        </React.Fragment>
       );
     }
     
