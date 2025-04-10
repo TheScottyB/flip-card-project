@@ -3,3 +3,9 @@ theme: jekyll-theme-minimal
 title: Flip Card Project
 description: Accessible interactive flip card components
 show_downloads: true
+
+# GitHub App Authentication
+# These values are used for GitHub App API authentication
+github_app:
+  app_id: 1210766         # The GitHub App ID
+  installation_id: 64257259  # The Installation ID for this repository
