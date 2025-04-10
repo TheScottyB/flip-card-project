@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Server Connection</title>
+</head>
+<body>
+  <h1>Webhook Proxy Server Test</h1>
+  <div>
+    <button id="test-health">Test Health Endpoint</button>
+    <button id="test-token">Test Token Endpoint</button>
+    <button id="test-event">Test Event Endpoint</button>
+  </div>
+  <pre id="results" style="background: #f5f5f5; padding: 1rem; margin-top: 1rem; min-height: 200px;"></pre>
+
+  <script>
+    document.getElementById('test-health').addEventListener('click', async () => {
+      const results = document.getElementById('results');
+      results.textContent = 'Testing health endpoint...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/health');
+        const data = await response.json();
+        results.textContent = `Health endpoint response:\n${JSON.stringify(data, null, 2)}`;
+      } catch (error) {
+        results.textContent = `Error testing health endpoint: ${error.message}`;
+      }
+    });
+
+    document.getElementById('test-token').addEventListener('click', async () => {
+      const results = document.getElementById('results');
+      results.textContent = 'Testing token endpoint...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        results.textContent = `Token endpoint response:\n${JSON.stringify(data, null, 2)}`;
+      } catch (error) {
+        results.textContent = `Error testing token endpoint: ${error.message}`;
+      }
+    });
+
+    document.getElementById('test-event').addEventListener('click', async () => {
+      const results = document.getElementById('results');
+      results.textContent = 'Testing event endpoint...';
+      
+      try {
+        // First get a token
+        const tokenResponse = await fetch('http://localhost:3000/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const tokenData = await tokenResponse.json();
+        
+        if (!tokenData.token) {
+          throw new Error('No token received');
+        }
+        
+        // Now send a test event
+        const eventResponse = await fetch('http://localhost:3000/events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenData.token}`
+          },
+          body: JSON.stringify({
+            event_type: 'test_event',
+            client_payload: {
+              sessionId: 'test-session',
+              deviceCapabilities: {
+                touch: true,
+                pointer: true,
+                hover: true
+              },
+              interactions: [
+                {
+                  type: 'test',
+                  timestamp: Date.now()
+                }
+              ]
+            }
+          })
+        });
+        
+        const eventData = await eventResponse.json();
+        results.textContent = `Event endpoint response:\n${JSON.stringify(eventData, null, 2)}`;
+      } catch (error) {
+        results.textContent = `Error testing event endpoint: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
