@@ -1,0 +1,23 @@
+{
+  "name": "Flip Card Agent",
+  "description": "Event-driven, multi-agent system for Universal Flip Card components",
+  "url": "https://github.com/TheScottyB/flip-card-project",
+  "public": false,
+  "webhook": {
+    "active": true
+  },
+  "default_permissions": {
+    "contents": "write",
+    "issues": "write",
+    "discussions": "write",
+    "actions": "write"
+  },
+  "default_events": [
+    "repository_dispatch"
+  ],
+  "default_installations": {
+    "repositories": [
+      "flip-card-project"
+    ]
+  }
+}

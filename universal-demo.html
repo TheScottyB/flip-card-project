@@ -383,6 +383,12 @@
         <button class="control-btn" id="toggle-voice">Enable Voice Control</button>
         <p class="control-help">Try saying "flip card" or "turn back"</p>
       </div>
+      
+      <div class="control-group">
+        <span class="control-label">Event Tracking:</span>
+        <button class="control-btn" id="toggle-tracking">Enable Event Tracking</button>
+        <p class="control-help">Send interaction data to the agent system</p>
+      </div>
     </section>
     
     <footer class="demo-footer">
@@ -390,9 +396,13 @@
     </footer>
   </div>
   
-  <!-- Universal Flip Card Script -->
+  <!-- Universal Flip Card Scripts -->
   <script src="src/js/universal-flip-card.js"></script>
+  <script src="src/js/card-event-tracker.js"></script>
   <script>
+    // Enable card event tracking debug mode
+    window.debugCardEvents = true;
+    
     // Demo controller script
     document.addEventListener('DOMContentLoaded', () => {
       // Initialize the flip card
@@ -404,6 +414,16 @@
       
       // Store reference to flip card instance
       window.demoCard = flipCard;
+      
+      // Initialize event tracking
+      const tracker = new CardEventTracker(flipCard, {
+        enableDataSending: false, // Set to true to send data to the proxy
+        tokenEndpoint: 'http://localhost:3000/token',
+        eventsEndpoint: 'http://localhost:3000/events'
+      });
+      
+      // Store tracker reference
+      window.demoTracker = tracker;
       
       // Detect device capabilities
       const capabilities = {
@@ -524,6 +544,24 @@
             button.textContent = 'Disable Voice Control';
           } else {
             button.textContent = 'Enable Voice Control';
+          }
+        }
+      });
+      
+      // Event tracking toggle
+      document.getElementById('toggle-tracking').addEventListener('click', () => {
+        const button = document.getElementById('toggle-tracking');
+        const isActive = button.classList.toggle('active');
+        
+        if (window.demoTracker) {
+          window.enableCardTracking = isActive;
+          
+          if (isActive) {
+            button.textContent = 'Disable Event Tracking';
+            console.log('Event tracking enabled - data will be sent to the agent system');
+          } else {
+            button.textContent = 'Enable Event Tracking';
+            console.log('Event tracking disabled - data will only be logged to console');
           }
         }
       });

@@ -18,11 +18,18 @@ class CardEventTracker {
     
     // Default options
     this.options = Object.assign({
-      endpointUrl: 'https://api.github.com/app/installations/{installation_id}/webhooks',
+      // Proxy server endpoints
+      tokenEndpoint: 'http://localhost:3000/token',
+      eventsEndpoint: 'http://localhost:3000/events',
+      
+      // Tracking settings
       trackFlips: true,
       trackHover: true,
       trackSession: true,
       anonymizeData: true,
+      enableDataSending: false, // Disabled by default for privacy
+      
+      // Timing settings
       batchInterval: 60000, // 1 minute
       sessionTimeout: 1800000, // 30 minutes
       sendThreshold: 5 // Send after 5 interactions or on session end
@@ -92,30 +99,30 @@ class CardEventTracker {
     // Extract just the browser name and major version
     let browser = 'Unknown';
     
-    if (ua.indexOf('Firefox/') \!== -1) {
+    if (ua.indexOf('Firefox/') !== -1) {
       browser = 'Firefox';
-    } else if (ua.indexOf('Chrome/') \!== -1 && ua.indexOf('Edg/') === -1) {
+    } else if (ua.indexOf('Chrome/') !== -1 && ua.indexOf('Edg/') === -1) {
       browser = 'Chrome';
-    } else if (ua.indexOf('Safari/') \!== -1 && ua.indexOf('Chrome/') === -1) {
+    } else if (ua.indexOf('Safari/') !== -1 && ua.indexOf('Chrome/') === -1) {
       browser = 'Safari';
-    } else if (ua.indexOf('Edg/') \!== -1) {
+    } else if (ua.indexOf('Edg/') !== -1) {
       browser = 'Edge';
-    } else if (ua.indexOf('MSIE') \!== -1 || ua.indexOf('Trident/') \!== -1) {
+    } else if (ua.indexOf('MSIE') !== -1 || ua.indexOf('Trident/') !== -1) {
       browser = 'IE';
     }
     
     // Extract just the OS name
     let os = 'Unknown';
     
-    if (ua.indexOf('Windows') \!== -1) {
+    if (ua.indexOf('Windows') !== -1) {
       os = 'Windows';
-    } else if (ua.indexOf('Mac OS X') \!== -1) {
+    } else if (ua.indexOf('Mac OS X') !== -1) {
       os = 'macOS';
-    } else if (ua.indexOf('Linux') \!== -1) {
+    } else if (ua.indexOf('Linux') !== -1) {
       os = 'Linux';
-    } else if (ua.indexOf('Android') \!== -1) {
+    } else if (ua.indexOf('Android') !== -1) {
       os = 'Android';
-    } else if (ua.indexOf('iOS') \!== -1 || ua.indexOf('iPhone') \!== -1 || ua.indexOf('iPad') \!== -1) {
+    } else if (ua.indexOf('iOS') !== -1 || ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) {
       os = 'iOS';
     }
     
@@ -268,37 +275,64 @@ class CardEventTracker {
   /**
    * Send collected data to the endpoint
    */
-  sendData(isFinal = false) {
+  async sendData(isFinal = false) {
     // Clone the current data to avoid race conditions
     const dataToSend = JSON.parse(JSON.stringify(this.sessionData));
     
     // Add flag indicating if this is the final batch for this session
     dataToSend.isFinal = isFinal;
     
-    // In a real implementation, we would use the GitHub App JWT token
-    // For demo purposes, we'll just log the data
+    // Debug mode: just log the data
     if (window.debugCardEvents) {
       console.log('Card event data:', dataToSend);
     }
     
-    // In a real implementation:
-    /*
-    fetch(this.options.endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getJWT()}`
-      },
-      body: JSON.stringify({
-        event_type: 'card_interaction_event',
-        client_payload: dataToSend
-      })
-    }).catch(err => console.error('Failed to send card event data:', err));
-    */
+    // Only send data if we're in production mode or explicitly enabled
+    if (this.options.enableDataSending || window.enableCardTracking) {
+      try {
+        // First, get a token from our proxy server
+        const tokenResponse = await fetch(this.options.tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!tokenResponse.ok) {
+          throw new Error(`Failed to get token: ${tokenResponse.status}`);
+        }
+        
+        const tokenData = await tokenResponse.json();
+        const token = tokenData.token;
+        
+        // Now send the event data
+        const eventResponse = await fetch(this.options.eventsEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            event_type: 'card_interaction_event',
+            client_payload: dataToSend
+          })
+        });
+        
+        if (!eventResponse.ok) {
+          throw new Error(`Failed to send event data: ${eventResponse.status}`);
+        }
+        
+        if (window.debugCardEvents) {
+          console.log('Event data sent successfully');
+        }
+      } catch (err) {
+        console.error('Failed to send card event data:', err);
+      }
+    }
     
     // Reset interactions array if this isn't the final send
     // to avoid sending duplicate data
-    if (\!isFinal) {
+    if (!isFinal) {
       this.sessionData.interactions = [];
     }
   }
@@ -340,9 +374,9 @@ class CardEventTracker {
 }
 
 // Export the tracker
-if (typeof module \!== 'undefined') {
+if (typeof module !== 'undefined') {
   module.exports = CardEventTracker;
-} else if (typeof window \!== 'undefined') {
+} else if (typeof window !== 'undefined') {
   window.CardEventTracker = CardEventTracker;
   
   // Auto-initialize if debug mode is enabled
