@@ -12,6 +12,13 @@
 - Generate test report: `npm run test:report`
 - Start webhook proxy: `cd webhook-proxy && npm start`
 
+## Directory Structure
+- `/src/core/` - Core vanilla JavaScript implementations
+- `/src/react/` - React components and TypeScript definitions
+- `/src/styles/` - CSS stylesheets
+- `/src/templates/` - HTML templates and examples
+- `/src/tests/` - Test files
+
 ## Code Style Guidelines
 - **Architecture**: Follow event-driven architecture patterns for tracking
 - **Implementation Approach**:
