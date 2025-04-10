@@ -1,37 +1,16 @@
 # Source Code Organization
 
-This directory contains the source code for the Flip Card project. The structure is organized as follows:
+## Structure
 
-## Directory Structure
-
-- `/core/` - Core vanilla JavaScript implementations
-  - `flip-card.js` - Basic flip card implementation
-  - `universal-flip-card.js` - Enhanced universal flip card with advanced features
-  - `card-event-tracker.js` - Event tracking system for cards
-
-- `/react/` - React implementations
-  - `/components/` - React components (TypeScript)
-  - `/hooks/` - Custom React hooks
-  - `/types/` - TypeScript type definitions
-
+- `/core/` - Vanilla JS implementations (flip-card.js, universal-flip-card.js, card-event-tracker.js)
+- `/react/` - React components (TypeScript)
 - `/styles/` - CSS stylesheets
-  - `flip-card.css` - Basic flip card styles
-  - `universal-flip-card.css` - Universal card styles
-  - `mobile-flip-card.css` - Mobile-specific styles
-
-- `/templates/` - HTML templates and examples
-  - Various card component examples and templates
-
-- `/tests/` - Test files
-  - Unit tests, integration tests, and accessibility tests
+- `/templates/` - HTML examples and templates
+- `/tests/` - Unit, integration, and a11y tests
 
 ## Implementation Notes
 
-- Core components use vanilla JavaScript for maximum compatibility
-- React components use TypeScript with React 19
-- All components follow the accessibility guidelines in CLAUDE.md
-- The event-driven architecture uses the card-event-tracker.js for tracking and analytics
-
-## Build Process
-
-The build process compiles and optimizes these source files into the `/dist` directory using PostCSS and other tools as configured in package.json.
+- Core: Vanilla JS for compatibility
+- React: TypeScript with React 19
+- Build process generates `/dist` output via PostCSS
+- Follows WCAG 2.1 AA accessibility standards

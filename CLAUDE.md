@@ -1,46 +1,32 @@
 # CLAUDE.md - Flip Card Project Guide
 
 ## Build & Test Commands
-- Start development server: `npm run dev` (builds + starts http-server on port 8080)
-- Build for development: `npm run build` (postcss processing only)
-- Build for production: `npm run build:prod` (with optimization)
-- Build everything: `npm run build:all` (includes JS minification)
-- Run all tests: `npm test`
-- Run specific test: `npx jest src/tests/filename.test.js`
-- Run specific test with timeout: `npx jest src/tests/filename.test.js --testTimeout=60000`
-- Run a11y tests: `npm run test:a11y`
-- Generate test report: `npm run test:report`
-- Start webhook proxy: `cd webhook-proxy && npm start`
+- Dev server: `npm run dev` (http-server on port 8080)
+- Build dev: `npm run build` 
+- Build prod: `npm run build:prod`
+- Build all: `npm run build:all` (with JS minification)
+- Test all: `npm test`
+- Test single: `npx jest src/tests/filename.test.js`
+- Test a11y: `npm run test:a11y`
+- Test report: `npm run test:report`
+- Webhook server: `cd webhook-proxy && npm start`
 
-## Directory Structure
-- `/src/core/` - Core vanilla JavaScript implementations
-- `/src/react/` - React components and TypeScript definitions
+## Structure
+- `/src/core/` - Vanilla JS implementations
+- `/src/react/` - React components (TypeScript)
 - `/src/styles/` - CSS stylesheets
-- `/src/templates/` - HTML templates and examples
+- `/src/templates/` - HTML examples
 - `/src/tests/` - Test files
 
-## Code Style Guidelines
-- **Architecture**: Follow event-driven architecture patterns for tracking
-- **Implementation Approach**:
-  - Core components use vanilla JavaScript (.js) for maximum compatibility
-  - React-specific components use TypeScript (.tsx)
-  - Use React 19 for all React components (see package.json dependencies)
-- **HTML Structure**: Follow BEM-like structure for card components (card, card-inner, card-front, card-back)
-- **Imports/Exports**: 
-  - For JS: Use ES modules with named exports for utilities
-  - For React: Import React explicitly; use named exports for utilities, default for components
+## Code Style
+- **Architecture**: Event-driven for tracking
+- **Implementation**: Core in vanilla JS, React components in TypeScript (React 19)
+- **HTML**: BEM-like structure (card, card-inner, card-front, card-back)
 - **Naming**:
-  - Components/Classes: PascalCase (UniversalFlipCard)
-  - Functions/variables: camelCase (recordInteraction)
-  - Files: kebab-case (card-event-tracker.js)
-  - CSS classes: card-based namespacing (flip-card-front, universal-card-inner)
-- **Documentation**: Use JSDoc for all functions, classes and parameters
-- **Accessibility**: Ensure WCAG 2.1 AA compliance with:
-  - Proper ARIA roles, states (aria-pressed, aria-expanded, aria-controls)
-  - Focus management and keyboard navigation (Tab, Enter, Space, Escape)
-  - Screen reader announcements via aria-live regions
-  - Support for reduced motion preference
-- **Error Handling**: Use try/catch with meaningful error messages, avoid uncaught exceptions
-- **Testing**: Write tests for all components, test both functionality and accessibility
-
-Follow these guidelines when modifying code to maintain consistency and quality.
+  - Components/Classes: PascalCase
+  - Functions/variables: camelCase
+  - Files: kebab-case
+  - CSS classes: card-based namespacing
+- **A11y**: WCAG 2.1 AA with ARIA, keyboard support, screen readers
+- **Error Handling**: Use try/catch with meaningful messages
+- **Testing**: Functional and accessibility tests
