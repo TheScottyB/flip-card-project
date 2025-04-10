@@ -92,30 +92,30 @@ class CardEventTracker {
     // Extract just the browser name and major version
     let browser = 'Unknown';
     
-    if (ua.indexOf('Firefox/') !== -1) {
+    if (ua.indexOf('Firefox/') \!== -1) {
       browser = 'Firefox';
-    } else if (ua.indexOf('Chrome/') !== -1 && ua.indexOf('Edg/') === -1) {
+    } else if (ua.indexOf('Chrome/') \!== -1 && ua.indexOf('Edg/') === -1) {
       browser = 'Chrome';
-    } else if (ua.indexOf('Safari/') !== -1 && ua.indexOf('Chrome/') === -1) {
+    } else if (ua.indexOf('Safari/') \!== -1 && ua.indexOf('Chrome/') === -1) {
       browser = 'Safari';
-    } else if (ua.indexOf('Edg/') !== -1) {
+    } else if (ua.indexOf('Edg/') \!== -1) {
       browser = 'Edge';
-    } else if (ua.indexOf('MSIE') !== -1 || ua.indexOf('Trident/') !== -1) {
+    } else if (ua.indexOf('MSIE') \!== -1 || ua.indexOf('Trident/') \!== -1) {
       browser = 'IE';
     }
     
     // Extract just the OS name
     let os = 'Unknown';
     
-    if (ua.indexOf('Windows') !== -1) {
+    if (ua.indexOf('Windows') \!== -1) {
       os = 'Windows';
-    } else if (ua.indexOf('Mac OS X') !== -1) {
+    } else if (ua.indexOf('Mac OS X') \!== -1) {
       os = 'macOS';
-    } else if (ua.indexOf('Linux') !== -1) {
+    } else if (ua.indexOf('Linux') \!== -1) {
       os = 'Linux';
-    } else if (ua.indexOf('Android') !== -1) {
+    } else if (ua.indexOf('Android') \!== -1) {
       os = 'Android';
-    } else if (ua.indexOf('iOS') !== -1 || ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) {
+    } else if (ua.indexOf('iOS') \!== -1 || ua.indexOf('iPhone') \!== -1 || ua.indexOf('iPad') \!== -1) {
       os = 'iOS';
     }
     
@@ -298,7 +298,7 @@ class CardEventTracker {
     
     // Reset interactions array if this isn't the final send
     // to avoid sending duplicate data
-    if (!isFinal) {
+    if (\!isFinal) {
       this.sessionData.interactions = [];
     }
   }
@@ -340,9 +340,9 @@ class CardEventTracker {
 }
 
 // Export the tracker
-if (typeof module !== 'undefined') {
+if (typeof module \!== 'undefined') {
   module.exports = CardEventTracker;
-} else if (typeof window !== 'undefined') {
+} else if (typeof window \!== 'undefined') {
   window.CardEventTracker = CardEventTracker;
   
   // Auto-initialize if debug mode is enabled
