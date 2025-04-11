@@ -81,3 +81,26 @@ The Flip Card Project implements an event-driven architecture with these key com
    - HTML templates in /src/templates/
    - CSS styles in /src/styles/
    - Tests in /src/tests/
+
+# Known Issues and Observations
+
+## Animation Stuttering in Flip Cards
+- **Issue**: Some flip card animations show stuttering/jank in certain browsers
+- **Observed Behavior**: 
+  - Inconsistent animation smoothness during card flips
+  - More noticeable with complex background animations
+  - Not present in all browsers/devices
+- **Potential Causes**:
+  - GPU acceleration issues with 3D transforms
+  - Complex background gradients + animations
+  - Multiple transform properties competing
+- **Investigation Needed**:
+  - Browser-specific rendering differences
+  - Performance impact of concurrent animations
+  - Hardware acceleration triggers
+- **Priority**: Medium
+- **Next Steps**:
+  - Profile performance in different browsers
+  - Test with simplified animations
+  - Consider conditional feature detection
+  - Explore CSS containment strategies

@@ -1,0 +1,258 @@
+.birthday-card {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.birthday-card:hover {
+  transform: translateY(-5px);
+}
+
+.birthday-card .flip-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.birthday-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.birthday-card .flip-card-front,
+.birthday-card .flip-card-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.birthday-card .flip-card-front {
+  transform: rotateY(0deg);
+  background: linear-gradient(150deg, #ff6b6b 0%, #ffd700 100%);
+}
+
+.birthday-card .flip-card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(150deg, #ffd700 0%, #ff6b6b 100%);
+}
+
+/* Front side - Simple and clean */
+.birthday-card .flip-card-front .celebration-template {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Back side - Interactive elements */
+.birthday-card .flip-card-back .celebration-template {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.birthday-card .celebration-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* Interactive balloon styles */
+.birthday-card .balloon.interactive {
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.birthday-card .balloon.interactive:hover {
+  transform: scale(1.1);
+}
+
+.birthday-card .balloon.interactive:active {
+  transform: scale(0.1);
+  opacity: 0;
+}
+
+.birthday-card .balloon-string {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateX(-50%);
+}
+
+/* Interactive cake styles */
+.birthday-card .interactive-cake {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.birthday-card .interactive-cake:hover {
+  transform: scale(1.1);
+}
+
+.birthday-card .cake-flame {
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.birthday-card .cake-flame.lit {
+  opacity: 1;
+  animation: flicker 1s infinite;
+}
+
+.birthday-card .interaction-hints {
+  margin-top: 20px;
+  font-size: 14px;
+  opacity: 0.8;
+  color: white;
+}
+
+.birthday-card .interaction-hints p {
+  margin: 5px 0;
+}
+
+/* Pop animation */
+@keyframes pop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Existing animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatBalloon {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(5px, -15px);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .birthday-card .celebration-template {
+    padding: 30px 20px;
+  }
+  
+  .birthday-card .header {
+    font-size: 36px;
+  }
+  
+  .birthday-card .recipient-name {
+    font-size: 28px;
+  }
+  
+  .birthday-card .message {
+    font-size: 18px;
+  }
+}
+
+/* Flip Card specific styles */
+.birthday-card .flip-trigger {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.birthday-card .flip-trigger:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.birthday-card .flip-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+} 

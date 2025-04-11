@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Vylla Birthday Celebration</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .celebration-template {
+        max-width: 600px;
+        margin: 20px auto;
+        background: linear-gradient(150deg, #ff6b6b 0%, #ffd700 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 60px 40px;
+        text-align: center;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      .celebration-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+      }
+      .vylla-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        opacity: 0.1;
+        pointer-events: none;
+      }
+      .floating-sunrise {
+        position: absolute;
+        width: 60px;
+        height: 30px;
+        background: #ffa500;
+        border-radius: 30px 30px 0 0;
+        opacity: 0.8;
+        animation: float 3s infinite ease-in-out;
+      }
+      .sunrise-1 {
+        top: 20px;
+        left: 20px;
+      }
+      .sunrise-2 {
+        bottom: 40px;
+        right: 30px;
+        animation-delay: -1.5s;
+      }
+
+      .balloon {
+        position: absolute;
+        width: 40px;
+        height: 50px;
+        background: #ffa500;
+        border-radius: 50%;
+        animation: floatBalloon 4s infinite ease-in-out;
+      }
+      .balloon::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.6);
+        transform: translateX(-50%);
+      }
+      .balloon-1 {
+        top: 20%;
+        left: 10%;
+        animation-delay: -0.5s;
+        background: #ff6b6b;
+      }
+      .balloon-2 {
+        top: 30%;
+        right: 15%;
+        animation-delay: -1.5s;
+        background: #ffd700;
+      }
+      .balloon-3 {
+        bottom: 25%;
+        left: 20%;
+        animation-delay: -2.5s;
+        background: #ffa500;
+      }
+
+      .content {
+        position: relative;
+        z-index: 2;
+        color: white;
+      }
+
+      .header {
+        font-size: 48px;
+        font-weight: 700;
+        margin: 20px 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .recipient-name {
+        font-size: 36px;
+        font-weight: 300;
+        margin: 30px 0;
+        animation: fadeInUp 1s ease-out;
+      }
+
+      .message {
+        font-size: 20px;
+        line-height: 1.8;
+        margin: 30px 0;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .cake {
+        width: 80px;
+        height: 80px;
+        margin: 20px auto;
+        position: relative;
+      }
+      .cake-base {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 40px;
+        background: #ffa500;
+        border-radius: 5px;
+      }
+      .cake-top {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 15px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+      .cake-flame {
+        position: absolute;
+        bottom: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        background: #ffd700;
+        border-radius: 50%;
+        animation: flicker 1s infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes floatBalloon {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(5px, -15px);
+        }
+      }
+
+      @keyframes bounceIn {
+        0% {
+          transform: scale(0);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes flicker {
+        0%,
+        100% {
+          transform: translateX(-50%) scale(1);
+        }
+        50% {
+          transform: translateX(-50%) scale(1.2);
+        }
+      }
+
+      .sparkles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .sparkle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+        animation: sparkle 1.5s infinite;
+      }
+      @keyframes sparkle {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(0);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="celebration-template">
+      <div class="celebration-bg">
+        <img
+          src="/api/placeholder/400/200"
+          alt="Vylla Logo"
+          class="vylla-watermark"
+        />
+        <div class="floating-sunrise sunrise-1"></div>
+        <div class="floating-sunrise sunrise-2"></div>
+        <div class="balloon balloon-1"></div>
+        <div class="balloon balloon-2"></div>
+        <div class="balloon balloon-3"></div>
+        <div class="sparkles">
+          <!-- Sparkles would be dynamically generated in implementation -->
+          <div class="sparkle" style="top: 20%; left: 30%"></div>
+          <div class="sparkle" style="top: 40%; right: 20%"></div>
+          <div class="sparkle" style="bottom: 30%; left: 50%"></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="cake">
+          <div class="cake-base"></div>
+          <div class="cake-top"></div>
+          <div class="cake-flame"></div>
+        </div>
+
+        <div class="header">Happy Birthday!</div>
+
+        <div class="recipient-name">[Name]</div>
+
+        <div class="message">
+          Today we celebrate you!<br />
+          May your day be filled with as much joy<br />
+          as you bring to our Vylla family.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

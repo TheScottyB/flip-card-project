@@ -58,10 +58,7 @@ jobs:
           
           # Copy directories with source files
           mkdir -p _site/src
-          cp -r src/components src/images src/js src/styles _site/src/
-          
-          # Copy React components
-          cp -r react-components _site/react-components
+          cp -r src/components src/images src/js src/styles src/react _site/src/
           
           # Ensure dist directory exists and copy all files
           mkdir -p _site/dist/css _site/dist/js

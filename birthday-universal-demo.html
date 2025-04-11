@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Universal Flip Card Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dist/css/universal-flip-card.min.css">
+  <link rel="stylesheet" href="dist/css/birthday-flip-card.min.css">
+  <style>
+    /* Override the flip axis for birthday cards */
+    .birthday-card .universal-card-front {
+      transform: rotateX(0deg);
+    }
+    
+    .birthday-card .universal-card-back {
+      transform: rotateX(180deg);
+    }
+    
+    .birthday-card.flipped .universal-card-inner {
+      transform: rotateX(180deg) !important;
+    }
+    
+    @media (hover: hover) {
+      .birthday-card:not([data-disable-hover="true"]):hover .universal-card-inner {
+        transform: rotateX(180deg) !important;
+      }
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .demo-container {
+      max-width: 800px;
+      width: 100%;
+      margin: 40px auto;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 40px;
+    }
+    
+    .card-container {
+      display: flex;
+      justify-content: center;
+      margin: 40px 0;
+    }
+
+    /* Debug styles */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1000;
+    }
+
+    .debug-panel h3 { 
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+
+    .debug-panel p {
+      margin: 5px 0;
+    }
+
+    .debug-panel button {
+      margin: 5px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>Birthday Universal Flip Card Demo</h1>
+    
+    <div class="card-container">
+      <div class="universal-card birthday-card" id="birthday-test-card">
+        <div class="universal-card-inner">
+          <div class="universal-card-front celebration-template">
+            <div class="content">
+              <h1 class="header">Happy Birthday!</h1>
+              <h2 class="recipient-name">John Doe</h2>
+              <div class="cake">
+                <div class="cake-base"></div>
+                <div class="cake-top"></div>
+                <div class="cake-flame"></div>
+              </div>
+              <div class="flip-hint">Hover or tap to celebrate!</div>
+            </div>
+          </div>
+          
+          <div class="universal-card-back celebration-template">
+            <div class="celebration-bg">
+              <div class="balloon balloon-1 interactive" data-balloon-id="1">
+                <span class="balloon-string"></span>
+              </div>
+              <div class="balloon balloon-2 interactive" data-balloon-id="2">
+                <span class="balloon-string"></span>
+              </div>
+              <div class="balloon balloon-3 interactive" data-balloon-id="3">
+                <span class="balloon-string"></span>
+              </div>
+              <div class="floating-sunrise sunrise-1"></div>
+              <div class="floating-sunrise sunrise-2"></div>
+              <div class="sparkles">
+                <div class="sparkle" style="left: 20%; top: 30%; animation-delay: 0.5s;"></div>
+                <div class="sparkle" style="left: 50%; top: 20%; animation-delay: 1s;"></div>
+                <div class="sparkle" style="left: 80%; top: 40%; animation-delay: 1.5s;"></div>
+              </div>
+            </div>
+            <div class="content">
+              <h2 class="recipient-name">John Doe</h2>
+              <p class="message">
+                Wishing you a day filled with happiness and a year filled with joy!
+              </p>
+              <div class="interactive-cake" data-candle-lit="false">
+                <div class="cake-base"></div>
+                <div class="cake-top"></div>
+                <div class="cake-flame"></div>
+              </div>
+              <div class="interaction-hints">
+                <p>🎈 Pop the balloons!</p>
+                <p>🕯️ Light the candle!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug Panel -->
+  <div class="debug-panel">
+    <h3>Debug Controls</h3>
+    <p>Input Method: <span id="input-method">-</span></p>
+    <p>Flipped State: <span id="flip-state">false</span></p>
+    <p>Popped Balloons: <span id="popped-count">0</span></p>
+    <p>Candle State: <span id="candle-state">unlit</span></p>
+    <button onclick="resetCard()">Reset Card</button>
+  </div>
+
+  <script src="src/core/universal-flip-card.js"></script>
+  <script>
+    // Initialize the card
+    const card = new UniversalFlipCard('#birthday-test-card', {
+      enableHover: true,
+      announceToScreenReader: true,
+      customFrontTriggerLabel: 'Open birthday card',
+      customBackTriggerLabel: 'Close birthday card'
+    });
+
+    // Track popped balloons
+    const poppedBalloons = new Set();
+    
+    // Handle balloon popping
+    document.querySelectorAll('.balloon.interactive').forEach(balloon => {
+      balloon.addEventListener('click', (e) => {
+        const balloonId = e.currentTarget.dataset.balloonId;
+        if (!poppedBalloons.has(balloonId)) {
+          e.currentTarget.style.animation = 'pop 0.5s forwards';
+          poppedBalloons.add(balloonId);
+          updateDebugPanel();
+        }
+      });
+    });
+
+    // Handle candle interaction
+    const interactiveCake = document.querySelector('.interactive-cake');
+    interactiveCake.addEventListener('click', () => {
+      const isLit = interactiveCake.dataset.candleLit === 'true';
+      interactiveCake.dataset.candleLit = !isLit;
+      interactiveCake.querySelector('.cake-flame').classList.toggle('lit');
+      updateDebugPanel();
+    });
+
+    // Debug panel updates
+    function updateDebugPanel() {
+      document.getElementById('input-method').textContent = card.inputMethod;
+      document.getElementById('flip-state').textContent = card.isFlipped;
+      document.getElementById('popped-count').textContent = poppedBalloons.size;
+      document.getElementById('candle-state').textContent = 
+        document.querySelector('.interactive-cake').dataset.candleLit === 'true' ? 'lit' : 'unlit';
+    }
+
+    // Reset card state
+    function resetCard() {
+      // Reset balloons
+      poppedBalloons.clear();
+      document.querySelectorAll('.balloon.interactive').forEach(balloon => {
+        balloon.style.animation = '';
+      });
+
+      // Reset candle
+      const cake = document.querySelector('.interactive-cake');
+      cake.dataset.candleLit = 'false';
+      cake.querySelector('.cake-flame').classList.remove('lit');
+
+      // Reset flip
+      if (card.isFlipped) {
+        card.flip(false);
+      }
+
+      updateDebugPanel();
+    }
+
+    // Update debug panel on flip
+    card.card.addEventListener('flipComplete', updateDebugPanel);
+
+    // Initial debug panel update
+    updateDebugPanel();
+  </script>
+</body>
+</html> 
