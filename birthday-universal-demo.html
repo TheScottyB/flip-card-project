@@ -10,20 +10,20 @@
   <style>
     /* Override the flip axis for birthday cards */
     .birthday-card .universal-card-front {
-      transform: rotateX(0deg);
+      transform: rotateY(0deg);
     }
     
     .birthday-card .universal-card-back {
-      transform: rotateX(180deg);
+      transform: rotateY(180deg);
     }
     
     .birthday-card.flipped .universal-card-inner {
-      transform: rotateX(180deg) !important;
+      transform: rotateY(180deg);
     }
     
     @media (hover: hover) {
       .birthday-card:not([data-disable-hover="true"]):hover .universal-card-inner {
-        transform: rotateX(180deg) !important;
+        transform: rotateY(180deg);
       }
     }
     
