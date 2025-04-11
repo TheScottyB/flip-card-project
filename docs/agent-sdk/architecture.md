@@ -1,8 +1,142 @@
 # Agent SDK Architecture Guide
 
-## 5. Implementation in Card Components
+## Architectural Foundation
 
-The Agent SDK integrates seamlessly with card components through a modular architecture that separates concerns and maintains flexibility. This section details the implementation patterns and component integration strategies.
+The Agent SDK's architecture represents a fundamental shift from traditional agent implementations and the older Assistants API. This new architecture is built on the recognition that modern agentic applications require:
+
+1. True multi-agent collaboration rather than isolated agents
+2. Flexible deployment options instead of fixed patterns
+3. Standardized communication protocols over ad-hoc integration
+4. Progressive enhancement rather than all-or-nothing AI dependency
+
+### Architectural Principles
+
+1. **Separation of Intelligence**
+   - Agent logic is decoupled from implementation
+   - AI capabilities are optional enhancements
+   - Clear boundaries between intelligent and traditional code
+   ```javascript
+   class AgentAwareComponent {
+     constructor() {
+       // Base functionality is self-contained
+       this.core = new CoreImplementation();
+       
+       // Intelligence layer is optional
+       this.intelligence = null;
+     }
+     
+     async enhance(capabilities) {
+       this.intelligence = await AgentRunner.create({
+         component: this,
+         capabilities,
+         fallback: this.core
+       });
+     }
+   }
+   ```
+
+2. **Managed State Flow**
+   - Centralized state orchestration
+   - Consistent context management
+   - Efficient resource utilization
+   ```javascript
+   class StateManager {
+     constructor() {
+       this.contextStack = new ContextStack();
+       this.persistence = new StatePersistence();
+     }
+     
+     async captureState() {
+       const context = this.contextStack.current();
+       await this.persistence.store(context);
+       return context.id;
+     }
+   }
+   ```
+
+3. **Protocol-Based Communication**
+   - Standardized message formats
+   - Type-safe interactions
+   - Versioned protocols
+   ```javascript
+   class AgentProtocol {
+     static MESSAGE_TYPES = {
+       QUERY: 'query',
+       RESPONSE: 'response',
+       EVENT: 'event',
+       STATE_UPDATE: 'state_update'
+     };
+     
+     static validate(message) {
+       return Protocol.validateSchema(message, this.getSchema());
+     }
+   }
+   ```
+
+### Core Architecture Components
+
+1. **Agent Runner**
+   - Central orchestration unit
+   - Capability management
+   - Resource allocation
+   ```javascript
+   class AgentRunner {
+     constructor(config) {
+       this.orchestrator = new Orchestrator(config);
+       this.registry = new CapabilityRegistry();
+       this.scheduler = new TaskScheduler();
+     }
+     
+     async execute(task) {
+       const capabilities = await this.registry.analyze(task);
+       const agents = await this.orchestrator.select(capabilities);
+       return this.scheduler.run(task, agents);
+     }
+   }
+   ```
+
+2. **Implementation Adapter Layer**
+   - Provider-agnostic interface
+   - Pluggable implementations
+   - Automatic fallbacks
+   ```javascript
+   class ImplementationAdapter {
+     constructor(provider) {
+       this.provider = provider;
+       this.fallbacks = new FallbackChain();
+     }
+     
+     async execute(task) {
+       try {
+         return await this.provider.execute(task);
+       } catch (error) {
+         return this.fallbacks.execute(task);
+       }
+     }
+   }
+   ```
+
+3. **State Management System**
+   - Persistent context
+   - Efficient caching
+   - Cross-agent state sharing
+   ```javascript
+   class SharedStateManager {
+     constructor() {
+       this.store = new StateStore();
+       this.cache = new StateCache();
+     }
+     
+     async shareContext(fromAgent, toAgent) {
+       const context = await this.store.get(fromAgent.contextId);
+       await this.cache.store(toAgent.id, context);
+     }
+   }
+   ```
+
+## Implementation in Card Components
+
+The Agent SDK integrates seamlessly with card components through a modular architecture that separates concerns and maintains flexibility. This section details the implementation patterns and component integration strategies that demonstrate the new paradigm in practice.
 
 ### 5.1 Universal Flip Card Integration
 

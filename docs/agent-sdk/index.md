@@ -2,9 +2,36 @@
 
 ## Introduction
 
-This documentation covers the OpenAI-Powered Agent SDK for the Flip Card Project (v1.0). The SDK provides a practical, maintainable implementation approach using OpenAI's APIs to enhance applications with intelligent agents.
+The new Agent SDK is not just an incremental update—it represents a fundamental rethinking of how agentic applications are built and orchestrated. This documentation covers the OpenAI-Powered Agent SDK for the Flip Card Project (v1.0), introducing a transformative approach to building AI-powered applications.
 
-The SDK uses a lightweight "managed runner" architecture that provides several key advantages:
+### Key Differentiators
+
+1. **Managed Runner Architecture**
+   - Centralized orchestration of agent behaviors
+   - Clean separation between agent logic and implementation
+   - Flexible deployment patterns (client, server, or hybrid)
+
+2. **True Multi-Agent Collaboration**
+   - Built-in agent communication protocols
+   - Shared context and knowledge management
+   - Emergent collective intelligence capabilities
+
+3. **Progressive Enhancement Design**
+   - Core functionality works without AI
+   - Intelligent features layer in seamlessly
+   - Graceful fallbacks at every level
+
+4. **Universal Component Integration**
+   - Any component can become agent-aware
+   - Standardized interaction patterns
+   - Composable agent behaviors
+
+5. **Advanced Orchestration**
+   - Dynamic capability discovery
+   - Intelligent task routing
+   - Adaptive resource utilization
+
+This lightweight "managed runner" architecture provides several key advantages over traditional approaches:
 
 1. **Simplified Maintenance**: Centralizes configuration and reduces boilerplate
 2. **Modular Implementation**: Enables easy swapping of underlying agent technology
