@@ -123,11 +123,17 @@ function flipCard(card, shouldFlip) {
   // Manage focus
   setTimeout(() => {
     if (shouldFlip) {
-      const firstFocusable = getFirstFocusableElement(card.querySelector('.flip-card-back'));
-      if (firstFocusable) firstFocusable.focus();
+      const backSide = card.querySelector('.flip-card-back');
+      if (backSide) {
+        const firstFocusable = getFirstFocusableElement(backSide);
+        if (firstFocusable) firstFocusable.focus();
+      }
     } else {
-      const firstFocusable = getFirstFocusableElement(card.querySelector('.flip-card-front'));
-      if (firstFocusable) firstFocusable.focus();
+      const frontSide = card.querySelector('.flip-card-front');
+      if (frontSide) {
+        const firstFocusable = getFirstFocusableElement(frontSide);
+        if (firstFocusable) firstFocusable.focus();
+      }
     }
   }, 100);
   
