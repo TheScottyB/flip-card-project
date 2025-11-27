@@ -60,7 +60,10 @@ class UniversalFlipCard {
     
     // Detect device capabilities
     this.detectCapabilities();
-    
+
+    // Initialize card state
+    this.isFlipped = this.card.classList.contains('flipped');
+
     // Set up ARIA attributes
     this.setupAria();
     
@@ -74,9 +77,6 @@ class UniversalFlipCard {
     if (this.options.enableVoiceControl) {
       this.setupVoiceControl();
     }
-    
-    // Initialize card state
-    this.isFlipped = this.card.classList.contains('flipped');
     
     // Apply hover setting
     this.card.setAttribute('data-disable-hover', !this.options.enableHover);
