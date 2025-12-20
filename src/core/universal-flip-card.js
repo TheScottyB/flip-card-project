@@ -48,6 +48,7 @@ class UniversalFlipCard {
     this.backSide = this.card.querySelector('.universal-card-back');
     this.frontTrigger = this.frontSide?.querySelector('.flip-trigger');
     this.backTrigger = this.backSide?.querySelector('.flip-trigger');
+    this.isFlipped = this.card.classList.contains('flipped');
     
     // Skip if the card structure is invalid
     if (!this.inner || !this.frontSide || !this.backSide) {
@@ -60,9 +61,6 @@ class UniversalFlipCard {
     
     // Detect device capabilities
     this.detectCapabilities();
-
-    // Initialize card state
-    this.isFlipped = this.card.classList.contains('flipped');
 
     // Set up ARIA attributes
     this.setupAria();

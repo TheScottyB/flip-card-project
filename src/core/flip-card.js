@@ -122,19 +122,14 @@ function flipCard(card, shouldFlip) {
   
   // Manage focus
   setTimeout(() => {
-    if (shouldFlip) {
-      const backSide = card.querySelector('.flip-card-back');
-      if (backSide) {
-        const firstFocusable = getFirstFocusableElement(backSide);
-        if (firstFocusable) firstFocusable.focus();
-      }
-    } else {
-      const frontSide = card.querySelector('.flip-card-front');
-      if (frontSide) {
-        const firstFocusable = getFirstFocusableElement(frontSide);
-        if (firstFocusable) firstFocusable.focus();
-      }
-    }
+    const targetSide = card.querySelector(
+      shouldFlip ? '.flip-card-back' : '.flip-card-front'
+    );
+
+    if (!targetSide) return;
+
+    const firstFocusable = getFirstFocusableElement(targetSide);
+    if (firstFocusable) firstFocusable.focus();
   }, 100);
   
   // Announce change to screen readers
@@ -151,6 +146,8 @@ function flipCard(card, shouldFlip) {
  * @return {HTMLElement|null} - The first focusable element or null
  */
 function getFirstFocusableElement(container) {
+  if (!container) return null;
+
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
