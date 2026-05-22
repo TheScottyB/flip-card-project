@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeWarp Agent - Trading Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 400px;
+            height: 600px;
+        }
+
+        .trading-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .trading-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            border: 8px solid #ffd700;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .card-front {
+            background: linear-gradient(180deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        }
+
+        .card-back {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            transform: rotateY(180deg);
+        }
+
+        /* FRONT SIDE */
+        .card-header {
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b, #4ecdc4, #ffd700);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .agent-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .agent-title {
+            font-size: 14px;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .profile-section {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #ffd700;
+            margin: 0 auto 20px;
+            background: radial-gradient(circle at 30% 30%, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-image::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .agent-specs {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .spec-value {
+            color: #4ecdc4;
+        }
+
+        .special-ability {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .special-ability-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+
+        .special-ability-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* BACK SIDE */
+        .stats-header {
+            background: linear-gradient(90deg, #ff6b6b 0%, #ee5a6f 100%);
+            padding: 15px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .stats-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats-grid {
+            padding: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-name {
+            font-size: 12px;
+            color: #ffd700;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .stat-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a7c1);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .performance-metrics {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .metric-label {
+            color: #ffd700;
+        }
+
+        .metric-value {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .trading-card {
+                transition: none;
+            }
+            .profile-image::before {
+                animation: none;
+            }
+            .flip-hint {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="trading-card" id="timewarp-card" tabindex="0" role="button" aria-label="TimeWarp Agent trading card. Click or press Enter to flip">
+            <!-- FRONT SIDE -->
+            <div class="card-face card-front">
+                <div class="card-header">
+                    <div class="agent-name">TIMEWARP</div>
+                    <div class="agent-title">Multi-Timeframe Pattern Agent</div>
+                </div>
+
+                <div class="profile-section">
+                    <div class="profile-image" aria-label="TimeWarp agent avatar">
+                        🌀
+                    </div>
+                </div>
+
+                <div class="agent-specs">
+                    <div class="spec-row">
+                        <span class="spec-label">Trading Frequency:</span>
+                        <span class="spec-value">15 Minutes</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Symbols Monitored:</span>
+                        <span class="spec-value">30 Total</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Timeframes:</span>
+                        <span class="spec-value">1m / 1h / 4h</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Data Points:</span>
+                        <span class="spec-value">60 + 24 + 30</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Analysis Type:</span>
+                        <span class="spec-value">Fractal</span>
+                    </div>
+                </div>
+
+                <div class="special-ability">
+                    <div class="special-ability-title">✨ Special Ability</div>
+                    <div class="special-ability-text">
+                        Detects time-invariant patterns using Hurst exponent analysis and multi-timeframe momentum alignment
+                    </div>
+                </div>
+
+                <div class="flip-hint">👆 Click to see stats</div>
+            </div>
+
+            <!-- BACK SIDE -->
+            <div class="card-face card-back">
+                <div class="stats-header">
+                    <div class="stats-title">⚡ AGENT STATISTICS</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-name">Pattern Detection</div>
+                        <div class="stat-value">3 Methods</div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 95%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-box">
+                        <div class="stat-name">Timeframe Coverage</div>
+                        <div class="stat-value">114 Bars</div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 85%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-box">
+                        <div class="stat-name">Signal Confidence</div>
+                        <div class="stat-value">60-85%</div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 78%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="performance-metrics">
+                    <div class="metric-row">
+                        <span class="metric-label">🎯 Strategy:</span>
+                        <span class="metric-value">Trend & Mean Reversion</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">🔮 Fractal Analysis:</span>
+                        <span class="metric-value">Hurst Exponent</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">📊 Momentum Check:</span>
+                        <span class="metric-value">Cross-Timeframe</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">📍 Support/Resistance:</span>
+                        <span class="metric-value">4-Hour Timeframe</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">⚡ Execution:</span>
+                        <span class="metric-value">Every 15 Minutes</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">🌐 Coverage:</span>
+                        <span class="metric-value">Stocks + Crypto</span>
+                    </div>
+                </div>
+
+                <div class="flip-hint">👆 Click to flip back</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Flip card functionality
+        const card = document.getElementById('timewarp-card');
+        
+        // Click handler
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        // Keyboard handler (Enter or Space)
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.classList.toggle('flipped');
+            }
+        });
+
+        // Animate stat bars on flip
+        card.addEventListener('transitionend', () => {
+            if (card.classList.contains('flipped')) {
+                const statFills = document.querySelectorAll('.stat-fill');
+                statFills.forEach((fill, index) => {
+                    setTimeout(() => {
+                        fill.style.width = fill.style.width;
+                    }, index * 100);
+                });
+            }
+        });
+
+        // Accessibility: Announce flip state
+        let isFlipped = false;
+        card.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            const announcement = isFlipped ? 'Showing agent statistics' : 'Showing agent profile';
+            
+            // Create screen reader announcement
+            const announcer = document.createElement('div');
+            announcer.setAttribute('role', 'status');
+            announcer.setAttribute('aria-live', 'polite');
+            announcer.className = 'sr-only';
+            announcer.textContent = announcement;
+            document.body.appendChild(announcer);
+            
+            setTimeout(() => {
+                document.body.removeChild(announcer);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
