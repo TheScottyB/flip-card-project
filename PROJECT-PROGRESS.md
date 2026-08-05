@@ -76,6 +76,14 @@ The following demos showcase the flip card implementations:
 - [Multi-Card Gallery](https://thescottyb.github.io/flip-card-project/multi-card.html) - Multiple card variants
 - [Contact Card](https://thescottyb.github.io/flip-card-project/src/components/contact-card.html) - Real-world example
 
+## Native App: Mortgage FlipCard
+
+The mortgage calculator demo evolved into a standalone native iOS app, **Mortgage FlipCard** (Expo/React Native, developed in `workspace/MortgageCalculatorNative`):
+
+- Version 1.0 approved and released on the App Store (May 2026).
+- Version 1.1.0 was rejected in August 2026 (AI data-sharing consent + stale screenshots), fixed with an explicit Gemini consent flow and fresh captures, and resubmitted on 2026-08-05 (build 8, Waiting for Review).
+- Review lessons are documented in [THINGS-I-WISH-I-KNEW.md](THINGS-I-WISH-I-KNEW.md#app-store-review-lessons-mortgage-flipcard-native-app).
+
 ## Next Steps
 
 The project is ready for further enhancements, which could include:

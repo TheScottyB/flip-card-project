@@ -104,3 +104,23 @@ The Flip Card Project implements an event-driven architecture with these key com
   - Test with simplified animations
   - Consider conditional feature detection
   - Explore CSS containment strategies
+## App Store Review Lessons (Mortgage FlipCard Native App)
+
+The mortgage calculator from this project graduated into a native iOS app — **Mortgage FlipCard** (Expo/React Native, `workspace/MortgageCalculatorNative`). Its August 2026 App Review rejection (1.1.0 build 6) and successful resubmission (build 8) produced lessons that apply to any app derived from this project:
+
+1. **Third-party AI features need in-app consent, not just disclosure** (Guidelines 5.1.1(i)/5.1.2(i)):
+   - Even when the user supplies their own API key and data goes directly device→provider with no middleman server, Apple requires the app itself to (a) say what data will be sent, (b) name the recipient, and (c) get explicit permission *before* the first request.
+   - Explaining it in App Review notes or only in the privacy policy is not sufficient — the consent must be in the product.
+   - Provide a decline path (nothing sent) and a way to revoke consent later (e.g., a Settings reset control).
+   - The privacy policy must cover four points: what data is collected, how, all uses, and confirmation the third party provides "the same or equal protection."
+
+2. **Screenshots must show the current app in use** (Guideline 2.3.3):
+   - Marketing mockups and stale captures get rejected; capture from the actual build for every display size.
+   - Splash and onboarding screens "are generally not considered to show the app in use" — lead with the real UI.
+   - Visually inspect every capture before uploading: dev-mode redboxes and accidentally opened modals hide in automated capture runs.
+
+3. **Resubmission has a hidden web-only step**: after attaching a fixed build via the App Store Connect API, `PATCH reviewSubmissions {submitted:true}` returns 409 "not ready" indefinitely. You must click **"Update Review"** on the web version page first — it commits the edited version item to "Ready for Review," which unlocks resubmission.
+
+4. **Unusual IAP price points pause review** (Guideline 3): a premium lifetime tier (e.g., $599.99) triggers a Resolution Center question asking you to confirm the price is intended. Reply to unblock — no rebuild needed.
+
+5. **Rejection reasons live only in the web Resolution Center.** The rejection emails and the API both say just "there's an issue" — the guideline citations and reviewer message require a signed-in App Store Connect web session.
