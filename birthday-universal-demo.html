@@ -8,25 +8,6 @@
   <link rel="stylesheet" href="dist/css/universal-flip-card.min.css">
   <link rel="stylesheet" href="dist/css/birthday-flip-card.min.css">
   <style>
-    /* Override the flip axis for birthday cards */
-    .birthday-card .universal-card-front {
-      transform: rotateY(0deg);
-    }
-    
-    .birthday-card .universal-card-back {
-      transform: rotateY(180deg);
-    }
-    
-    .birthday-card.flipped .universal-card-inner {
-      transform: rotateY(180deg);
-    }
-    
-    @media (hover: hover) {
-      .birthday-card:not([data-disable-hover="true"]):hover .universal-card-inner {
-        transform: rotateY(180deg);
-      }
-    }
-    
     body {
       font-family: 'Roboto', sans-serif;
       background: #f5f5f5;
@@ -56,7 +37,53 @@
       margin: 40px 0;
     }
 
-    /* Debug styles */
+    /* Birthday card overrides */
+    .birthday-card {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      perspective: 1000px;
+    }
+
+    .birthday-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .birthday-card .universal-card-inner {
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .birthday-card .universal-card-front,
+    .birthday-card .universal-card-back {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .birthday-card .universal-card-front {
+      transform: rotateY(0);
+    }
+
+    .birthday-card .universal-card-back {
+      transform: rotateY(180deg);
+    }
+
+    .birthday-card.flipped .universal-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    @media (hover: hover) {
+      .birthday-card:not([data-disable-hover="true"]):hover .universal-card-inner {
+        transform: rotateY(180deg);
+      }
+    }
+
+    /* Hide explicit flip triggers */
+    .birthday-card .flip-trigger {
+      display: none;
+    }
+
+    /* Debug panel styles */
     .debug-panel {
       position: fixed;
       bottom: 20px;
@@ -69,7 +96,7 @@
       z-index: 1000;
     }
 
-    .debug-panel h3 { 
+    .debug-panel h3 {
       margin: 0 0 10px 0;
       font-size: 16px;
     }
@@ -89,23 +116,12 @@
     <h1>Birthday Universal Flip Card Demo</h1>
     
     <div class="card-container">
-      <div class="universal-card birthday-card" id="birthday-test-card">
+      <div class="universal-card birthday-card" id="birthday-test-card" tabindex="0" role="button" aria-pressed="false">
         <div class="universal-card-inner">
           <div class="universal-card-front celebration-template">
-            <div class="content">
-              <h1 class="header">Happy Birthday!</h1>
-              <h2 class="recipient-name">John Doe</h2>
-              <div class="cake">
-                <div class="cake-base"></div>
-                <div class="cake-top"></div>
-                <div class="cake-flame"></div>
-              </div>
-              <div class="flip-hint">Hover or tap to celebrate!</div>
-            </div>
-          </div>
-          
-          <div class="universal-card-back celebration-template">
             <div class="celebration-bg">
+              <div class="floating-sunrise sunrise-1"></div>
+              <div class="floating-sunrise sunrise-2"></div>
               <div class="balloon balloon-1 interactive" data-balloon-id="1">
                 <span class="balloon-string"></span>
               </div>
@@ -115,8 +131,37 @@
               <div class="balloon balloon-3 interactive" data-balloon-id="3">
                 <span class="balloon-string"></span>
               </div>
+              <div class="sparkles">
+                <div class="sparkle" style="left: 20%; top: 30%; animation-delay: 0.5s;"></div>
+                <div class="sparkle" style="left: 50%; top: 20%; animation-delay: 1s;"></div>
+                <div class="sparkle" style="left: 80%; top: 40%; animation-delay: 1.5s;"></div>
+              </div>
+            </div>
+            <div class="content">
+              <h1 class="header">Happy Birthday!</h1>
+              <h2 class="recipient-name">John Doe</h2>
+              <div class="cake">
+                <div class="cake-base"></div>
+                <div class="cake-top"></div>
+                <div class="cake-flame"></div>
+              </div>
+              <div class="flip-hint">Click or tap to open</div>
+            </div>
+          </div>
+          
+          <div class="universal-card-back celebration-template">
+            <div class="celebration-bg">
               <div class="floating-sunrise sunrise-1"></div>
               <div class="floating-sunrise sunrise-2"></div>
+              <div class="balloon balloon-1 interactive" data-balloon-id="1">
+                <span class="balloon-string"></span>
+              </div>
+              <div class="balloon balloon-2 interactive" data-balloon-id="2">
+                <span class="balloon-string"></span>
+              </div>
+              <div class="balloon balloon-3 interactive" data-balloon-id="3">
+                <span class="balloon-string"></span>
+              </div>
               <div class="sparkles">
                 <div class="sparkle" style="left: 20%; top: 30%; animation-delay: 0.5s;"></div>
                 <div class="sparkle" style="left: 50%; top: 20%; animation-delay: 1s;"></div>
@@ -137,6 +182,7 @@
                 <p>🎈 Pop the balloons!</p>
                 <p>🕯️ Light the candle!</p>
               </div>
+              <div class="flip-hint">Click or tap to close</div>
             </div>
           </div>
         </div>
